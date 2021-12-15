@@ -11,7 +11,7 @@ Broadly based on a Git Flow workflow without release branches, the following bra
 
 ```kotlin
 plugins {
-    id("io.github.nefilim.gradle.semver-plugin") version "0.0.1"
+    id("io.github.nefilim.gradle.semver-plugin") version "0.0.2"
 }
 
 ```
