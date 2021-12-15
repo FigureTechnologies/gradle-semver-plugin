@@ -4,7 +4,6 @@ import org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION as KOTLIN_VERSI
 plugins {
     `java-gradle-plugin`
     `maven-publish`
-    signing
     alias(libs.plugins.gradlePluginPublish)
     alias(libs.plugins.kotlin.jvm)
 }
@@ -19,12 +18,17 @@ version = "0.0.2"
 inner class ProjectInfo {
     val longName = "Gradle Semver Plugin"
     val pluginImplementationClass = "$group.semver.SemVerPlugin"
-    val tags = listOf("template", "kickstart", "example")
+    val tags = listOf("semver", "gitflow")
+    val website = "https://github.com/nefilim/gradle-semver-plugin"
 }
 val info = ProjectInfo()
 
 repositories {
     mavenCentral()
+}
+
+tasks.named("publish") {
+    dependsOn("signMavenJavaPublication")
 }
 
 dependencies {
@@ -93,59 +97,8 @@ gradlePlugin {
     }
 }
 
-signing {
-    val skipSigning = findProperty("skipSigning")?.let { (it as String).toBoolean() } ?: false
-    if (!skipSigning)
-        sign(publishing.publications)
-    else {
-        logger.warn("skipping signing")
-    }
+pluginBundle {
+    website = info.website
+    vcsUrl = info.website
+    tags = info.tags
 }
-
-nexusPublishing {
-    repositories {
-        sonatype {
-            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-        }
-    }
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            pom {
-                name.set("semver-plugin")
-                description.set("Modified Git Flow based semver plugin")
-                url.set("https://github.com/nefilim/gradle-semver-plugin")
-                licenses {
-                    license {
-                        name.set("GPL-3.0-only")
-                        url.set("https://opensource.org/licenses/GPL-3.0")
-                    }
-                }
-                developers {
-                    developer {
-                        id.set("nefilim")
-                        name.set("nefilim")
-                        email.set("nefilim@hotmail.com")
-                    }
-                }
-                scm {
-                    connection.set("scm:git:https://github.com/nefilim/gradle-semver-plugin.git")
-                    url.set("https://github.com/nefilim/gradle-semver-plugin")
-                }
-            }
-            artifactId = project.name
-            groupId = project.group.toString()
-            version = project.version.toString()
-            from(components["java"])
-        }
-    }
-}
-
-//pluginBundle {
-//    website = info.website
-//    vcsUrl = info.website
-//    tags = info.tags
-//}
