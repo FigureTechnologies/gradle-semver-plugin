@@ -36,7 +36,11 @@ internal fun Ref?.shortName(): Either<SemVerError, String> {
     return this?.let { Either.catch { name.substringAfterLast('/') }.mapLeft { SemVerError.Git(it) } } ?: SemVerError.Unexpected("empty git ref, unable to find shortname").left()
 }
 
-private fun Git.buildRef(refName: String): Either<SemVerError, Ref> = Either.catch { repository.findRef(refName) }.mapLeft { SemVerError.Git(it) }
+private fun Git.buildRef(refName: String): Either<SemVerError, Ref> {
+    return Either.catch { repository.findRef(refName).toOption() }
+        .mapLeft { SemVerError.Git(it) }
+        .flatMap { it.toEither { SemVerError.MissingRef("could not find a git ref for [$refName]")  } }
+}
 
 internal fun Git.tagMap(prefix: String): Map<ObjectId, Version> {
     val versionTags = tagList().call().toList().map { ref ->
@@ -67,8 +71,8 @@ internal fun Git.buildBranch(branchRefName: String, config: PluginConfig): Eithe
         val shortName = buildRef(branchRefName).flatMap { it.shortName() }.bind()
         with (shortName) {
             when {
-                equals("main") -> GitRef.MainBranch(currentMainVersion(config), config.mainScope, config.mainStage).right()
-                equals("develop") -> GitRef.DevelopBranch(config.developScope, config.developStage).right()
+                equals("main") -> GitRef.MainBranch(branchRefName, currentMainVersion(config), config.mainScope, config.mainStage).right()
+                equals("develop") -> GitRef.DevelopBranch(branchRefName, config.developScope, config.developStage).right()
                 startsWith("feature/") -> GitRef.FeatureBranch(shortName, branchRefName, config.featureScope, config.featureStage).right()
                 startsWith("hotfix/") -> GitRef.HotfixBranch(shortName, branchRefName, config.hotfixScope, config.hotfixStage).right()
                 else -> SemVerError.UnsupportedBranch("unable to determine branch type for branch: $this").left()

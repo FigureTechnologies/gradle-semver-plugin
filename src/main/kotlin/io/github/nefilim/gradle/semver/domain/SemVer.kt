@@ -8,4 +8,5 @@ sealed interface SemVerError {
     data class UnsupportedScope(val s: Scope): SemVerError
     data class Unexpected(val message: String): SemVerError
     data class MissingVersion(val message: String): SemVerError
+    data class MissingRef(val message: String): SemVerError
 }

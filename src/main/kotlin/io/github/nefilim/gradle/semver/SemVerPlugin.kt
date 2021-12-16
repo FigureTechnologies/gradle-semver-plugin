@@ -41,9 +41,12 @@ public class SemVerPlugin: Plugin<Project> {
 }
 
 private fun SemVerPluginContext.calculateVersionFlow(): Either<SemVerError, Version> {
+    val mainRefName = git.branchList().setContains(GitRef.MainBranch.Name).call().toList().first { setOf(GitRef.MainBranch.RefName, GitRef.MainBranch.RemoteOriginRefName).contains(it.name) }.name
+    val developRefName = git.branchList().setContains(GitRef.DevelopBranch.Name).call().toList().first { setOf(GitRef.DevelopBranch.RefName, GitRef.DevelopBranch.RemoteOriginRefName).contains(it.name) }.name
+    project.logger.lifecycle("found main: $mainRefName, develop: $developRefName")
     return either.eager {
-        val main = git.buildBranch(GitRef.MainBranch.RefName, config).bind() as GitRef.MainBranch
-        val develop = git.buildBranch(GitRef.DevelopBranch.RefName, config).bind() as GitRef.DevelopBranch
+        val main = git.buildBranch(mainRefName, config).bind() as GitRef.MainBranch
+        val develop = git.buildBranch(developRefName, config).bind() as GitRef.DevelopBranch
         val current = git.buildBranch(repository.fullBranch, config).bind()
         calculatedVersionFlow(
             main,

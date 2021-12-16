@@ -13,7 +13,7 @@ plugins {
  */
 group = "io.github.nefilim.gradle"
 description = "Modified Git Flow based semver plugin"
-version = "0.0.4"
+version = "0.0.5"
 
 inner class ProjectInfo {
     val longName = "Gradle Semver Plugin"
@@ -104,7 +104,10 @@ pluginBundle {
     tags = info.tags
 }
 
-//tasks.named(":generateMetadataFileForPluginMavenPublication") {
-//    dependsOn(":publishPluginJar")
-//    dependsOn(":publishPluginJavaDocsJar")
+//val publishPlugins = tasks.findByPath(":plugin:publishPlugins")
+
+//tasks.publishPlugins {
+////    from(docsFileJar)
+//    dependsOn("publishPluginJar")
+//    dependsOn("publishPluginJavaDocsJar")
 //}

@@ -13,6 +13,7 @@ sealed interface GitRef {
 
     companion object {
         val RefHead = Constants.R_HEADS.substringBeforeLast("/")
+        val RefRemoteOrigin = "${Constants.R_REMOTES}/${Constants.DEFAULT_REMOTE_NAME}"
     }
 
     sealed interface Branch {
@@ -28,49 +29,34 @@ sealed interface GitRef {
     }
 
     data class MainBranch(
+        override val refName: String = DevelopBranch.RefName,
         override val version: Option<Version>,
         override val scope: Scope = DefaultScope,
         override val stage: Stage = DefaultStage,
     ) : GitRef, VersionableBranch {
         override val name = Name
-        override val refName = RefName
 
         companion object {
             const val Name = "main"
             val RefName = "$RefHead/$Name"
+            val RemoteOriginRefName = "$RefRemoteOrigin/$Name"
             val DefaultScope = Scope.Minor
             val DefaultStage = Stage.Final
             fun headCommitID(repo: Repository): ObjectId = repo.findRef(RefName).objectId
         }
     }
 
-    data class VersionedDevelopBranch(
-        override val version: Option<Version>,
-        override val scope: Scope = Scope.Patch,
-        override val stage: Stage = MainBranch.DefaultStage,
-    ) : GitRef, VersionableBranch {
-        override val name = DevelopBranch.Name
-        override val refName = DevelopBranch.RefName
-    }
-
     data class DevelopBranch(
+        override val refName: String = RefName,
         val scope: Scope = DefaultScope,
         val stage: Stage = DefaultStage,
     ) : GitRef, Branch {
         override val name = Name
-        override val refName = RefName
-
-        fun toVersionedDevelopBranch(version: Version): VersionedDevelopBranch {
-            return VersionedDevelopBranch(
-                version.some(),
-                scope,
-                stage
-            )
-        }
 
         companion object {
             const val Name = "develop"
             val RefName = "$RefHead/$Name"
+            val RemoteOriginRefName = "$RefRemoteOrigin/$Name"
             val DefaultScope = Scope.Patch
             val DefaultStage = Stage.Beta
             fun headCommitID(repo: Repository): ObjectId = repo.findRef(RefName).objectId
