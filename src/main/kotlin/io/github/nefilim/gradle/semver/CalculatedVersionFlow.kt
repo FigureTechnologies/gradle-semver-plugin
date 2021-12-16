@@ -19,7 +19,8 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
     develop: GitRef.DevelopBranch,
     currentBranch: GitRef.Branch,
 ): Either<SemVerError, Version> {
-    val tags = git.tagMap()
+    val tags = git.tagMap(config.tagPrefix)
+    println("calculating version with currentBranch $currentBranch")
     return when (currentBranch) {
         is GitRef.MainBranch -> {
             main.version.fold({
@@ -32,10 +33,11 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
         is GitRef.DevelopBranch -> {
             // recalculate version automatically based on releases on main
             either.eager {
-                val branchPoint = repository.headRevInBranch(main).bind()
+                val branchPoint = git.headRevInBranch(main).bind()
                 val commitCount = git.commitsSinceBranchPoint(branchPoint, main).bind()
-                repository.calculateDevelopBranchVersion(config, main, develop, tags).map {
+                git.calculateDevelopBranchVersion(config, main, develop, tags).map {
                     it.getOrElse {
+                        println("COULDNT CALC DEV VERSION")
                         project.semverMessage("unable to determine last version, using initialVersion [${config.initialVersion}]")
                         config.initialVersion
                     }.copy(stageNum = commitCount)
@@ -45,8 +47,8 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
         is GitRef.FeatureBranch -> {
             // must have been branched from develop
             either.eager {
-                val devVersion = repository.calculateDevelopBranchVersion(config, main, develop, tags).bind()
-                val branchPoint = repository.headRevInBranch(develop).bind()
+                val devVersion = git.calculateDevelopBranchVersion(config, main, develop, tags).bind()
+                val branchPoint = git.headRevInBranch(develop).bind()
                 val commitCount = git.commitsSinceBranchPoint(branchPoint, develop).bind()
                 devVersion.fold({
                     SemVerError.MissingVersion("unable to find version tag on develop").left()
@@ -58,8 +60,8 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
         is GitRef.HotfixBranch -> {
             // must have been branched from main
             either.eager {
-                val devVersion = repository.calculateDevelopBranchVersion(config, main, develop, tags).bind()
-                val branchPoint = repository.headRevInBranch(main).bind()
+                val devVersion = git.calculateDevelopBranchVersion(config, main, develop, tags).bind()
+                val branchPoint = git.headRevInBranch(main).bind()
                 val commitCount = git.commitsSinceBranchPoint(branchPoint, main).bind()
                 devVersion.fold({
                     SemVerError.MissingVersion("unable to find version tag on main").left()

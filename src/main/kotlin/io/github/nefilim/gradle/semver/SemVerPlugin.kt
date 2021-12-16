@@ -49,6 +49,6 @@ private fun SemVerPluginContext.calculateVersionFlow(): Either<SemVerError, Vers
             main,
             develop,
             current,
-        ).bind()
+        ).bind().also { println("CALCULATED VERSION: $it") }
     }
 }

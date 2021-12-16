@@ -11,6 +11,10 @@ import org.eclipse.jgit.lib.Repository
 
 sealed interface GitRef {
 
+    companion object {
+        val RefHead = Constants.R_HEADS.substringBeforeLast("/")
+    }
+
     sealed interface Branch {
         val name: String // example: `main`
         val refName: String // example: `refs/heads/main`
@@ -33,7 +37,7 @@ sealed interface GitRef {
 
         companion object {
             const val Name = "main"
-            const val RefName = "${Constants.R_HEADS}/$Name"
+            val RefName = "$RefHead/$Name"
             val DefaultScope = Scope.Minor
             val DefaultStage = Stage.Final
             fun headCommitID(repo: Repository): ObjectId = repo.findRef(RefName).objectId
@@ -66,7 +70,7 @@ sealed interface GitRef {
 
         companion object {
             const val Name = "develop"
-            const val RefName = "${Constants.R_HEADS}/$Name"
+            val RefName = "$RefHead/$Name"
             val DefaultScope = Scope.Patch
             val DefaultStage = Stage.Beta
             fun headCommitID(repo: Repository): ObjectId = repo.findRef(RefName).objectId
@@ -75,7 +79,7 @@ sealed interface GitRef {
 
     data class FeatureBranch(
         override val name: String,
-        override val refName: String = "${Constants.R_HEADS}/$name",
+        override val refName: String = "$RefHead/$name",
         val scope: Scope = DefaultScope,
         val stage: Stage = DefaultStage,
     ) : GitRef, Branch {
@@ -90,7 +94,7 @@ sealed interface GitRef {
 
     data class HotfixBranch(
         override val name: String,
-        override val refName: String,
+        override val refName: String = "$RefHead/$name",
         val scope: Scope = FeatureBranch.DefaultScope,
         val stage: Stage = FeatureBranch.DefaultStage,
     ) : GitRef, Branch {

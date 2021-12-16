@@ -5,7 +5,7 @@ import org.gradle.api.Project
 import java.io.File
 
 internal val Project.hasSemVerPlugin: Boolean
-    get() = pluginManager.hasPlugin("com.figure.semver.figure-gradle-semver-plugin")
+    get() = pluginManager.hasPlugin("io.github.nefilim.gradle.semver-plugin")
 
 internal val Project.appliedOnlyOnRootProject: Boolean
     get() = rootProject.hasSemVerPlugin && rootProject.subprojects.none(Project::hasSemVerPlugin)
