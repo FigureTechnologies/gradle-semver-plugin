@@ -8,6 +8,7 @@ import io.github.nefilim.gradle.semver.config.SemVerPluginContext
 import io.github.nefilim.gradle.semver.domain.GitRef
 import io.github.nefilim.gradle.semver.domain.SemVerError
 import com.javiersc.semver.Version
+import org.eclipse.jgit.api.ListBranchCommand
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -41,8 +42,9 @@ public class SemVerPlugin: Plugin<Project> {
 }
 
 private fun SemVerPluginContext.calculateVersionFlow(): Either<SemVerError, Version> {
-    val mainRefName = git.branchList().setContains(GitRef.MainBranch.Name).call().toList().first { setOf(GitRef.MainBranch.RefName, GitRef.MainBranch.RemoteOriginRefName).contains(it.name) }.name
-    val developRefName = git.branchList().setContains(GitRef.DevelopBranch.Name).call().toList().first { setOf(GitRef.DevelopBranch.RefName, GitRef.DevelopBranch.RemoteOriginRefName).contains(it.name) }.name
+    val allBranches = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call().toList()
+    val mainRefName = allBranches.first { setOf(GitRef.MainBranch.RefName, GitRef.MainBranch.RemoteOriginRefName).contains(it.name) }.name
+    val developRefName = allBranches.first { setOf(GitRef.DevelopBranch.RefName, GitRef.DevelopBranch.RemoteOriginRefName).contains(it.name) }.name
     project.logger.lifecycle("found main: $mainRefName, develop: $developRefName")
     return either.eager {
         val main = git.buildBranch(mainRefName, config).bind() as GitRef.MainBranch

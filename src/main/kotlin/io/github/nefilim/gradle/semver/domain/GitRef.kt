@@ -1,7 +1,6 @@
 package io.github.nefilim.gradle.semver.domain
 
 import arrow.core.Option
-import arrow.core.some
 import io.github.nefilim.gradle.semver.config.Scope
 import io.github.nefilim.gradle.semver.config.Stage
 import com.javiersc.semver.Version
@@ -13,13 +12,18 @@ sealed interface GitRef {
 
     companion object {
         val RefHead = Constants.R_HEADS.substringBeforeLast("/")
-        val RefRemoteOrigin = "${Constants.R_REMOTES}/${Constants.DEFAULT_REMOTE_NAME}"
+        val RefRemote = Constants.R_REMOTES.substringBeforeLast("/")
+        val RemoteOrigin = "$RefRemote/${Constants.DEFAULT_REMOTE_NAME}"
     }
 
     sealed interface Branch {
         val name: String // example: `main`
         val refName: String // example: `refs/heads/main`
         fun headCommitID(repo: Repository): ObjectId = repo.findRef(refName).objectId
+
+        companion object {
+            fun headCommitID(repo: Repository, refName: String): ObjectId = repo.findRef(refName).objectId
+        }
     }
 
     sealed interface VersionableBranch: Branch {
@@ -39,10 +43,9 @@ sealed interface GitRef {
         companion object {
             const val Name = "main"
             val RefName = "$RefHead/$Name"
-            val RemoteOriginRefName = "$RefRemoteOrigin/$Name"
+            val RemoteOriginRefName = "$RemoteOrigin/$Name"
             val DefaultScope = Scope.Minor
             val DefaultStage = Stage.Final
-            fun headCommitID(repo: Repository): ObjectId = repo.findRef(RefName).objectId
         }
     }
 
@@ -56,10 +59,9 @@ sealed interface GitRef {
         companion object {
             const val Name = "develop"
             val RefName = "$RefHead/$Name"
-            val RemoteOriginRefName = "$RefRemoteOrigin/$Name"
+            val RemoteOriginRefName = "$RemoteOrigin/$Name"
             val DefaultScope = Scope.Patch
             val DefaultStage = Stage.Beta
-            fun headCommitID(repo: Repository): ObjectId = repo.findRef(RefName).objectId
         }
     }
 

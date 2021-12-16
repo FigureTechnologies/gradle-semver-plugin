@@ -50,11 +50,11 @@ internal fun Git.tagMap(prefix: String): Map<ObjectId, Version> {
     return versionTags.toMap()
 }
 
-internal fun Git.currentMainVersion(config: PluginConfig): Option<Version> {
+internal fun Git.currentVersion(config: PluginConfig, branchRefName: String): Option<Version> {
     val tags = tagMap(config.tagPrefix)
     val tagsIDs = tagMap(config.tagPrefix).keys
     return RevWalk(repository).use { walk ->
-        val head = walk.parseCommit(GitRef.MainBranch.headCommitID(repository))
+        val head = walk.parseCommit(GitRef.Branch.headCommitID(repository, branchRefName))
 
         walk.markStart(head)
         (walk.firstOrNull() {
@@ -71,7 +71,7 @@ internal fun Git.buildBranch(branchRefName: String, config: PluginConfig): Eithe
         val shortName = buildRef(branchRefName).flatMap { it.shortName() }.bind()
         with (shortName) {
             when {
-                equals("main") -> GitRef.MainBranch(branchRefName, currentMainVersion(config), config.mainScope, config.mainStage).right()
+                equals("main") -> GitRef.MainBranch(branchRefName, currentVersion(config, branchRefName), config.mainScope, config.mainStage).right()
                 equals("develop") -> GitRef.DevelopBranch(branchRefName, config.developScope, config.developStage).right()
                 startsWith("feature/") -> GitRef.FeatureBranch(shortName, branchRefName, config.featureScope, config.featureStage).right()
                 startsWith("hotfix/") -> GitRef.HotfixBranch(shortName, branchRefName, config.hotfixScope, config.hotfixStage).right()
