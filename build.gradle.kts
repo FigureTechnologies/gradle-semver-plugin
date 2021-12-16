@@ -13,7 +13,7 @@ plugins {
  */
 group = "io.github.nefilim.gradle"
 description = "Modified Git Flow based semver plugin"
-version = "0.0.3-SNAPSHOT"
+version = "0.0.3"
 
 inner class ProjectInfo {
     val longName = "Gradle Semver Plugin"
