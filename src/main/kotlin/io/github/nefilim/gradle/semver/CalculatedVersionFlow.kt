@@ -20,11 +20,11 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
     currentBranch: GitRef.Branch,
 ): Either<SemVerError, Version> {
     val tags = git.tagMap(config.tagPrefix)
-    println("calculating version with currentBranch $currentBranch")
+    project.semverMessage("calculating version for current branch $currentBranch, main: $main, develop: $develop")
     return when (currentBranch) {
         is GitRef.MainBranch -> {
             main.version.fold({
-                project.semverMessage("unable to determine last version, using initialVersion [${config.initialVersion}]")
+                project.semverMessage("unable to determine last version on main branch, using initialVersion [${config.initialVersion}]")
                 config.initialVersion.right()
             },{
                 applyScopeToVersion(it, main.scope, main.stage)
@@ -35,9 +35,8 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
             either.eager {
                 val branchPoint = git.headRevInBranch(main).bind()
                 val commitCount = git.commitsSinceBranchPoint(branchPoint, main).bind()
-                git.calculateDevelopBranchVersion(config, main, develop, tags).map {
+                git.calculateDevelopBranchVersion(main, develop, tags).map {
                     it.getOrElse {
-                        println("COULDNT CALC DEV VERSION")
                         project.semverMessage("unable to determine last version, using initialVersion [${config.initialVersion}]")
                         config.initialVersion
                     }.copy(stageNum = commitCount)
@@ -47,11 +46,11 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
         is GitRef.FeatureBranch -> {
             // must have been branched from develop
             either.eager {
-                val devVersion = git.calculateDevelopBranchVersion(config, main, develop, tags).bind()
+                val devVersion = git.calculateDevelopBranchVersion(main, develop, tags).bind()
                 val branchPoint = git.headRevInBranch(develop).bind()
                 val commitCount = git.commitsSinceBranchPoint(branchPoint, develop).bind()
                 devVersion.fold({
-                    SemVerError.MissingVersion("unable to find version tag on develop").left()
+                    SemVerError.MissingVersion("unable to find version tag on develop branch, feature branches must be branched from develop").left()
                 }, {
                     applyScopeToVersion(it, currentBranch.scope, currentBranch.stage).map { it.copy(stageNum = commitCount) }
                 }).bind()
@@ -60,11 +59,11 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
         is GitRef.HotfixBranch -> {
             // must have been branched from main
             either.eager {
-                val devVersion = git.calculateDevelopBranchVersion(config, main, develop, tags).bind()
+                val devVersion = git.calculateDevelopBranchVersion(main, develop, tags).bind()
                 val branchPoint = git.headRevInBranch(main).bind()
                 val commitCount = git.commitsSinceBranchPoint(branchPoint, main).bind()
                 devVersion.fold({
-                    SemVerError.MissingVersion("unable to find version tag on main").left()
+                    SemVerError.MissingVersion("unable to find version tag on main branch, hotfix branches must be branched from main").left()
                 }, {
                     applyScopeToVersion(it, currentBranch.scope, currentBranch.stage).map { it.copy(stageNum = commitCount) }
                 }).bind()

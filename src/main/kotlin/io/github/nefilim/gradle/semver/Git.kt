@@ -63,12 +63,11 @@ internal fun Git.currentMainVersion(config: PluginConfig): Option<Version> {
 }
 
 internal fun Git.buildBranch(branchRefName: String, config: PluginConfig): Either<SemVerError, GitRef.Branch> {
-    println("building branch $branchRefName")
     return either.eager {
         val shortName = buildRef(branchRefName).flatMap { it.shortName() }.bind()
         with (shortName) {
             when {
-                equals("main") -> GitRef.MainBranch(currentMainVersion(config)).right()
+                equals("main") -> GitRef.MainBranch(currentMainVersion(config), config.mainScope, config.mainStage).right()
                 equals("develop") -> GitRef.DevelopBranch(config.developScope, config.developStage).right()
                 startsWith("feature/") -> GitRef.FeatureBranch(shortName, branchRefName, config.featureScope, config.featureStage).right()
                 startsWith("hotfix/") -> GitRef.HotfixBranch(shortName, branchRefName, config.hotfixScope, config.hotfixStage).right()
@@ -92,23 +91,20 @@ internal fun Git.commitsSinceBranchPoint(branchPoint: RevCommit, branch: GitRef.
         it.toObjectId() != branchPoint.toObjectId()
     }.size.let {
         if (it == commits.size)
-            SemVerError.Unexpected("the branch ${branch.refName} did not contain the branch point $branchPoint!?").left()
+            SemVerError.Unexpected("the branch ${branch.refName} did not contain the branch point $branchPoint, have you rebased your current branch?").left()
         else
             it.right()
     }
 }
 
 internal fun Git.calculateDevelopBranchVersion(
-    config: PluginConfig,
     main: GitRef.MainBranch,
     develop: GitRef.DevelopBranch,
     tags: Map<ObjectId, Version>,
 ): Either<SemVerError, Option<Version>> {
     return either.eager {
         val head = headRevInBranch(develop).bind()
-        println("head in dev (target) = $head")
         findYoungestTagOnBranchOlderThanTarget(main, head, tags).fold({
-            println("couldn't find any tags earlier on main than target $head!")
             None.right()
         }, {
             applyScopeToVersion(it, develop.scope, develop.stage).map { it.some() }
@@ -138,7 +134,6 @@ internal fun Git.findYoungestTagOnBranchOlderThanTarget(
         .toOption()
         .flatMap { tags[it.id].toOption() }
 }
-
 
 internal val Project.hasGit: Boolean
     get() = file("${rootProject.rootDir}/.git").exists()
