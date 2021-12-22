@@ -36,24 +36,45 @@ public class SemVerPlugin: Plugin<Project> {
                     target.semverMessage("semver for ${target.name}: ${target.version}")
             }
         } else {
-            target.semverMessage("semver plugin can't work if the project is not a git repository")
+            target.semverMessage("the current directory is not part of a git repo, cannot determine project semantic version number, please initialize a git repo with main & develop branches")
         }
     }
 }
 
 private fun SemVerPluginContext.calculateVersionFlow(): Either<SemVerError, Version> {
-    val allBranches = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call().toList()
-    val mainRefName = allBranches.first { setOf(GitRef.MainBranch.RefName, GitRef.MainBranch.RemoteOriginRefName).contains(it.name) }.name
-    val developRefName = allBranches.first { setOf(GitRef.DevelopBranch.RefName, GitRef.DevelopBranch.RemoteOriginRefName).contains(it.name) }.name
-    project.logger.lifecycle("found main: $mainRefName, develop: $developRefName")
     return either.eager {
-        val main = git.buildBranch(mainRefName, config).bind() as GitRef.MainBranch
-        val develop = git.buildBranch(developRefName, config).bind() as GitRef.DevelopBranch
-        val current = git.buildBranch(repository.fullBranch, config).bind()
-        calculatedVersionFlow(
-            main,
-            develop,
-            current,
-        ).bind()
+        val allBranches = Either.catch { git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call().toList() }.mapLeft { SemVerError.Git(it) }.bind()
+        val mainRefName = allBranches.firstOrNull { setOf(GitRef.MainBranch.RefName, GitRef.MainBranch.RemoteOriginRefName).contains(it.name) }?.name
+        val developRefName = allBranches.firstOrNull { setOf(GitRef.DevelopBranch.RefName, GitRef.DevelopBranch.RemoteOriginRefName).contains(it.name) }?.name
+        when {
+            mainRefName == null -> {
+                missingRequiredBranch(GitRef.MainBranch.Name)
+                config.initialVersion
+            }
+            developRefName == null -> {
+                missingRequiredBranch(GitRef.DevelopBranch.Name)
+                config.initialVersion
+            }
+            else -> {
+                project.logger.lifecycle("found main: $mainRefName, develop: $developRefName")
+                val main = git.buildBranch(mainRefName, config).bind() as GitRef.MainBranch
+                val develop = git.buildBranch(developRefName, config).bind() as GitRef.DevelopBranch
+                val current = git.buildBranch(repository.fullBranch, config).bind()
+                calculatedVersionFlow(
+                    main,
+                    develop,
+                    current,
+                ).bind()
+            }
+        }
     }
+}
+
+private fun SemVerPluginContext.missingRequiredBranch(branchName: String) {
+    project.logger.warn("""
+        |could not find [$branchName] branch, defaulting to initial version: ${config.initialVersion}
+        | please create the following required branches:
+        |   main
+        |     ∟ develop
+        """.trimMargin())
 }

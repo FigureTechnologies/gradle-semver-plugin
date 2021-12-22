@@ -6,6 +6,8 @@ plugins {
     `maven-publish`
     alias(libs.plugins.gradlePluginPublish)
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.semver)
+    alias(libs.plugins.githubrelease)
 }
 
 /*
@@ -13,7 +15,6 @@ plugins {
  */
 group = "io.github.nefilim.gradle"
 description = "Modified Git Flow based semver plugin"
-version = "0.0.6"
 
 inner class ProjectInfo {
     val longName = "Gradle Semver Plugin"
@@ -103,11 +104,3 @@ pluginBundle {
     vcsUrl = info.website
     tags = info.tags
 }
-
-//val publishPlugins = tasks.findByPath(":plugin:publishPlugins")
-
-//tasks.publishPlugins {
-////    from(docsFileJar)
-//    dependsOn("publishPluginJar")
-//    dependsOn("publishPluginJavaDocsJar")
-//}

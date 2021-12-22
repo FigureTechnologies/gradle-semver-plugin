@@ -17,10 +17,10 @@ internal fun SemVerPluginContext.generateVersionFile() {
             createNewFile()
             writeText(
                 """
-               |$version
-               |${config.tagPrefix}$version
-               |
-            """.trimMargin()
+                   |$version
+                   |${config.tagPrefix}$version
+                   |
+                """.trimMargin()
             )
         }
     }
