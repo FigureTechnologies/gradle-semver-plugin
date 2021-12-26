@@ -1,5 +1,8 @@
 package io.github.nefilim.gradle.semver.config
 
+import arrow.core.None
+import arrow.core.Option
+import arrow.core.Some
 import io.github.nefilim.gradle.semver.domain.GitRef
 import com.javiersc.semver.Version
 import org.eclipse.jgit.api.Git
@@ -9,6 +12,7 @@ import org.gradle.api.Project
 data class PluginConfig(
     val tagPrefix: String,
     val initialVersion: Version,
+    val overrideVersion: Option<Version> = None,
 
     val mainScope: Scope = GitRef.MainBranch.DefaultScope,
     val mainStage: Stage = GitRef.MainBranch.DefaultStage,
@@ -29,18 +33,30 @@ data class PluginConfig(
         fun fromProjectProperties(project: Project): PluginConfig {
             return with (project) {
                 PluginConfig(
-                    properties[SemVerProperties.TagPrefix.key]?.toString() ?: DefaultTagPrefix,
-                    properties[SemVerProperties.InitialVersion.key]?.toString()?.let { Version(it) } ?: DefaultVersion,
-                    Scope.fromValue(properties[SemVerProperties.MainScope.key]?.toString(), GitRef.MainBranch.DefaultScope),
-                    Stage.fromValue(properties[SemVerProperties.MainStage.key]?.toString(), GitRef.MainBranch.DefaultStage),
-                    Scope.fromValue(properties[SemVerProperties.DevelopScope.key]?.toString(), GitRef.DevelopBranch.DefaultScope),
-                    Stage.fromValue(properties[SemVerProperties.DevelopStage.key]?.toString(), GitRef.DevelopBranch.DefaultStage),
-                    Scope.fromValue(properties[SemVerProperties.FeatureScope.key]?.toString(), GitRef.FeatureBranch.DefaultScope),
-                    Stage.fromValue(properties[SemVerProperties.FeatureStage.key]?.toString(), GitRef.FeatureBranch.DefaultStage),
-                    Scope.fromValue(properties[SemVerProperties.HotfixScope.key]?.toString(), GitRef.HotfixBranch.DefaultScope),
-                    Stage.fromValue(properties[SemVerProperties.HotfixStage.key]?.toString(), GitRef.HotfixBranch.DefaultStage),
+                    findValue(SemVerProperties.TagPrefix, DefaultTagPrefix),
+                    findValue(SemVerProperties.InitialVersion, DefaultVersion),
+                    findValue(SemVerProperties.OverrideVersion, None) { Some(Version(it)) },
+                    findValue(SemVerProperties.MainScope, GitRef.MainBranch.DefaultScope),
+                    findValue(SemVerProperties.MainStage, GitRef.MainBranch.DefaultStage),
+                    findValue(SemVerProperties.DevelopScope, GitRef.DevelopBranch.DefaultScope),
+                    findValue(SemVerProperties.DevelopStage, GitRef.DevelopBranch.DefaultStage),
+                    findValue(SemVerProperties.FeatureScope, GitRef.FeatureBranch.DefaultScope),
+                    findValue(SemVerProperties.FeatureStage, GitRef.FeatureBranch.DefaultStage),
+                    findValue(SemVerProperties.HotfixScope, GitRef.HotfixBranch.DefaultScope),
+                    findValue(SemVerProperties.HotfixStage, GitRef.HotfixBranch.DefaultStage),
                 )
             }
+        }
+
+        private fun Project.findValue(key: SemVerProperties, default: String): String = findValue(key, default) { it }
+        private fun Project.findValue(key: SemVerProperties, default: Version): Version = findValue(key, default) { Version(it) }
+        private fun Project.findValue(key: SemVerProperties, default: Stage): Stage = findValue(key, default) { Stage.fromValue(it, default) }
+        private fun Project.findValue(key: SemVerProperties, default: Scope): Scope = findValue(key, default) { Scope.fromValue(it, default) }
+
+        private fun <T>Project.findValue(key: SemVerProperties, default: T, f: (String) -> T): T {
+            return (findProperty(key.key) ?: findProperty(key.camelCaseName()))?.let {
+                f(it.toString())
+            } ?: default
         }
     }
 }
@@ -56,6 +72,7 @@ data class SemVerPluginContext(
 internal enum class SemVerProperties(val key: String) {
     TagPrefix("semver.tagPrefix"),
     InitialVersion("semver.initialVersion"),
+    OverrideVersion("semver.overrideVersion"),
 
     MainStage("semver.main.stage"),
     MainScope("semver.main.scope"),
@@ -68,7 +85,20 @@ internal enum class SemVerProperties(val key: String) {
 
     MockDate("semver.mockDateOfEpochSecond"),
     Remote("semver.remote"),
-    CheckClean("semver.checkClean"),
+    CheckClean("semver.checkClean");
+
+    fun camelCaseName(): String {
+        return DotSeperatorRegex.replace(this.key) { it.value.trimStart('.').uppercase() }
+    }
+
+    companion object {
+        val DotSeperatorRegex = "\\.[a-zA-Z]".toRegex()
+    }
+}
+
+fun main() {
+    println("${SemVerProperties.TagPrefix.key} => ${SemVerProperties.TagPrefix.camelCaseName()}")
+    println("${SemVerProperties.DevelopStage.key} => ${SemVerProperties.DevelopStage.camelCaseName()}")
 }
 
 enum class Stage(private val value: String) {

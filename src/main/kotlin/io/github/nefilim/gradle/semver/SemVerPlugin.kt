@@ -2,6 +2,7 @@ package io.github.nefilim.gradle.semver
 
 import arrow.core.Either
 import arrow.core.computations.either
+import arrow.core.getOrElse
 import arrow.core.getOrHandle
 import io.github.nefilim.gradle.semver.config.PluginConfig
 import io.github.nefilim.gradle.semver.config.SemVerPluginContext
@@ -19,15 +20,16 @@ public class SemVerPlugin: Plugin<Project> {
             val config = PluginConfig.fromProjectProperties(target)
             val context = SemVerPluginContext(target.git, config, target)
 
-            target.version = context.calculateVersionFlow().getOrHandle {
-                target.logger.lifecycle("failed to calculate version: $it")
-                throw Exception("$it")
+            target.version = config.overrideVersion.getOrElse {
+                context.calculateVersionFlow().getOrHandle {
+                    target.logger.lifecycle("failed to calculate version: $it")
+                    throw Exception("$it")
+                }
             }
             context.generateVersionFile()
 
-            if (target == target.rootProject) {
+            if (target == target.rootProject)
                 target.allprojects { it.project.version = target.version }
-            }
 
             target.gradle.projectsEvaluated {
                 if (target.appliedOnlyOnRootProject)
