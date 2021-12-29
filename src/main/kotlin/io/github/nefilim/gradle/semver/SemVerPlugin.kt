@@ -20,12 +20,12 @@ public class SemVerPlugin: Plugin<Project> {
         if (target.hasGit) {
             target.afterEvaluate {
                 val config = semVerExtension.buildPluginConfig()
-                target.logger.lifecycle("semver configuration $config")
                 val context = SemVerPluginContext(target.git, config, target)
+                context.verbose("semver configuration: $config")
 
                 target.version = config.overrideVersion.getOrElse {
                     context.calculateVersionFlow().getOrHandle {
-                        target.logger.lifecycle("failed to calculate version: $it")
+                        context.error("failed to calculate version: $it".red())
                         throw Exception("$it")
                     }
                 }
@@ -36,13 +36,13 @@ public class SemVerPlugin: Plugin<Project> {
 
                 target.gradle.projectsEvaluated {
                     if (target.appliedOnlyOnRootProject)
-                        target.semverMessage("semver: ${target.version}")
+                        context.verbose("semver: ${target.version}".purple())
                     else
-                        target.semverMessage("semver for ${target.name}: ${target.version}")
+                        context.verbose("semver for ${target.name}: ${target.version}".purple())
                 }
             }
         } else {
-            target.semverMessage("the current directory is not part of a git repo, cannot determine project semantic version number, please initialize a git repo with main & develop branches")
+            target.logger.warn("the current directory is not part of a git repo, cannot determine project semantic version number, please initialize a git repo with main & develop branches")
         }
     }
 }
@@ -62,7 +62,7 @@ private fun SemVerPluginContext.calculateVersionFlow(): Either<SemVerError, Vers
                 config.initialVersion
             }
             else -> {
-                project.logger.lifecycle("found main: $mainRefName, develop: $developRefName")
+                verbose("found main: $mainRefName, develop: $developRefName")
                 val main = git.buildBranch(mainRefName, config).bind() as GitRef.MainBranch
                 val develop = git.buildBranch(developRefName, config).bind() as GitRef.DevelopBranch
                 val current = git.buildBranch(repository.fullBranch, config).bind()
@@ -77,10 +77,9 @@ private fun SemVerPluginContext.calculateVersionFlow(): Either<SemVerError, Vers
 }
 
 private fun SemVerPluginContext.missingRequiredBranch(branchName: String) {
-    project.logger.warn("""
-        |could not find [$branchName] branch, defaulting to initial version: ${config.initialVersion}
-        | please create the following required branches:
-        |   main
-        |     ∟ develop
+    warn("""
+        |could not find [$branchName] branch, defaulting to initial version: ${config.initialVersion}, please create the following required branches:
+        | main
+        |   ∟ develop
         """.trimMargin())
 }

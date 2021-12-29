@@ -20,11 +20,11 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
     currentBranch: GitRef.Branch,
 ): Either<SemVerError, Version> {
     val tags = git.tagMap(config.tagPrefix)
-    project.semverMessage("calculating version for current branch $currentBranch, main: $main, develop: $develop")
+    log("calculating version for current branch $currentBranch, main: $main, develop: $develop")
     return when (currentBranch) {
         is GitRef.MainBranch -> {
             main.version.fold({
-                project.semverMessage("unable to determine last version on main branch, using initialVersion [${config.initialVersion}]")
+                log("unable to determine last version on main branch, using initialVersion [${config.initialVersion}]")
                 config.initialVersion.right()
             },{
                 applyScopeToVersion(it, main.scope, main.stage)
@@ -37,7 +37,7 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
                 val commitCount = git.commitsSinceBranchPoint(branchPoint, main).bind()
                 git.calculateDevelopBranchVersion(main, develop, tags).map {
                     it.getOrElse {
-                        project.semverMessage("unable to determine last version from main branch, using initialVersion [${config.initialVersion}]")
+                        log("unable to determine last version from main branch, using initialVersion [${config.initialVersion}]")
                         config.initialVersion
                     }.copy(stageNum = commitCount)
                 }.bind()

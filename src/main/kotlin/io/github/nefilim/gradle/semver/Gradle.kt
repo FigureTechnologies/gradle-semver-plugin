@@ -27,3 +27,25 @@ internal fun SemVerPluginContext.generateVersionFile() {
 }
 
 internal fun Project.semverMessage(message: Any) = logger.lifecycle("$message")
+
+internal fun SemVerPluginContext.log(message: String) {
+    project.logger.lifecycle(message)
+}
+internal fun SemVerPluginContext.warn(message: String) {
+    project.logger.lifecycle(message.yellow())
+}
+internal fun SemVerPluginContext.error(message: String) {
+    project.logger.error(message.red())
+}
+
+internal fun SemVerPluginContext.verbose(message: String) {
+    if (config.verbose)
+        log(message.purple())
+}
+
+private fun String.coloured(c: String) = "$c$this\u001B[0m"
+internal fun String.green() = this.coloured("\u001B[32m")
+internal fun String.red() = this.coloured("\u001B[31m")
+internal fun String.purple() = this.coloured("\u001B[35m")
+internal fun String.yellow() = this.coloured("\u001B[33m")
+internal fun String.bold() = this.coloured("\u001B[37m")

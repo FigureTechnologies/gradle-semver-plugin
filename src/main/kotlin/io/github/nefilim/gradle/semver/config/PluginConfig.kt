@@ -9,6 +9,7 @@ import org.eclipse.jgit.lib.Repository
 import org.gradle.api.Project
 
 data class PluginConfig(
+    val verbose: Boolean = true,
     val tagPrefix: String,
     val initialVersion: Version,
     val overrideVersion: Option<Version> = None,

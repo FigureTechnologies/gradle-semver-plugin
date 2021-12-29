@@ -13,6 +13,7 @@ import org.gradle.api.provider.Property
 import javax.inject.Inject
 
 open class SemVerExtension @Inject constructor(objects: ObjectFactory) {
+    private val verbose: Property<Boolean> = objects.property(Boolean::class.java)
     private val tagPrefix: Property<String> = objects.property(String::class.java)
     private val initialVersion: Property<Version> = objects.property(Version::class.java)
     private val overrideVersion: Property<Version> = objects.property(Version::class.java)
@@ -23,9 +24,15 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory) {
     private val hotfix: BranchHandler = objects.newInstance(BranchHandler::class.java, objects, GitRef.HotfixBranch.DefaultScope, GitRef.HotfixBranch.DefaultStage)
 
     init {
+        verbose.set(true)
         tagPrefix.set(PluginConfig.DefaultTagPrefix)
         initialVersion.set(PluginConfig.DefaultVersion)
         overrideVersion.set(null)
+    }
+
+    fun verbose(b: Boolean) {
+        verbose.set(b)
+        verbose.disallowChanges()
     }
 
     fun tagPrefix(prefix: String) {
@@ -60,6 +67,7 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory) {
 
     fun buildPluginConfig(): PluginConfig {
         return PluginConfig(
+            verbose.get(),
             tagPrefix.get(),
             initialVersion.get(),
             overrideVersion.orNull.toOption(),
