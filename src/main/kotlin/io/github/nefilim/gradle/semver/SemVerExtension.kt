@@ -10,6 +10,7 @@ import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import javax.inject.Inject
 
 open class SemVerExtension @Inject constructor(objects: ObjectFactory) {
@@ -17,6 +18,9 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory) {
     private val tagPrefix: Property<String> = objects.property(String::class.java)
     private val initialVersion: Property<Version> = objects.property(Version::class.java)
     private val overrideVersion: Property<Version> = objects.property(Version::class.java)
+    private val calculatedVersionInternal: Property<Version> = objects.property(Version::class.java)
+    val calculatedVersion: Provider<Version> = calculatedVersionInternal
+    val calculatedTagName: Provider<String> = calculatedVersionInternal.flatMap { v -> tagPrefix.map { "$it$v"} }
 
     private val main: BranchHandler = objects.newInstance(BranchHandler::class.java, objects, GitRef.MainBranch.DefaultScope, GitRef.MainBranch.DefaultStage)
     private val develop: BranchHandler = objects.newInstance(BranchHandler::class.java, objects, GitRef.DevelopBranch.DefaultScope, GitRef.DevelopBranch.DefaultStage)
@@ -63,6 +67,11 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory) {
     }
     fun hotfix(action: Action<BranchHandler>) {
         action.execute(hotfix)
+    }
+
+    fun setVersion(version: Version) {
+        calculatedVersionInternal.set(version)
+        calculatedVersionInternal.disallowChanges()
     }
 
     fun buildPluginConfig(): PluginConfig {

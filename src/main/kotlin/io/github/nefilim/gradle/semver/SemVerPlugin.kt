@@ -23,12 +23,15 @@ public class SemVerPlugin: Plugin<Project> {
                 val context = SemVerPluginContext(target.git, config, target)
                 context.verbose("semver configuration: $config")
 
-                target.version = config.overrideVersion.getOrElse {
+                val calculatedVersion = config.overrideVersion.getOrElse {
                     context.calculateVersionFlow().getOrHandle {
                         context.error("failed to calculate version: $it".red())
                         throw Exception("$it")
                     }
                 }
+                target.version = calculatedVersion.toString()
+                println("setting calculated version property to ${calculatedVersion}")
+                semVerExtension.setVersion(calculatedVersion)
                 context.generateVersionFile()
 
                 if (target == target.rootProject)
