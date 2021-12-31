@@ -30,7 +30,6 @@ public class SemVerPlugin: Plugin<Project> {
                     }
                 }
                 target.version = calculatedVersion.toString()
-                println("setting calculated version property to ${calculatedVersion}")
                 semVerExtension.setVersion(calculatedVersion)
                 context.generateVersionFile()
 

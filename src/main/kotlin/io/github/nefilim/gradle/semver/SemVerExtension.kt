@@ -5,6 +5,7 @@ import com.javiersc.semver.Version
 import io.github.nefilim.gradle.semver.config.PluginConfig
 import io.github.nefilim.gradle.semver.config.Scope
 import io.github.nefilim.gradle.semver.config.Stage
+import io.github.nefilim.gradle.semver.config.possiblyPrefixedVersion
 import io.github.nefilim.gradle.semver.domain.GitRef
 import org.gradle.api.Action
 import org.gradle.api.Project
@@ -40,6 +41,8 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory) {
     }
 
     fun tagPrefix(prefix: String) {
+        if (overrideVersion.orNull != null)
+            throw IllegalArgumentException("cannot set the semver tagPrefix after override version has been set, the override version depends on the tagPrefix, set the tagPrefix first")
         tagPrefix.set(prefix)
         tagPrefix.disallowChanges()
     }
@@ -52,7 +55,7 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory) {
     }
 
     fun overrideVersion(version: String) {
-        overrideVersion.set(Version(version))
+        overrideVersion.set(possiblyPrefixedVersion(version, tagPrefix.get())) // not great, requires tagPrefix to be set first
         overrideVersion.disallowChanges()
     }
 
