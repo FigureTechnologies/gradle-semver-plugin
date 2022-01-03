@@ -81,7 +81,7 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory, private v
             verbose.get(),
             tagPrefix.get(),
             initialVersion.get(),
-            overrideVersion.get().toOption(),
+            overrideVersion.orNull.toOption(),
             main.scope.get(),
             main.stage.get(),
             develop.scope.get(),
