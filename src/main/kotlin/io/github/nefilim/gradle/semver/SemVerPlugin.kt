@@ -2,22 +2,32 @@ package io.github.nefilim.gradle.semver
 
 import arrow.core.Either
 import arrow.core.computations.either
-import arrow.core.getOrElse
-import arrow.core.getOrHandle
+import com.javiersc.semver.Version
+import io.github.nefilim.gradle.semver.SemVerExtension.Companion.semver
 import io.github.nefilim.gradle.semver.config.SemVerPluginContext
 import io.github.nefilim.gradle.semver.domain.GitRef
 import io.github.nefilim.gradle.semver.domain.SemVerError
-import com.javiersc.semver.Version
-import io.github.nefilim.gradle.semver.SemVerExtension.Companion.semver
 import org.eclipse.jgit.api.ListBranchCommand
+import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.TaskAction
+import org.gradle.kotlin.dsl.get
 
 public class SemVerPlugin: Plugin<Project> {
     override fun apply(target: Project) {
         target.semver()
         if (!target.hasGit)
             target.logger.warn("the current directory is not part of a git repo, cannot determine project semantic version number, please initialize a git repo with main & develop branches")
+
+        target.tasks.register("cv", CurrentVersionTask::class.java)
+    }
+}
+
+open class CurrentVersionTask: DefaultTask() {
+    @TaskAction
+    fun currentVersion() {
+        project.logger.lifecycle("version: ${(project.extensions[SemVerExtension.ExtensionName] as SemVerExtension).version()}".purple())
     }
 }
 

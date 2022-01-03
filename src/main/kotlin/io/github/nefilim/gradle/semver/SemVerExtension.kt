@@ -94,7 +94,9 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory, private v
     }
 
     companion object {
-        internal fun Project.semver(): SemVerExtension = extensions.create("semver", SemVerExtension::class.java)
+        const val ExtensionName = "semver"
+
+        internal fun Project.semver(): SemVerExtension = extensions.create(ExtensionName, SemVerExtension::class.java)
     }
 }
 
