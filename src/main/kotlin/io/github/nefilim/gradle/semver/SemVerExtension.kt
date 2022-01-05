@@ -47,7 +47,7 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory, private v
     fun version(): Version {
         val config = this.buildPluginConfig()
         val context = SemVerPluginContext(project.git, config, project)
-        context.log("semver configuration: $config")
+        context.verbose("semver configuration while calculating version: $config")
 
         return config.overrideVersion.getOrElse {
             context.calculateVersionFlow().getOrHandle {

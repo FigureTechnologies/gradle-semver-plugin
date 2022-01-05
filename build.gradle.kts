@@ -38,7 +38,7 @@ dependencies {
     api(kotlin("stdlib-jdk8"))
     implementation(libs.arrow.core)
     implementation(libs.eclipse.jgit.eclipseJgit)
-    implementation(libs.javiersc.semver.semverCore)
+    api(libs.javiersc.semver.semverCore)
     testImplementation(gradleTestKit())
     testImplementation(libs.bundles.kotlin.testing)
 }
