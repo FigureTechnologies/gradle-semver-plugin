@@ -33,7 +33,13 @@ internal fun Ref?.semverTag(prefix: String): Option<Version> {
 }
 
 internal fun Ref?.shortName(): Either<SemVerError, String> {
-    return this?.let { Either.catch { name.substringAfterLast('/') }.mapLeft { SemVerError.Git(it) } } ?: SemVerError.Unexpected("empty git ref, unable to find shortname").left()
+    return this?.let {
+        when {
+            it.name.startsWith(GitRef.RefHead) -> Either.catch { name.substringAfter("${GitRef.RefHead}/") }.mapLeft { SemVerError.Git(it) }
+            it.name.startsWith(GitRef.RemoteOrigin) -> Either.catch { name.substringAfter("${GitRef.RemoteOrigin}/") }.mapLeft { SemVerError.Git(it) }
+            else -> SemVerError.Unexpected("unable to parse branch Ref: [$it]").left()
+        }
+    } ?: SemVerError.Unexpected("unable to parse null branch Ref").left()
 }
 
 private fun Git.buildRef(refName: String): Either<SemVerError, Ref> {

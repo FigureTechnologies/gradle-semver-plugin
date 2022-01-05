@@ -32,6 +32,8 @@ open class CurrentVersionTask: DefaultTask() {
 }
 
 internal fun SemVerPluginContext.calculateVersionFlow(): Either<SemVerError, Version> {
+    verbose("current branch: ${repository.fullBranch}")
+
     return either.eager {
         val allBranches = Either.catch { git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call().toList() }.mapLeft { SemVerError.Git(it) }.bind()
         val mainRefName = allBranches.firstOrNull { setOf(GitRef.MainBranch.RefName, GitRef.MainBranch.RemoteOriginRefName).contains(it.name) }?.name
