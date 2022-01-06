@@ -12,6 +12,7 @@ import arrow.core.some
 import arrow.core.toOption
 import com.javiersc.semver.Version
 import io.github.nefilim.gradle.semver.config.PluginConfig
+import io.github.nefilim.gradle.semver.config.SemVerPluginContext
 import io.github.nefilim.gradle.semver.domain.GitRef
 import io.github.nefilim.gradle.semver.domain.SemVerError
 import org.eclipse.jgit.api.Git
@@ -95,15 +96,26 @@ internal fun Git.hasCommits(): Boolean {
     }
 }
 
-internal fun Git.commitsSinceBranchPoint(branchPoint: RevCommit, branch: GitRef.Branch): Either<SemVerError, Int> {
-    val commits = log().call().toList() // can this blow up for large repos?
-    return commits.takeWhile {
-        it.toObjectId() != branchPoint.toObjectId()
-    }.size.let {
-        if (it == commits.size)
-            SemVerError.Unexpected("the branch ${branch.refName} did not contain the branch point $branchPoint, have you rebased your current branch?").left()
-        else
-            it.right()
+internal fun SemVerPluginContext.commitsSinceBranchPoint(
+    branchPoint: RevCommit,
+    branch: GitRef.Branch,
+    tags: Map<ObjectId, Version>,
+): Either<SemVerError, Int> {
+    val commits = git.log().call().toList() // can this blow up for large repos?
+    val newCommits = commits.takeWhile {
+        it.toObjectId() != branchPoint.toObjectId() && it.commitTime > branchPoint.commitTime
+    }
+    return when {
+        (newCommits.map { it.toObjectId() }.contains(branchPoint.toObjectId())) -> newCommits.size.right()
+        newCommits.size != commits.size -> {
+            // find latest tag on this branch
+            warn("Unable to find the branch point [${branchPoint.id.name}: ${branchPoint.shortMessage}], typically happens when commits were squashed & merged and this branch [$branch] has not been rebased yet, using nearest commit with a semver tag, this is just an estimation")
+            git.findYoungestTagCommitOnBranch(branch, tags).map { youngestTag ->
+                verbose("youngest tag on this branch is at ${youngestTag.id}")
+                commits.takeWhile { it.id != youngestTag.id }.size
+            }.toEither { SemVerError.Unexpected("failed to find any semver tags on branch [$branch], does main have any version tags?") }
+        }
+        else -> SemVerError.Unexpected("the branch ${branch.refName} did not contain the branch point [${branchPoint.toObjectId()}: ${branchPoint.shortMessage}], have you rebased your current branch?").left()
     }
 }
 
@@ -143,6 +155,15 @@ internal fun Git.findYoungestTagOnBranchOlderThanTarget(
         .firstOrNull { it.commitTime <= target.commitTime && tags.containsKey(it.toObjectId()) }
         .toOption()
         .flatMap { tags[it.id].toOption() }
+}
+
+internal fun Git.findYoungestTagCommitOnBranch(
+    branch: GitRef.Branch,
+    tags: Map<ObjectId, Version>
+): Option<RevCommit> {
+    return log().add(repository.exactRef(branch.refName).objectId).call()
+        .firstOrNull { tags.containsKey(it.toObjectId()) }
+        .toOption()
 }
 
 internal val Project.hasGit: Boolean

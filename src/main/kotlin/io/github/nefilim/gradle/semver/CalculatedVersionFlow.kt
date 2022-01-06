@@ -34,7 +34,7 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
             // recalculate version automatically based on releases on main
             either.eager {
                 val branchPoint = git.headRevInBranch(main).bind()
-                val commitCount = git.commitsSinceBranchPoint(branchPoint, main).bind()
+                val commitCount = commitsSinceBranchPoint(branchPoint, currentBranch, tags).bind()
                 git.calculateDevelopBranchVersion(main, develop, tags).map {
                     it.getOrElse {
                         warn("unable to determine last version from main branch, using initialVersion [${config.initialVersion}]")
@@ -48,7 +48,7 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
             either.eager {
                 val devVersion = git.calculateDevelopBranchVersion(main, develop, tags).bind()
                 val branchPoint = git.headRevInBranch(develop).bind()
-                val commitCount = git.commitsSinceBranchPoint(branchPoint, develop).bind()
+                val commitCount = commitsSinceBranchPoint(branchPoint, currentBranch, tags).bind()
                 devVersion.fold({
                     SemVerError.MissingVersion("unable to find version tag on develop branch, feature branches must be branched from develop").left()
                 }, {
@@ -61,7 +61,7 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
             either.eager {
                 val devVersion = git.calculateDevelopBranchVersion(main, develop, tags).bind()
                 val branchPoint = git.headRevInBranch(main).bind()
-                val commitCount = git.commitsSinceBranchPoint(branchPoint, main).bind()
+                val commitCount = commitsSinceBranchPoint(branchPoint, currentBranch, tags).bind()
                 devVersion.fold({
                     SemVerError.MissingVersion("unable to find version tag on main branch, hotfix branches must be branched from main").left()
                 }, {
