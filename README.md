@@ -81,10 +81,7 @@ semver {
     }
 }
 
-val semVersion = semver.version()
-allprojects {
-    version = semVersion
-}
+version = semver.version()
 ```
 
 Two extension functions are available on the `semver` extension:
