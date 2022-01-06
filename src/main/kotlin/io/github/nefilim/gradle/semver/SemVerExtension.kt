@@ -56,7 +56,7 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory, private v
             }
         }
     }
-    fun versionTagName(): String = "$tagPrefix${version()}"
+    fun versionTagName(): String = tagPrefix.map { "$it${version()}" }.get()
 
     private val main: BranchHandler = BranchHandler(objects, GitRef.MainBranch.DefaultScope, GitRef.MainBranch.DefaultStage)
     private val develop: BranchHandler = BranchHandler(objects, GitRef.DevelopBranch.DefaultScope, GitRef.DevelopBranch.DefaultStage)
