@@ -73,26 +73,18 @@ internal fun Git.currentVersion(config: PluginConfig, branchRefName: String): Op
     }
 }
 
-internal fun Git.buildBranch(branchRefName: String, config: PluginConfig): Either<SemVerError, GitRef.Branch> {
+internal fun SemVerPluginContext.buildBranch(branchRefName: String, config: PluginConfig): Either<SemVerError, GitRef.Branch> {
     return either.eager {
-        val shortName = buildRef(branchRefName).flatMap { it.shortName() }.bind()
+        val shortName = git.buildRef(branchRefName).flatMap { it.shortName() }.bind()
         with (shortName) {
             when {
-                equals("main") -> GitRef.MainBranch(branchRefName, currentVersion(config, branchRefName), config.mainScope, config.mainStage).right()
+                equals("main") -> GitRef.MainBranch(branchRefName, git.currentVersion(config, branchRefName), config.mainScope, config.mainStage).right()
                 equals("develop") -> GitRef.DevelopBranch(branchRefName, config.developScope, config.developStage).right()
-                startsWith("feature/") -> GitRef.FeatureBranch(shortName, branchRefName, config.featureScope, config.featureStage).right()
+                config.featureBranchRegexes.any { it.matches(shortName) } -> GitRef.FeatureBranch(shortName, branchRefName, config.featureScope, config.featureStage).right()
                 startsWith("hotfix/") -> GitRef.HotfixBranch(shortName, branchRefName, config.hotfixScope, config.hotfixStage).right()
                 else -> SemVerError.UnsupportedBranch("unable to determine branch type for branch: $this").left()
             }.bind()
         }
-    }
-}
-
-internal fun Git.hasCommits(): Boolean {
-    return try {
-        log().call().toList().isNotEmpty()
-    } catch (e: Exception) {
-        false
     }
 }
 
@@ -164,6 +156,14 @@ internal fun Git.findYoungestTagCommitOnBranch(
     return log().add(repository.exactRef(branch.refName).objectId).call()
         .firstOrNull { tags.containsKey(it.toObjectId()) }
         .toOption()
+}
+
+internal fun Git.hasCommits(): Boolean {
+    return try {
+        log().call().toList().isNotEmpty()
+    } catch (e: Exception) {
+        false
+    }
 }
 
 internal val Project.hasGit: Boolean

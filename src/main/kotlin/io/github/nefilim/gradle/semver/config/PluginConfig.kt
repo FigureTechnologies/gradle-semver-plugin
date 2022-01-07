@@ -13,6 +13,7 @@ data class PluginConfig(
     val tagPrefix: String,
     val initialVersion: Version,
     val overrideVersion: Option<Version> = None,
+    val featureBranchRegexes: List<Regex> = emptyList(),
 
     val mainScope: Scope = GitRef.MainBranch.DefaultScope,
     val mainStage: Stage = GitRef.MainBranch.DefaultStage,

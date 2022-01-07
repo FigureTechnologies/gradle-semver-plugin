@@ -10,11 +10,24 @@ plugins {
     alias(libs.plugins.githubrelease)
 }
 
+semver {
+    verbose(true)
+    tagPrefix("v")
+    initialVersion("0.0.1")
+    findProperty("semver.overrideVersion")?.toString()?.let { overrideVersion(it) }
+
+    main {
+        scope(findProperty("semver.main.scope")?.toString() ?: "patch")
+        stage(findProperty("semver.main.stage")?.toString() ?: "final")
+    }
+}
+
 /*
  * Project information
  */
 group = "io.github.nefilim.gradle"
 description = "Modified Git Flow based semver plugin"
+version = semver.version()
 
 inner class ProjectInfo {
     val longName = "Gradle Semver Plugin"

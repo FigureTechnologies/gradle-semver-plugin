@@ -13,6 +13,7 @@ import io.github.nefilim.gradle.semver.domain.GitRef
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import javax.inject.Inject
 
@@ -21,6 +22,7 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory, private v
     private val tagPrefix: Property<String> = objects.property(String::class.java).convention(PluginConfig.DefaultTagPrefix)
     private val initialVersion: Property<Version> = objects.property(Version::class.java).convention(PluginConfig.DefaultVersion)
     private val overrideVersion: Property<Version> = objects.property(Version::class.java).convention(null)
+    private val featureBranchRegexes: ListProperty<Regex> = objects.listProperty(Regex::class.java).convention(listOf(GitRef.FeatureBranch.DefaultRegex))
 
     fun verbose(b: Boolean) {
         verbose.set(b)
@@ -41,6 +43,11 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory, private v
     fun overrideVersion(version: String) {
         overrideVersion.set(possiblyPrefixedVersion(version, tagPrefix.get())) // not great, requires tagPrefix to be set first
         overrideVersion.disallowChanges()
+    }
+    fun featureBranchRegex(regex: List<String>) {
+        featureBranchRegexes.add(GitRef.FeatureBranch.DefaultRegex)
+        featureBranchRegexes.addAll(regex.map { it.toRegex() })
+        featureBranchRegexes.disallowChanges()
     }
 
     // defer version calculation since all our properties are lazy and needs to be configured first
@@ -82,6 +89,7 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory, private v
             tagPrefix.get(),
             initialVersion.get(),
             overrideVersion.orNull.toOption(),
+            featureBranchRegexes.get().toList(),
             main.scope.get(),
             main.stage.get(),
             develop.scope.get(),

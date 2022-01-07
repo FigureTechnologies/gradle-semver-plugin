@@ -71,12 +71,10 @@ sealed interface GitRef {
         val scope: Scope = DefaultScope,
         val stage: Stage = DefaultStage,
     ) : GitRef, Branch {
-        init {
-            require(name.startsWith("feature/", ignoreCase = true))
-        }
         companion object {
             val DefaultScope = Scope.Patch
             val DefaultStage = Stage.Alpha
+            val DefaultRegex = "^feature\\/.+".toRegex()
         }
     }
 

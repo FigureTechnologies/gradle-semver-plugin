@@ -49,9 +49,9 @@ internal fun SemVerPluginContext.calculateVersionFlow(): Either<SemVerError, Ver
             }
             else -> {
                 verbose("found main: $mainRefName, develop: $developRefName")
-                val main = git.buildBranch(mainRefName, config).bind() as GitRef.MainBranch
-                val develop = git.buildBranch(developRefName, config).bind() as GitRef.DevelopBranch
-                val current = git.buildBranch(repository.fullBranch, config).bind()
+                val main = buildBranch(mainRefName, config).bind() as GitRef.MainBranch
+                val develop = buildBranch(developRefName, config).bind() as GitRef.DevelopBranch
+                val current = buildBranch(repository.fullBranch, config).bind()
                 calculatedVersionFlow(
                     main,
                     develop,
