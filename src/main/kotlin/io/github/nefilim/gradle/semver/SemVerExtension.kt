@@ -61,6 +61,8 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory, private v
                 context.error("failed to calculate version: $it".red())
                 throw Exception("$it")
             }
+        }.also {
+            context.log("semver: $it")
         }
     }
     fun versionTagName(): String = tagPrefix.map { "$it${version()}" }.get()

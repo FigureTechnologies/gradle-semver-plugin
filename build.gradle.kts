@@ -1,13 +1,15 @@
+import java.time.ZoneId
 import org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION as KOTLIN_VERSION
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     `java-gradle-plugin`
     `maven-publish`
+    alias(libs.plugins.changelog)
+    alias(libs.plugins.githubrelease)
     alias(libs.plugins.gradlePluginPublish)
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.semver)
-    alias(libs.plugins.githubrelease)
 }
 
 semver {
@@ -118,10 +120,10 @@ pluginBundle {
     tags = info.tags
 }
 
-githubRelease {
-    val gitHubTokenProp: String? by project
+val githubTokenValue = findProperty("githubToken")?.toString() ?: System.getenv("GITHUB_TOKEN")
 
-    token(gitHubTokenProp) // This is your personal access token with Repo permissions
+githubRelease {
+    token(githubTokenValue) // This is your personal access token with Repo permissions
     // You get this from your user settings > developer settings > Personal Access Tokens
     owner("nefilim") // default is the last part of your group. Eg group: "com.github.breadmoirai" => owner: "breadmoirai"
     repo("gradle-semver-plugin") // by default this is set to your project name
@@ -135,4 +137,31 @@ githubRelease {
     dryRun(false) // by default false; you can use this to see what actions would be taken without making a release
     apiEndpoint("https://api.github.com") // should only change for github enterprise users
     client // This is the okhttp client used for http requests
+}
+
+changelog {
+    githubUser = "nefilim"
+    githubToken = githubTokenValue // [optional] project property "githubToken" or env variable "GITHUB_TOKEN"
+    githubRepository = "gradle-semver-plugin"
+
+    title = "Change Log"
+    showUnreleased = true
+    unreleasedVersionTitle = "Unreleased"
+    futureVersionTag = semver.versionTagName()
+    sections = emptyList() // no custom sections by default, but default sections are prepended
+    defaultIssueSectionTitle = "Closed issues:"
+    defaultPrSectionTitle = "Merged pull requests:"
+    includeLabels = emptyList()
+    excludeLabels = listOf("duplicate", "invalid", "question", "wontfix")
+    sinceTag = null
+    skipTags = emptyList()
+    skipTagsRegex = emptyList()
+    releaseUrlTemplate = null // defaults to "https://github.com/$user/$repo/tree/%s"
+    diffUrlTemplate = null // defaults to "https://github.com/$user/$repo/compare/%s...%s"
+    releaseUrlTagTransform = { it }
+    diffUrlTagTransform = { it }
+    useMilestoneAsTag = true
+    timezone = ZoneId.of("America/Denver")
+
+    outputFile = file("${projectDir}/CHANGELOG.md")
 }
