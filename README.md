@@ -1,6 +1,6 @@
 # Gradle Semver Plugin
 
-Opinionated plugin broadly based on a Git Flow workflow without release branches, the following branches are supported:
+Opinionated plugin broadly based on a [Git Flow workflow](https://nvie.com/posts/a-successful-git-branching-model/) without release branches, the following branches are supported:
 
 * main
 * develop
@@ -10,12 +10,13 @@ Opinionated plugin broadly based on a Git Flow workflow without release branches
 ## Version Calculation
 
 The semver is calculated primarily based on:
+* the version of the base branch
 * the current branch
 * the scope & stage properties declared for the current branch (or their default values)
                     
 ### Main Branch
                                                                              
-The main branch is the only branch that should be tagged with versions. The calculated version is based on the most recent version on the `main` branch which is then modified based on the scope & stage properties for `main`.
+_**The main branch is the only branch that should be tagged with versions.**_ The calculated version is based on the most recent version on the `main` branch which is then modified based on the scope & stage properties for `main`.
 eg. given 
 
 ```kotlin
@@ -46,23 +47,29 @@ when the last version tag on main is `v1.2.3` the new version would be calculate
 
 Feature & Hotfix branches are similar to `develop` but:
 * `feature/xxx` is always branched from `develop` and the version is calculated based on the latest in `develop` 
+  * eg, if main is at `v1.2.3`, develop is at `v1.2.4-beta.0`, the feature branch could be `v1.2.5-alpha.0`
 * `hotfix/xxx` is always branched from `main` and the version is calculated based on the latest in `main`
+            
+Feature branches can be customized with a regex to match the branch name, eg:
+
+`featureBranchRegex(listOf("[a-zA-Z\\-_0-9]+\\/sc-\\d+\\/[a-zA-Z\\-_0-9]+"))` will allow `peter/sc-123123/add_new_feature` to be considered as a feature branch.
 
 ## Usage
 
 ```kotlin
 plugins {
-    id("io.github.nefilim.gradle.semver-plugin") version "0.0.16"
+    id("io.github.nefilim.gradle.semver-plugin") version "0.0.22"
 }
 
 // semver extension must be declared before invoking semver.version()  
 semver {
     // all properties are optional but it's a good idea to declare those that you would want  
-    // to override with Gradle properties or environment variables
+    // to override with Gradle properties or environment variables, eg "overrideVersion" below
     verbose(true)
     tagPrefix("v")
     initialVersion("0.0.3")
     findProperty("semver.overrideVersion")?.toString()?.let { overrideVersion(it) }
+    featureBranchRegex(listOf("[a-zA-Z\\-_0-9]+\\/sc-\\d+\\/[a-zA-Z\\-_0-9]+"))
     main {
         scope(findProperty("semver.main.scope")?.toString() ?: "patch")
         stage(findProperty("semver.main.stage")?.toString() ?: "final")
@@ -83,6 +90,8 @@ semver {
 
 version = semver.version()
 ```
+
+_**PLEASE NOTE:**_ the `semver` stanza should be declared **before** the `semver` extension functions are used.
 
 Two extension functions are available on the `semver` extension:
 
