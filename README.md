@@ -35,7 +35,7 @@ The calculated version is based on the most recent version on the `main` branch 
 eg. given
 
 ```kotlin
-main {
+develop {
     scope("patch")
     stage("beta")
 }
