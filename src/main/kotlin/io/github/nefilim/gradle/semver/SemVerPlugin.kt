@@ -6,6 +6,7 @@ import com.javiersc.semver.Version
 import io.github.nefilim.gradle.semver.SemVerExtension.Companion.semver
 import io.github.nefilim.gradle.semver.config.SemVerPluginContext
 import io.github.nefilim.gradle.semver.domain.GitRef
+import io.github.nefilim.gradle.semver.domain.GitRef.Companion.RemoteOrigin
 import io.github.nefilim.gradle.semver.domain.SemVerError
 import org.eclipse.jgit.api.ListBranchCommand
 import org.gradle.api.DefaultTask
@@ -51,7 +52,15 @@ internal fun SemVerPluginContext.calculateVersionFlow(): Either<SemVerError, Ver
                 verbose("found main: $mainRefName, develop: $developRefName")
                 val main = buildBranch(mainRefName, config).bind() as GitRef.MainBranch
                 val develop = buildBranch(developRefName, config).bind() as GitRef.DevelopBranch
-                val current = buildBranch(repository.fullBranch, config).bind()
+                // if we're running under GitHub Actions and this is a PR event, we're in detached HEAD state, not on a branch
+                val current = if (githubActionsBuild() && pullRequestEvent()) {
+                    log("we're running under Github Actions during a PR event")
+                    val headRef = pullRequestHeadRef().map { "$RemoteOrigin/$it" }.toEither { SemVerError.MissingRef("failed to find GITHUB_HEAD_REF for a pull request event??") }.bind()
+                    log("using $headRef as branch")
+                    buildBranch(headRef, config).bind()
+                } else
+                    buildBranch(repository.fullBranch, config).bind()
+
                 calculatedVersionFlow(
                     main,
                     develop,
