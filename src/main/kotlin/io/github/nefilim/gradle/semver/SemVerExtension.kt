@@ -85,7 +85,7 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory, private v
         action.execute(hotfix)
     }
 
-    private fun buildPluginConfig(): PluginConfig {
+    internal fun buildPluginConfig(): PluginConfig {
         return PluginConfig(
             verbose.get(),
             tagPrefix.get(),

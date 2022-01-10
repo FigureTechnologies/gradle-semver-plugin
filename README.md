@@ -98,4 +98,6 @@ Two extension functions are available on the `semver` extension:
 * `version(): String` returns the calculated version
 * `versionTagName(): String` returns the tag name for the current calculated version, ie `tagPrefix` + `version()`   
 
-The plugin supports a single task: `cv` that will print out the current calculated version.
+The plugin supports a two tasks: 
+* `cv` that will print out the current calculated version
+* `generateVersionFile` that will generate `build/semver/version.txt` containing the raw version and the tag version
