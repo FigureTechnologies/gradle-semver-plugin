@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.gradlePluginPublish)
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.semver)
+    alias(libs.plugins.versions)
 }
 
 semver {

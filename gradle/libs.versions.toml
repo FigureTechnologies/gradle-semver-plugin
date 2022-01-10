@@ -6,10 +6,11 @@ jgit = "6.0.0.202111291000-r"
 kotest = "5.0.3"
 semverCore = "0.1.0-beta.10"
 
+gradle-benmanes-versions = "0.41.0"
 gradle-changelog = "1.11.1"
 gradle-pluginPublish = "0.19.0"
 github-release = "2.2.12"
-gradle-semverPlugin = "0.0.22"
+gradle-semverPlugin = "0.0.23"
 
 [libraries]
 kotest-junit5-jvm = { module = "io.kotest:kotest-runner-junit5-jvm", version.ref = "kotest" }
@@ -27,3 +28,4 @@ githubrelease = { id = "com.github.breadmoirai.github-release", version.ref = "g
 gradlePluginPublish = { id = "com.gradle.plugin-publish", version.ref = "gradle-pluginPublish" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 semver = { id = "io.github.nefilim.gradle.semver-plugin", version.ref = "gradle-semverPlugin" }
+versions = { id = "com.github.ben-manes.versions", version.ref = "gradle-benmanes-versions" }
