@@ -6,6 +6,7 @@ import arrow.core.Option
 import arrow.core.computations.either
 import arrow.core.flatMap
 import arrow.core.flattenOption
+import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.right
 import arrow.core.some
@@ -78,10 +79,37 @@ internal fun SemVerPluginContext.buildBranch(branchRefName: String, config: Plug
         val shortName = git.buildRef(branchRefName).flatMap { it.shortName() }.bind()
         with (shortName) {
             when {
-                equals("main") -> GitRef.MainBranch(branchRefName, git.currentVersion(config, branchRefName), config.mainScope, config.mainStage).right()
-                equals("develop") -> GitRef.DevelopBranch(branchRefName, config.developScope, config.developStage).right()
-                config.featureBranchRegexes.any { it.matches(shortName) } -> GitRef.FeatureBranch(shortName, branchRefName, config.featureScope, config.featureStage).right()
-                startsWith("hotfix/") -> GitRef.HotfixBranch(shortName, branchRefName, config.hotfixScope, config.hotfixStage).right()
+                equals("main") -> {
+                    GitRef.MainBranch(
+                        branchRefName,
+                        git.currentVersion(config, branchRefName),
+                        config.currentBranchScope.getOrElse { GitRef.MainBranch.DefaultScope },
+                        config.currentBranchStage.getOrElse { GitRef.MainBranch.DefaultStage }
+                    ).right()
+                }
+                equals("develop") -> {
+                    GitRef.DevelopBranch(
+                        branchRefName,
+                        config.currentBranchScope.getOrElse { GitRef.DevelopBranch.DefaultScope },
+                        config.currentBranchStage.getOrElse { GitRef.DevelopBranch.DefaultStage }
+                    ).right()
+                }
+                config.featureBranchRegexes.any { it.matches(shortName) } -> {
+                    GitRef.FeatureBranch(
+                        shortName,
+                        branchRefName,
+                        config.currentBranchScope.getOrElse { GitRef.FeatureBranch.DefaultScope },
+                        config.currentBranchStage.getOrElse { GitRef.FeatureBranch.DefaultStage }
+                    ).right()
+                }
+                startsWith("hotfix/") -> {
+                    GitRef.HotfixBranch(
+                        shortName,
+                        branchRefName,
+                        config.currentBranchScope.getOrElse { GitRef.HotfixBranch.DefaultScope },
+                        config.currentBranchStage.getOrElse { GitRef.HotfixBranch.DefaultStage }
+                    ).right()
+                }
                 else -> SemVerError.UnsupportedBranch("unable to determine branch type for branch: $this").left()
             }.bind()
         }
@@ -104,7 +132,7 @@ internal fun SemVerPluginContext.commitsSinceBranchPoint(
             warn("Unable to find the branch point [${branchPoint.id.name}: ${branchPoint.shortMessage}], typically happens when commits were squashed & merged and this branch [$branch] " +
                     "has not been rebased yet, using nearest commit with a semver tag, this is just a version estimation")
             git.findYoungestTagCommitOnBranch(branch, tags).map { youngestTag ->
-                verbose("youngest tag on this branch is at ${youngestTag.id}")
+                verbose("youngest tag on this branch is at ${youngestTag.id.name} => ${tags[youngestTag.id]}")
                 commits.takeWhile { it.id != youngestTag.id }.size
             }.toEither { SemVerError.Unexpected("failed to find any semver tags on branch [$branch], does main have any version tags?") }
         }

@@ -51,7 +51,7 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory, private v
     }
 
     // defer version calculation since all our properties are lazy and needs to be configured first
-    fun version(): Version {
+    private fun version(): Version {
         val config = this.buildPluginConfig()
         val context = SemVerPluginContext(project.git, config, project)
         context.verbose("semver configuration while calculating version: $config")
@@ -65,24 +65,15 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory, private v
             context.log("semver: $it")
         }
     }
-    fun versionTagName(): String = tagPrefix.map { "$it${version()}" }.get()
+    private fun versionTagName(): String = tagPrefix.map { "$it${version()}" }.get()
 
-    private val main: BranchHandler = BranchHandler(objects, GitRef.MainBranch.DefaultScope, GitRef.MainBranch.DefaultStage)
-    private val develop: BranchHandler = BranchHandler(objects, GitRef.DevelopBranch.DefaultScope, GitRef.DevelopBranch.DefaultStage)
-    private val feature: BranchHandler = BranchHandler(objects, GitRef.FeatureBranch.DefaultScope, GitRef.FeatureBranch.DefaultStage)
-    private val hotfix: BranchHandler = BranchHandler(objects, GitRef.HotfixBranch.DefaultScope, GitRef.HotfixBranch.DefaultStage)
+    val version by lazy { version() }
+    val versionTagName by lazy { versionTagName() }
 
-    fun main(action: Action<BranchHandler>) {
-        action.execute(main)
-    }
-    fun develop(action: Action<BranchHandler>) {
-        action.execute(develop)
-    }
-    fun feature(action: Action<BranchHandler>) {
-        action.execute(feature)
-    }
-    fun hotfix(action: Action<BranchHandler>) {
-        action.execute(hotfix)
+    private val currentBranch: BranchHandler = BranchHandler(objects)
+
+    fun currentBranch(action: Action<BranchHandler>) {
+        action.execute(currentBranch)
     }
 
     internal fun buildPluginConfig(): PluginConfig {
@@ -92,14 +83,8 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory, private v
             initialVersion.get(),
             overrideVersion.orNull.toOption(),
             featureBranchRegexes.get().toList(),
-            main.scope.get(),
-            main.stage.get(),
-            develop.scope.get(),
-            develop.stage.get(),
-            feature.scope.get(),
-            feature.stage.get(),
-            hotfix.scope.get(),
-            hotfix.stage.get(),
+            currentBranch.scope.orNull.toOption(),
+            currentBranch.stage.orNull.toOption(),
         )
     }
 
@@ -110,22 +95,21 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory, private v
     }
 }
 
-open class BranchHandler @Inject constructor(objects: ObjectFactory, private val defaultScope: Scope, private val defaultStage: Stage) {
-    internal val scope: Property<Scope> = objects.property(Scope::class.java)
-    internal val stage: Property<Stage> = objects.property(Stage::class.java)
+open class BranchHandler @Inject constructor(objects: ObjectFactory) {
+    internal val scope: Property<Scope?> = objects.property(Scope::class.java).convention(null)
+    internal val stage: Property<Stage?> = objects.property(Stage::class.java).convention(null)
 
-    init {
-        scope.set(defaultScope)
-        stage.set(defaultStage)
+    fun scope(scope: String?) {
+        scope?.let {
+            this.scope.set(Scope.fromValue(it))
+            this.scope.disallowChanges()
+        }
     }
 
-    fun scope(scope: String) {
-        this.scope.set(Scope.fromValue(scope, defaultScope))
-        this.scope.disallowChanges()
-    }
-
-    fun stage(stage: String) {
-        this.stage.set(Stage.fromValue(stage, defaultStage))
-        this.stage.disallowChanges()
+    fun stage(stage: String?) {
+        stage?.let {
+            this.stage.set(Stage.fromValue(it))
+            this.stage.disallowChanges()
+        }
     }
 }

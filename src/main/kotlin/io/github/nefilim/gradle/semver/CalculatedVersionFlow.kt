@@ -74,9 +74,23 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
 
 internal fun applyScopeToVersion(version: Version, scope: Scope, stage: Stage? = null): Either<SemVerError, Version> {
     return when (scope) {
-        Scope.Major -> version.inc(Increase.Major, stage.toStageName()).right()
-        Scope.Minor -> version.inc(Increase.Minor, stage.toStageName()).right()
-        Scope.Patch -> version.inc(Increase.Patch, stage.toStageName()).right()
+        Scope.Major -> {
+            when (stage) {
+                Stage.Snapshot -> version.nextSnapshotMajor().right()
+                else -> version.inc(Increase.Major, stage.toStageName()).right()
+            }
+        }
+        Scope.Minor -> {
+            when (stage) {
+                Stage.Snapshot -> version.nextSnapshotMinor().right()
+                else -> version.inc(Increase.Minor, stage.toStageName()).right()
+            }
+        }
+        Scope.Patch ->
+            when (stage) {
+                Stage.Snapshot -> version.nextSnapshotPatch().right()
+                else -> version.inc(Increase.Patch, stage.toStageName()).right()
+            }
         Scope.Auto -> {
             SemVerError.UnsupportedScope(scope).left()
         }
@@ -88,6 +102,9 @@ internal fun Stage?.toStageName(): String {
     return when (this) {
         null -> ""
         Stage.Final -> ""
+        Stage.Snapshot -> "SNAPSHOT"
         else -> this.name.lowercase()
+    }.also {
+        println("STAGE NAME [$it]")
     }
 }

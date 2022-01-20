@@ -30,7 +30,7 @@ public class SemVerPlugin: Plugin<Project> {
 open class CurrentVersionTask: DefaultTask() {
     @TaskAction
     fun currentVersion() {
-        project.logger.lifecycle("version: ${(project.extensions[SemVerExtension.ExtensionName] as SemVerExtension).version()}".purple())
+        project.logger.lifecycle("version: ${(project.extensions[SemVerExtension.ExtensionName] as SemVerExtension).version}".purple())
     }
 }
 
@@ -44,8 +44,8 @@ open class GenerateVersionFileTask: DefaultTask() {
                 createNewFile()
                 writeText(
                     """
-                       |${extension.version().value}
-                       |${extension.versionTagName()}
+                       |${extension.version.value}
+                       |${extension.versionTagName}
                     """.trimMargin()
                 )
             }
