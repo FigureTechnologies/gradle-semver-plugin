@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION as KOTLIN_VERSI
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     `java-gradle-plugin`
+    signing
     `maven-publish`
     alias(libs.plugins.changelog)
     alias(libs.plugins.githubrelease)
@@ -12,7 +13,6 @@ plugins {
     alias(libs.plugins.semver)
     alias(libs.plugins.versions)
     alias(libs.plugins.nexus.publish)
-    signing
 }
 
 semver {
@@ -46,9 +46,6 @@ repositories {
     mavenCentral()
 }
 
-tasks.named("publish") {
-    dependsOn("signMavenJavaPublication")
-}
 
 dependencies {
     api(gradleApi())
@@ -118,19 +115,6 @@ nexusPublishing {
     }
 }
 
-signing {
-    val skipSigning = findProperty("skipSigning")?.let { (it as String).toBoolean() } ?: false
-    if (!skipSigning) {
-        val signingKeyId: String? by project
-        val signingKey: String? by project
-        val signingPassword: String? by project
-        useInMemoryPgpKeys(signingKey, signingPassword)
-        sign(publishing.publications)
-    } else {
-        logger.warn("skipping signing")
-    }
-}
-
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
@@ -161,6 +145,18 @@ publishing {
             version = project.version.toString()
             from(components["java"])
         }
+    }
+}
+
+signing {
+    val skipSigning = findProperty("skipSigning")?.let { (it as String).toBoolean() } ?: false
+    if (!skipSigning) {
+        val signingKey: String? by project
+        val signingPassword: String? by project
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign(publishing.publications)
+    } else {
+        logger.warn("skipping signing")
     }
 }
 
