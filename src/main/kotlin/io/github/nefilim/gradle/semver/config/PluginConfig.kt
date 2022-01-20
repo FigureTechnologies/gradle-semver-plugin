@@ -45,13 +45,13 @@ enum class Stage(private val value: String) {
 
         fun fromValue(value: String?, default: Stage): Stage {
             return if (value != null )
-                map[value.lowercase()] ?: throw IllegalArgumentException("invalid stage: ${value.lowercase()}, valid values: ${values().joinToString { it.value }}")
+                map[value.lowercase()] ?: throw IllegalArgumentException("invalid stage: [${value.lowercase()}], valid values: ${values().joinToString { it.value }}")
             else
                 default
         }
 
         fun fromValue(value: String): Stage {
-            return map[value.lowercase()] ?: throw IllegalArgumentException("invalid stage: ${value.lowercase()}, valid values: ${values().joinToString { it.value }}")
+            return map[value.lowercase()] ?: throw IllegalArgumentException("invalid stage: [${value.lowercase()}], valid values: ${values().joinToString { it.value }}")
         }
     }
 }

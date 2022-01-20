@@ -101,15 +101,19 @@ open class BranchHandler @Inject constructor(objects: ObjectFactory) {
 
     fun scope(scope: String?) {
         scope?.let {
-            this.scope.set(Scope.fromValue(it))
-            this.scope.disallowChanges()
+            if (it.isNotBlank()) {
+                this.scope.set(Scope.fromValue(it))
+                this.scope.disallowChanges()
+            }
         }
     }
 
     fun stage(stage: String?) {
         stage?.let {
-            this.stage.set(Stage.fromValue(it))
-            this.stage.disallowChanges()
+            if (it.isNotBlank()) {
+                this.stage.set(Stage.fromValue(it))
+                this.stage.disallowChanges()
+            }
         }
     }
 }
