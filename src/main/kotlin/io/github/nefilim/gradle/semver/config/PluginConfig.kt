@@ -69,13 +69,13 @@ enum class Scope(private val value: String) {
 
         fun fromValue(value: String?, default: Scope): Scope {
             return if (value != null )
-                map[value.lowercase()] ?: throw IllegalArgumentException("invalid scope: ${value.lowercase()}, valid values: ${values().joinToString { it.value }}")
+                map[value.lowercase()] ?: throw IllegalArgumentException("invalid scope: [${value.lowercase()}], valid values: ${values().joinToString { it.value }}")
             else
                 default
         }
 
         fun fromValue(value: String): Scope {
-            return map[value.lowercase()] ?: throw IllegalArgumentException("invalid scope: ${value.lowercase()}, valid values: ${values().joinToString { it.value }}")
+            return map[value.lowercase()] ?: throw IllegalArgumentException("invalid scope: [${value.lowercase()}], valid values: ${values().joinToString { it.value }}")
         }
     }
 }

@@ -104,7 +104,5 @@ internal fun Stage?.toStageName(): String {
         Stage.Final -> ""
         Stage.Snapshot -> "SNAPSHOT"
         else -> this.name.lowercase()
-    }.also {
-        println("STAGE NAME [$it]")
     }
 }
