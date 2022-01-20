@@ -42,6 +42,7 @@ jobs:
             publishToSonatype closeAndReleaseSonatypeStagingRepository 
             publishPlugins
             githubRelease
+            --stacktrace
         env:
           GITHUB_TOKEN: ${{ github.token }}
           OSS_USER: '${{ secrets.OSS_USER }}'
