@@ -29,16 +29,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Restore Gradle cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-          
-
       - name: Build and Release Main
         if: ${{ github.ref_name == 'main' }}
         uses: gradle/gradle-build-action@v2
@@ -46,7 +36,7 @@ jobs:
           build-root-directory: ${{ inputs.source }}
           cache-read-only: ${{ github.ref != 'refs/heads/develop' }} # only update the cache on the default branch https://github.com/gradle/gradle-build-action#optimizing-cache-effectiveness
           arguments: |
-            -Psemver.main.scope=${{ github.event.inputs.scope }} -Psemver.main.stage=${{ github.event.inputs.stage }} 
+            -Psemver.main.scope=patch -Psemver.main.stage=final 
             -Pgradle.publish.key=${{ secrets.GRADLE_PUBLISH_KEY }} -Pgradle.publish.secret=${{ secrets.GRADLE_PUBLISH_SECRET }}
             clean build
             publishToSonatype closeAndReleaseSonatypeStagingRepository 
