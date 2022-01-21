@@ -6,7 +6,6 @@ plugins {
     `java-gradle-plugin`
     signing
     `maven-publish`
-    alias(libs.plugins.changelog)
     alias(libs.plugins.githubrelease)
     alias(libs.plugins.gradlePluginPublish)
     alias(libs.plugins.kotlin.jvm)
@@ -39,6 +38,7 @@ inner class ProjectInfo {
     val pluginImplementationClass = "$group.semver.SemVerPlugin"
     val tags = listOf("semver", "gitflow")
     val website = "https://github.com/nefilim/gradle-semver-plugin"
+    val vcsURL = "https://github.com/nefilim/gradle-semver-plugin.git"
 }
 val info = ProjectInfo()
 
@@ -115,49 +115,21 @@ nexusPublishing {
     }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            pom {
-                name.set(project.name)
-                description.set("Git Flow Semver Gradle Plugin")
-                url.set("https://github.com/nefilim/gradle-semver-plugin")
-                licenses {
-                    license {
-                        name.set("GPL-3.0-only")
-                        url.set("https://opensource.org/licenses/GPL-3.0")
-                    }
-                }
-                developers {
-                    developer {
-                        id.set("nefilim")
-                        name.set("nefilim")
-                        email.set("nefilim@hotmail.com")
-                    }
-                }
-                scm {
-                    connection.set("scm:git:https://github.com/nefilim/gradle-semver-plugin.git")
-                    url.set("https://github.com/nefilim/gradle-semver-plugin")
-                }
-            }
-            artifactId = project.name
-            groupId = project.group.toString()
-            version = project.version.toString()
-            from(components["java"])
-        }
-    }
-}
-
 signing {
     val skipSigning = findProperty("skipSigning")?.let { (it as String).toBoolean() } ?: false
     if (!skipSigning) {
         val signingKey: String? by project
         val signingPassword: String? by project
         useInMemoryPgpKeys(signingKey, signingPassword)
-        sign(publishing.publications)
     } else {
         logger.warn("skipping signing")
     }
+}
+
+pluginBundle {
+    website = info.website
+    vcsUrl = info.vcsURL
+    tags = info.tags
 }
 
 gradlePlugin {
@@ -171,10 +143,39 @@ gradlePlugin {
     }
 }
 
-pluginBundle {
-    website = info.website
-    vcsUrl = info.website
-    tags = info.tags
+fun MavenPublication.addSonaTypeRequirements() {
+    this.pom {
+        name.set(project.name)
+        description.set("Git Flow Semver Gradle Plugin")
+        url.set(info.website)
+        licenses {
+            license {
+                name.set("GPL-3.0-only")
+                url.set("https://opensource.org/licenses/GPL-3.0")
+            }
+        }
+        developers {
+            developer {
+                id.set("nefilim")
+                name.set("nefilim")
+                email.set("nefilim@hotmail.com")
+            }
+        }
+        scm {
+            connection.set("scm:git:${info.vcsURL}")
+            url.set(info.website)
+        }
+    }
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            findByName("pluginMaven")?.let { it as MavenPublication }?.apply { addSonaTypeRequirements() }
+            findByName("semver-pluginPluginMarkerMaven")?.let { it as MavenPublication }?.apply { addSonaTypeRequirements() }
+        }
+    }
+    signing.sign(publishing.publications)
 }
 
 val githubTokenValue = findProperty("githubToken")?.toString() ?: System.getenv("GITHUB_TOKEN")
@@ -194,31 +195,4 @@ githubRelease {
     dryRun(false) // by default false; you can use this to see what actions would be taken without making a release
     apiEndpoint("https://api.github.com") // should only change for github enterprise users
     client // This is the okhttp client used for http requests
-}
-
-changelog {
-    githubUser = "nefilim"
-    githubToken = githubTokenValue // [optional] project property "githubToken" or env variable "GITHUB_TOKEN"
-    githubRepository = "gradle-semver-plugin"
-
-    title = "Change Log"
-    showUnreleased = true
-    unreleasedVersionTitle = "Unreleased"
-    futureVersionTag = semver.versionTagName()
-    sections = emptyList() // no custom sections by default, but default sections are prepended
-    defaultIssueSectionTitle = "Closed issues:"
-    defaultPrSectionTitle = "Merged pull requests:"
-    includeLabels = emptyList()
-    excludeLabels = listOf("duplicate", "invalid", "question", "wontfix")
-    sinceTag = null
-    skipTags = emptyList()
-    skipTagsRegex = emptyList()
-    releaseUrlTemplate = null // defaults to "https://github.com/$user/$repo/tree/%s"
-    diffUrlTemplate = null // defaults to "https://github.com/$user/$repo/compare/%s...%s"
-    releaseUrlTagTransform = { it }
-    diffUrlTagTransform = { it }
-    useMilestoneAsTag = true
-    timezone = ZoneId.of("America/Denver")
-
-    outputFile = file("${projectDir}/CHANGELOG.md")
 }
