@@ -20,9 +20,9 @@ semver {
     initialVersion("0.0.1")
     findProperty("semver.overrideVersion")?.toString()?.let { overrideVersion(it) }
 
-    main {
-        scope(findProperty("semver.main.scope")?.toString() ?: "patch")
-        stage(findProperty("semver.main.stage")?.toString() ?: "final")
+    currentBranch {
+        scope(findProperty("semver.currentBranch.scope")?.toString())
+        stage(findProperty("semver.currentBranch.stage")?.toString())
     }
 }
 
@@ -31,7 +31,7 @@ semver {
  */
 group = "io.github.nefilim.gradle"
 description = "Modified Git Flow based semver plugin"
-version = semver.version()
+version = semver.version
 
 inner class ProjectInfo {
     val longName = "Gradle Semver Plugin"
@@ -181,18 +181,17 @@ afterEvaluate {
 val githubTokenValue = findProperty("githubToken")?.toString() ?: System.getenv("GITHUB_TOKEN")
 
 githubRelease {
-    token(githubTokenValue) // This is your personal access token with Repo permissions
-    // You get this from your user settings > developer settings > Personal Access Tokens
-    owner("nefilim") // default is the last part of your group. Eg group: "com.github.breadmoirai" => owner: "breadmoirai"
-    repo("gradle-semver-plugin") // by default this is set to your project name
-    tagName("v${project.version}") // by default this is set to "v${project.version}"
-    targetCommitish("main") // by default this is set to "master"
-    body(changelog()) // by default this is empty
-    draft(false) // by default this is false
-    prerelease(false) // by default this is false
+    token(githubTokenValue)
+    owner("nefilim")
+    repo("gradle-semver-plugin")
+    tagName(semver.versionTagName)
+    targetCommitish("main")
+    body(changelog())
+    draft(false)
+    prerelease(false)
 
-    overwrite(false) // by default false; if set to true, will delete an existing release with the same tag and name
-    dryRun(false) // by default false; you can use this to see what actions would be taken without making a release
-    apiEndpoint("https://api.github.com") // should only change for github enterprise users
-    client // This is the okhttp client used for http requests
+    overwrite(false)
+    dryRun(false)
+    apiEndpoint("https://api.github.com")
+    client
 }

@@ -23,9 +23,9 @@ and refers to the semver component to alter when determining the current version
 The `Stage` property refers to the label (typically for pre-release builds) following the patch component, eg: given `1.2.3-alpha.1`, the `Stage` would be `alpha`. The supported stages are:
 * Final - results in a release version, eg `1.2.3`
 * Snapshot - results in a snapshot version, eg `1.2.3-SNAPSHOT`
-* Alpha - `1.2.3-alpha.1`
-* Beta - `1.2.3-alpha.2`
-* RC - `1.2.3-rc.1`
+* Alpha - `1.2.3-alpha.6`
+* Beta - `1.2.3-beta.2`
+* RC - `1.2.3-rc.3`
  
 ### Main Branch
                                                                              

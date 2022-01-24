@@ -1,17 +1,27 @@
-name: push and pr release
+name: Manual release
 
 on:
-  push:
-    branches:
-      - main
-      - develop
-    paths-ignore:
-      - '**.md'
-  pull_request:
-    branches:
-      - develop
-    paths-ignore:
-      - '**.md'
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: 'Stage'
+        required: true
+        default: 'default'
+        type: choice
+        options:
+          - 'default'
+          - 'beta'
+          - 'rc'
+          - 'final'
+      scope:
+        description: 'Scope'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - 'patch'
+          - 'minor'
+          - 'major'
 
 jobs:
   build-and-publish:
@@ -30,19 +40,15 @@ jobs:
           fetch-depth: 0
 
       - name: Build and Release Main
-        if: ${{ github.ref_name == 'main' }}
         uses: gradle/gradle-build-action@v2
         with:
           build-root-directory: ${{ inputs.source }}
           cache-read-only: ${{ github.ref != 'refs/heads/develop' }} # only update the cache on the default branch https://github.com/gradle/gradle-build-action#optimizing-cache-effectiveness
           arguments: |
-            -Psemver.main.scope=patch -Psemver.main.stage=final 
-            -Pgradle.publish.key=${{ secrets.GRADLE_PUBLISH_KEY }} -Pgradle.publish.secret=${{ secrets.GRADLE_PUBLISH_SECRET }}
+            -Psemver.currentBranch.scope=${{ github.event.inputs.scope }} -Psemver.currentBranch.stage=${{ github.event.inputs.stage }} 
             clean build
             publishToSonatype closeAndReleaseSonatypeStagingRepository 
-            publishPlugins
             githubRelease
-            --stacktrace
         env:
           GITHUB_TOKEN: ${{ github.token }}
           OSS_USER: '${{ secrets.OSS_USER }}'
@@ -51,20 +57,6 @@ jobs:
           ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEYID }}
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGKEY }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_SIGNINGPASSWORD }}
-
-      - name: Build and Release Develop
-        if: ${{ github.ref_name == 'develop' }}
-        run: |
-          ./gradlew --no-daemon clean build -Psemver.develop.stage=beta
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-
-      - name: Build and Release Branch
-        if: ${{ github.ref_name != 'develop' && github.ref_name != 'main' }}
-        run: |
-          ./gradlew --no-daemon clean build -Psemver.feature.stage=alpha
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Stop Gradle daemons
         run: ./gradlew --stop
