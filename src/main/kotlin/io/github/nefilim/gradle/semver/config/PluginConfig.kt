@@ -34,7 +34,7 @@ data class SemVerPluginContext(
 enum class Stage(private val value: String) {
     Alpha("alpha"),
     Beta("beta"),
-    Auto("auto"),
+    RC("rc"),
     Final("final"),
     Snapshot("snapshot");
 

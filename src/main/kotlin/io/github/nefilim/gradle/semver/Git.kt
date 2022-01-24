@@ -140,17 +140,17 @@ internal fun SemVerPluginContext.commitsSinceBranchPoint(
     }
 }
 
-internal fun Git.calculateDevelopBranchVersion(
-    main: GitRef.MainBranch,
-    develop: GitRef.DevelopBranch,
+internal fun Git.calculateBaseBranchVersion(
+    branchTarget: GitRef.Branch,
+    branch: GitRef.Branch,
     tags: Map<ObjectId, Version>,
 ): Either<SemVerError, Option<Version>> {
     return either.eager {
-        val head = headRevInBranch(develop).bind()
-        findYoungestTagOnBranchOlderThanTarget(main, head, tags).fold({
+        val head = headRevInBranch(branch).bind()
+        findYoungestTagOnBranchOlderThanTarget(branchTarget, head, tags).fold({
             None.right()
         }, {
-            applyScopeToVersion(it, develop.scope, develop.stage).map { it.some() }
+            applyScopeToVersion(it, branch.scope, branch.stage).map { it.some() }
         }).bind()
     }
 }

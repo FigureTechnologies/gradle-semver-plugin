@@ -19,6 +19,8 @@ sealed interface GitRef {
     sealed interface Branch {
         val name: String // example: `main`
         val refName: String // example: `refs/heads/main`
+        val scope: Scope
+        val stage: Stage
         fun headCommitID(repo: Repository): ObjectId = repo.findRef(refName).objectId
 
         companion object {
@@ -28,8 +30,6 @@ sealed interface GitRef {
 
     sealed interface VersionableBranch: Branch {
         val version: Option<Version>
-        val scope: Scope
-        val stage: Stage
     }
 
     data class MainBranch(
@@ -51,8 +51,8 @@ sealed interface GitRef {
 
     data class DevelopBranch(
         override val refName: String = RefName,
-        val scope: Scope = DefaultScope,
-        val stage: Stage = DefaultStage,
+        override val scope: Scope = DefaultScope,
+        override val stage: Stage = DefaultStage,
     ) : GitRef, Branch {
         override val name = Name
 
@@ -68,8 +68,8 @@ sealed interface GitRef {
     data class FeatureBranch(
         override val name: String,
         override val refName: String = "$RefHead/$name",
-        val scope: Scope = DefaultScope,
-        val stage: Stage = DefaultStage,
+        override val scope: Scope = DefaultScope,
+        override val stage: Stage = DefaultStage,
     ) : GitRef, Branch {
         companion object {
             val DefaultScope = Scope.Patch
@@ -81,8 +81,8 @@ sealed interface GitRef {
     data class HotfixBranch(
         override val name: String,
         override val refName: String = "$RefHead/$name",
-        val scope: Scope = FeatureBranch.DefaultScope,
-        val stage: Stage = FeatureBranch.DefaultStage,
+        override val scope: Scope = FeatureBranch.DefaultScope,
+        override val stage: Stage = FeatureBranch.DefaultStage,
     ) : GitRef, Branch {
         init {
             require(name.startsWith("hotfix/", ignoreCase = true))

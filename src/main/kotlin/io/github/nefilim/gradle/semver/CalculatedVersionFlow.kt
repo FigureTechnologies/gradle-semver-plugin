@@ -35,7 +35,7 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
             either.eager {
                 val branchPoint = git.headRevInBranch(main).bind()
                 val commitCount = commitsSinceBranchPoint(branchPoint, currentBranch, tags).bind()
-                git.calculateDevelopBranchVersion(main, develop, tags).map {
+                git.calculateBaseBranchVersion(main, develop, tags).map {
                     it.getOrElse {
                         warn("unable to determine last version from main branch, using initialVersion [${config.initialVersion}]")
                         config.initialVersion
@@ -46,7 +46,7 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
         is GitRef.FeatureBranch -> {
             // must have been branched from develop
             either.eager {
-                val devVersion = git.calculateDevelopBranchVersion(main, develop, tags).bind()
+                val devVersion = git.calculateBaseBranchVersion(develop, currentBranch, tags).bind()
                 val branchPoint = git.headRevInBranch(develop).bind()
                 val commitCount = commitsSinceBranchPoint(branchPoint, currentBranch, tags).bind()
                 devVersion.fold({
@@ -59,7 +59,7 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
         is GitRef.HotfixBranch -> {
             // must have been branched from main
             either.eager {
-                val devVersion = git.calculateDevelopBranchVersion(main, develop, tags).bind()
+                val devVersion = git.calculateBaseBranchVersion(main, currentBranch, tags).bind()
                 val branchPoint = git.headRevInBranch(main).bind()
                 val commitCount = commitsSinceBranchPoint(branchPoint, currentBranch, tags).bind()
                 devVersion.fold({
