@@ -3,13 +3,13 @@ package io.github.nefilim.gradle.semver
 import arrow.core.getOrElse
 import arrow.core.getOrHandle
 import arrow.core.toOption
-import com.javiersc.semver.Version
 import io.github.nefilim.gradle.semver.config.PluginConfig
 import io.github.nefilim.gradle.semver.config.Scope
 import io.github.nefilim.gradle.semver.config.SemVerPluginContext
 import io.github.nefilim.gradle.semver.config.Stage
 import io.github.nefilim.gradle.semver.config.possiblyPrefixedVersion
 import io.github.nefilim.gradle.semver.domain.GitRef
+import net.swiftzer.semver.SemVer
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
@@ -20,8 +20,8 @@ import javax.inject.Inject
 open class SemVerExtension @Inject constructor(objects: ObjectFactory, private val project: Project) {
     private val verbose: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
     private val tagPrefix: Property<String> = objects.property(String::class.java).convention(PluginConfig.DefaultTagPrefix)
-    private val initialVersion: Property<Version> = objects.property(Version::class.java).convention(PluginConfig.DefaultVersion)
-    private val overrideVersion: Property<Version> = objects.property(Version::class.java).convention(null)
+    private val initialVersion: Property<SemVer> = objects.property(SemVer::class.java).convention(PluginConfig.DefaultVersion)
+    private val overrideVersion: Property<SemVer> = objects.property(SemVer::class.java).convention(null)
     private val featureBranchRegexes: ListProperty<Regex> = objects.listProperty(Regex::class.java).convention(listOf(GitRef.FeatureBranch.DefaultRegex))
 
     fun verbose(b: Boolean) {
@@ -36,7 +36,7 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory, private v
     }
     fun initialVersion(version: String?) {
         version?.also {
-            initialVersion.set(Version(it))
+            initialVersion.set(SemVer.parse(it))
             initialVersion.disallowChanges()
         }
     }
@@ -51,13 +51,13 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory, private v
     }
 
     // defer version calculation since all our properties are lazy and needs to be configured first
-    private fun version(): Version {
+    private fun version(): SemVer {
         val config = this.buildPluginConfig()
         val context = SemVerPluginContext(project.git, config, project)
         context.verbose("semver configuration while calculating version: $config")
 
         return config.overrideVersion.getOrElse {
-            context.calculateVersionFlow().getOrHandle {
+            context.calculateVersion().getOrHandle {
                 context.error("failed to calculate version: $it".red())
                 throw Exception("$it")
             }
@@ -67,7 +67,7 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory, private v
     }
     private fun versionTagName(): String = tagPrefix.map { "$it${version()}" }.get()
 
-    val version by lazy { version() }
+    val version by lazy { version().toString() }
     val versionTagName by lazy { versionTagName() }
 
     private val currentBranch: BranchHandler = BranchHandler(objects)

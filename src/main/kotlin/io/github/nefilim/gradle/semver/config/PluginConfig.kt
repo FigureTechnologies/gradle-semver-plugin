@@ -2,7 +2,7 @@ package io.github.nefilim.gradle.semver.config
 
 import arrow.core.None
 import arrow.core.Option
-import com.javiersc.semver.Version
+import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Repository
 import org.gradle.api.Project
@@ -10,15 +10,15 @@ import org.gradle.api.Project
 data class PluginConfig(
     val verbose: Boolean = true,
     val tagPrefix: String,
-    val initialVersion: Version,
-    val overrideVersion: Option<Version> = None,
+    val initialVersion: SemVer,
+    val overrideVersion: Option<SemVer> = None,
     val featureBranchRegexes: List<Regex> = emptyList(),
-    
+
     val currentBranchScope: Option<Scope> = None,
     val currentBranchStage: Option<Stage> = None,
 ) {
     companion object {
-        internal val DefaultVersion = Version(0, 1, 0, null, null)
+        internal val DefaultVersion = SemVer(0, 1, 0, null, null)
         internal const val DefaultTagPrefix = "v"
     }
 }
@@ -36,7 +36,8 @@ enum class Stage(private val value: String) {
     Beta("beta"),
     RC("rc"),
     Final("final"),
-    Snapshot("snapshot");
+    Snapshot("snapshot"),
+    Branch("branch");
 
     operator fun invoke(): String = value
 
@@ -57,7 +58,6 @@ enum class Stage(private val value: String) {
 }
 
 enum class Scope(private val value: String) {
-    Auto("auto"),
     Major("major"),
     Minor("minor"),
     Patch("patch");
@@ -80,6 +80,6 @@ enum class Scope(private val value: String) {
     }
 }
 
-fun possiblyPrefixedVersion(version: String, prefix: String): Version {
-    return Version(version.trimMargin(prefix)) // fail fast, don't let an invalid version propagate to runtime
+fun possiblyPrefixedVersion(version: String, prefix: String): SemVer {
+    return SemVer.parse(version.trimMargin(prefix)) // fail fast, don't let an invalid version propagate to runtime
 }

@@ -11,11 +11,11 @@ import arrow.core.left
 import arrow.core.right
 import arrow.core.some
 import arrow.core.toOption
-import com.javiersc.semver.Version
 import io.github.nefilim.gradle.semver.config.PluginConfig
 import io.github.nefilim.gradle.semver.config.SemVerPluginContext
 import io.github.nefilim.gradle.semver.domain.GitRef
 import io.github.nefilim.gradle.semver.domain.SemVerError
+import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
@@ -24,13 +24,24 @@ import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.gradle.api.Project
 
-internal fun String?.semverTag(prefix: String): Option<Version> {
+internal fun Git.currentBranchRef(): Option<String> {
+    return if (githubActionsBuild() && pullRequestEvent()) {
+        pullRequestHeadRef()
+    } else
+        repository.fullBranch.some()
+}
+
+internal fun String?.semverTag(prefix: String): Option<SemVer> {
     return this?.substringAfterLast("/$prefix")?.let {
-        Version.safe(it).fold({ it.some() }, { None })
+        if (it.isNotBlank() && it.count { it == '.' } == 2)
+            Either.catch { SemVer.parse(it) }.fold({ None }, { it.some() })
+        else
+            None
     } ?: None
 }
 
-internal fun Ref?.semverTag(prefix: String): Option<Version> {
+internal fun Ref?.semverTag(prefix: String): Option<SemVer> {
+//    println("checking semver tag for ${this?.name}")
     return this?.name?.semverTag(prefix) ?: None
 }
 
@@ -50,7 +61,7 @@ private fun Git.buildRef(refName: String): Either<SemVerError, Ref> {
         .flatMap { it.toEither { SemVerError.MissingRef("could not find a git ref for [$refName]")  } }
 }
 
-internal fun Git.tagMap(prefix: String): Map<ObjectId, Version> {
+internal fun Git.tagMap(prefix: String): Map<ObjectId, SemVer> {
     val versionTags = tagList().call().toList().map { ref ->
         // have to unpeel annotated tags
         ref.semverTag(prefix).map { (repository.refDatabase.peel(ref).peeledObjectId ?: ref.objectId) to it }
@@ -58,9 +69,9 @@ internal fun Git.tagMap(prefix: String): Map<ObjectId, Version> {
     return versionTags.toMap()
 }
 
-internal fun Git.currentVersion(config: PluginConfig, branchRefName: String): Option<Version> {
+internal fun Git.currentVersion(config: PluginConfig, branchRefName: String): Option<SemVer> {
     val tags = tagMap(config.tagPrefix)
-    val tagsIDs = tagMap(config.tagPrefix).keys
+    val tagsIDs = tags.keys
     return RevWalk(repository).use { walk ->
         val head = walk.parseCommit(GitRef.Branch.headCommitID(repository, branchRefName))
 
@@ -68,7 +79,9 @@ internal fun Git.currentVersion(config: PluginConfig, branchRefName: String): Op
         (walk.firstOrNull() {
             tagsIDs.contains(it.toObjectId()) &&
             tags.containsKey(it.toObjectId())
-        }?.let { tags[it.toObjectId()].toOption() } ?: None).also {
+        }?.let {
+            tags[it.toObjectId()].toOption()
+        } ?: None).also {
             walk.dispose()
         }
     }
@@ -77,17 +90,19 @@ internal fun Git.currentVersion(config: PluginConfig, branchRefName: String): Op
 internal fun SemVerPluginContext.buildBranch(branchRefName: String, config: PluginConfig): Either<SemVerError, GitRef.Branch> {
     return either.eager {
         val shortName = git.buildRef(branchRefName).flatMap { it.shortName() }.bind()
+        verbose("building branch for $branchRefName")
         with (shortName) {
             when {
-                equals("main") -> {
+                equals(GitRef.MainBranch.Name, ignoreCase = true) || equals(GitRef.MainBranch.AlternativeName, ignoreCase = true) -> {
                     GitRef.MainBranch(
+                        GitRef.MainBranch.determineName(branchRefName),
                         branchRefName,
                         git.currentVersion(config, branchRefName),
                         config.currentBranchScope.getOrElse { GitRef.MainBranch.DefaultScope },
                         config.currentBranchStage.getOrElse { GitRef.MainBranch.DefaultStage }
                     ).right()
                 }
-                equals("develop") -> {
+                equals(GitRef.DevelopBranch.Name, ignoreCase = true) -> {
                     GitRef.DevelopBranch(
                         branchRefName,
                         config.currentBranchScope.getOrElse { GitRef.DevelopBranch.DefaultScope },
@@ -119,7 +134,7 @@ internal fun SemVerPluginContext.buildBranch(branchRefName: String, config: Plug
 internal fun SemVerPluginContext.commitsSinceBranchPoint(
     branchPoint: RevCommit,
     branch: GitRef.Branch,
-    tags: Map<ObjectId, Version>,
+    tags: Map<ObjectId, SemVer>,
 ): Either<SemVerError, Int> {
     val commits = git.log().call().toList() // can this blow up for large repos?
     val newCommits = commits.takeWhile {
@@ -143,14 +158,14 @@ internal fun SemVerPluginContext.commitsSinceBranchPoint(
 internal fun Git.calculateBaseBranchVersion(
     branchTarget: GitRef.Branch,
     branch: GitRef.Branch,
-    tags: Map<ObjectId, Version>,
-): Either<SemVerError, Option<Version>> {
+    tags: Map<ObjectId, SemVer>,
+): Either<SemVerError, Option<SemVer>> {
     return either.eager {
         val head = headRevInBranch(branch).bind()
         findYoungestTagOnBranchOlderThanTarget(branchTarget, head, tags).fold({
             None.right()
         }, {
-            applyScopeToVersion(it, branch.scope, branch.stage).map { it.some() }
+            applyScopeToVersion(branch, it, branch.scope, branch.stage).map { it.some() }
         }).bind()
     }
 }
@@ -170,8 +185,8 @@ internal fun Git.headRevInBranch(branch: GitRef.Branch): Either<SemVerError, Rev
 internal fun Git.findYoungestTagOnBranchOlderThanTarget(
     branch: GitRef.Branch,
     target: RevCommit,
-    tags: Map<ObjectId, Version>
-): Option<Version> {
+    tags: Map<ObjectId, SemVer>
+): Option<SemVer> {
     return log().add(repository.exactRef(branch.refName).objectId).call()
         .firstOrNull { it.commitTime <= target.commitTime && tags.containsKey(it.toObjectId()) }
         .toOption()
@@ -180,7 +195,7 @@ internal fun Git.findYoungestTagOnBranchOlderThanTarget(
 
 internal fun Git.findYoungestTagCommitOnBranch(
     branch: GitRef.Branch,
-    tags: Map<ObjectId, Version>
+    tags: Map<ObjectId, SemVer>
 ): Option<RevCommit> {
     return log().add(repository.exactRef(branch.refName).objectId).call()
         .firstOrNull { tags.containsKey(it.toObjectId()) }

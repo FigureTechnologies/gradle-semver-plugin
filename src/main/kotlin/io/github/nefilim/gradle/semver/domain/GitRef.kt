@@ -3,7 +3,7 @@ package io.github.nefilim.gradle.semver.domain
 import arrow.core.Option
 import io.github.nefilim.gradle.semver.config.Scope
 import io.github.nefilim.gradle.semver.config.Stage
-import com.javiersc.semver.Version
+import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Repository
@@ -29,23 +29,34 @@ sealed interface GitRef {
     }
 
     sealed interface VersionableBranch: Branch {
-        val version: Option<Version>
+        val version: Option<SemVer>
     }
 
     data class MainBranch(
-        override val refName: String = DevelopBranch.RefName,
-        override val version: Option<Version>,
+        override val name: String = Name,
+        override val refName: String = RefName,
+        override val version: Option<SemVer>,
         override val scope: Scope = DefaultScope,
         override val stage: Stage = DefaultStage,
     ) : GitRef, VersionableBranch {
-        override val name = Name
 
         companion object {
             const val Name = "main"
+            const val AlternativeName = "master"
             val RefName = "$RefHead/$Name"
             val RemoteOriginRefName = "$RemoteOrigin/$Name"
+            val AlternativeRefName = "$RefHead/$AlternativeName"
+            val AlternativeRemoteOriginRefName = "$RemoteOrigin/$AlternativeName"
+            val PossibleBranchRefs = setOf(RefName, RemoteOriginRefName, AlternativeRefName, AlternativeRemoteOriginRefName)
             val DefaultScope = Scope.Minor
             val DefaultStage = Stage.Final
+
+            fun determineName(refName: String): String {
+                return if (refName.contains(AlternativeName, ignoreCase = true))
+                    AlternativeName
+                else
+                    Name
+            }
         }
     }
 

@@ -26,6 +26,7 @@ The `Stage` property refers to the label (typically for pre-release builds) foll
 * Alpha - `1.2.3-alpha.6`
 * Beta - `1.2.3-beta.2`
 * RC - `1.2.3-rc.3`
+* Branch - `1.2.3-my_branch.1` this stage will use the branch name (everything after the last /) as the stage name, this can be useful on a high traffic repo to avoid version collisions in concurrent feature branches
  
 ### Main Branch
                                                                              
@@ -43,6 +44,8 @@ when the last version tag on main is `v1.2.3` the new version would be calculate
 
 *Default Stage*: `Final`
 *Default Scope*: `Minor`
+
+`master` is also supported as the "main" branch in case it has not been renamed yet. 
 
 ### Develop Branch
 
@@ -77,6 +80,10 @@ Feature branches can be customized with a regex to match the branch name, eg:
 
 *Hotfix Default Stage*: `Beta`
 *Hotfix Default Scope*: `Patch`
+
+#### Flat Mode
+
+In case there is no `develop` branch the plugin will revert to "flat" mode which just bases all version decisions of `main` and assumes all branches were branched off `main`.
 
 ## Usage
 

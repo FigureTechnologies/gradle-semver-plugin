@@ -1,4 +1,3 @@
-import java.time.ZoneId
 import org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION as KOTLIN_VERSION
 
 @Suppress("DSL_SCOPE_VIOLATION")
@@ -26,6 +25,26 @@ semver {
     }
 }
 
+val invalidQualifiers = setOf("alpha", "beta", "rc", "nightly")
+fun hasInvalidQualifier(candidate: ModuleComponentIdentifier): Boolean {
+    return invalidQualifiers.any { candidate.version.contains(it) }
+}
+configurations.all {
+    resolutionStrategy {
+        eachDependency {
+            if (requested.group == "org.jetbrains.kotlin") {
+                useVersion(libs.versions.kotlin.get())
+            }
+        }
+        componentSelection {
+            all {
+                if (!(candidate.group.startsWith("com.figure") || (candidate.group.startsWith("io.provenance"))) && hasInvalidQualifier(candidate))
+                    reject("invalid qualifier versions for $candidate")
+            }
+        }
+    }
+}
+
 /*
  * Project information
  */
@@ -46,16 +65,15 @@ repositories {
     mavenCentral()
 }
 
-
 dependencies {
     api(gradleApi())
     api(gradleKotlinDsl())
     api(kotlin("stdlib-jdk8"))
     implementation(libs.arrow.core)
     implementation(libs.eclipse.jgit.eclipseJgit)
-    api(libs.javiersc.semver.semverCore)
+    api(libs.swiftzer.semver)
     testImplementation(gradleTestKit())
-    testImplementation(libs.bundles.kotlin.testing)
+    testImplementation(libs.bundles.kotest)
 }
 
 // Enforce Kotlin version coherence

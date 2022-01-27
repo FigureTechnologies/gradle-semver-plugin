@@ -9,14 +9,16 @@ internal val Project.hasSemVerPlugin: Boolean
 internal val Project.appliedOnlyOnRootProject: Boolean
     get() = rootProject.hasSemVerPlugin && rootProject.subprojects.none(Project::hasSemVerPlugin)
 
+private val LogPrefix = "semver: ".bold()
+
 internal fun SemVerPluginContext.log(message: String) {
-    project.logger.lifecycle(message)
+    project.logger.lifecycle("$LogPrefix $message")
 }
 internal fun SemVerPluginContext.warn(message: String) {
-    project.logger.lifecycle(message.yellow())
+    project.logger.lifecycle("$LogPrefix ${message.yellow()}")
 }
 internal fun SemVerPluginContext.error(message: String) {
-    project.logger.error(message.red())
+    project.logger.error("$LogPrefix ${message.red()}")
 }
 
 internal fun SemVerPluginContext.verbose(message: String) {
@@ -29,4 +31,4 @@ internal fun String.green() = this.coloured("\u001B[32m")
 internal fun String.red() = this.coloured("\u001B[31m")
 internal fun String.purple() = this.coloured("\u001B[35m")
 internal fun String.yellow() = this.coloured("\u001B[33m")
-internal fun String.bold() = this.coloured("\u001B[37m")
+internal fun String.bold() = this.coloured("\u001B[1m")
