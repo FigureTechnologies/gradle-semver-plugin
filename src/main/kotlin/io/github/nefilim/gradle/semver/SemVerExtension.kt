@@ -65,7 +65,7 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory, private v
             context.log("semver: $it")
         }
     }
-    private fun versionTagName(): String = tagPrefix.map { "$it${version()}" }.get()
+    private fun versionTagName(): String = tagPrefix.map { "$it${version}" }.get()
 
     val version by lazy { version().toString() }
     val versionTagName by lazy { versionTagName() }
