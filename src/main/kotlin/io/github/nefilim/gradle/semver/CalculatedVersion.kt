@@ -115,10 +115,10 @@ internal fun SemVer.applyStageNumber(stageNumber: Int): SemVer {
 }
 
 // TODO create an ADT for Stage so we can derive string name here
-internal fun Stage?.toStageName(currentBranch: GitRef.Branch): String {
+internal fun Stage?.toStageName(currentBranch: GitRef.Branch): String? {
     return when (this) {
-        null -> ""
-        Stage.Final -> ""
+        null -> null
+        Stage.Final -> null
         Stage.Snapshot -> "SNAPSHOT"
         Stage.Branch -> currentBranch.name.substringAfterLast('/')
         else -> this.name.lowercase()

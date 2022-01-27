@@ -60,7 +60,7 @@ jobs:
             echo '::set-output name=publishCommand::'
           else
             echo 'not skipping publish'
-            echo '::set-output name=publishCommand::publishToSonatype closeAndReleaseSonatypeStagingRepository'
+            echo '::set-output name=publishCommand::publishToSonatype closeAndReleaseSonatypeStagingRepository publishPlugins'
           fi
         env:
           INPUT_STAGE: ${{ github.event.inputs.stage }}
