@@ -21,6 +21,10 @@ data class PluginConfig(
         internal val DefaultVersion = SemVer(0, 1, 0, null, null)
         internal const val DefaultTagPrefix = "v"
     }
+
+    fun flatMode(): PluginConfig {
+        return this.copy(featureBranchRegexes = this.featureBranchRegexes + """.*""".toRegex())
+    }
 }
 
 data class SemVerPluginContext(

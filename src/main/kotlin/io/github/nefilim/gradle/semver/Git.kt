@@ -41,7 +41,6 @@ internal fun String?.semverTag(prefix: String): Option<SemVer> {
 }
 
 internal fun Ref?.semverTag(prefix: String): Option<SemVer> {
-//    println("checking semver tag for ${this?.name}")
     return this?.name?.semverTag(prefix) ?: None
 }
 
@@ -89,11 +88,10 @@ internal fun Git.currentVersion(config: PluginConfig, branchRefName: String): Op
 
 internal fun SemVerPluginContext.buildBranch(branchRefName: String, config: PluginConfig): Either<SemVerError, GitRef.Branch> {
     return either.eager {
-        val shortName = git.buildRef(branchRefName).flatMap { it.shortName() }.bind()
-        verbose("building branch for $branchRefName")
+        val shortName = git.buildRef(branchRefName).flatMap { it.shortName() }.bind().lowercase()
         with (shortName) {
             when {
-                equals(GitRef.MainBranch.Name, ignoreCase = true) || equals(GitRef.MainBranch.AlternativeName, ignoreCase = true) -> {
+                equals(GitRef.MainBranch.Name) || equals(GitRef.MainBranch.AlternativeName) -> {
                     GitRef.MainBranch(
                         GitRef.MainBranch.determineName(branchRefName),
                         branchRefName,
@@ -102,7 +100,7 @@ internal fun SemVerPluginContext.buildBranch(branchRefName: String, config: Plug
                         config.currentBranchStage.getOrElse { GitRef.MainBranch.DefaultStage }
                     ).right()
                 }
-                equals(GitRef.DevelopBranch.Name, ignoreCase = true) -> {
+                equals(GitRef.DevelopBranch.Name) -> {
                     GitRef.DevelopBranch(
                         branchRefName,
                         config.currentBranchScope.getOrElse { GitRef.DevelopBranch.DefaultScope },
@@ -129,6 +127,18 @@ internal fun SemVerPluginContext.buildBranch(branchRefName: String, config: Plug
             }.bind()
         }
     }
+}
+
+internal fun SemVerPluginContext.buildCurrentBranch(config: PluginConfig): Either<SemVerError, GitRef.Branch> {
+    // if we're running under GitHub Actions and this is a PR event, we're in detached HEAD state, not on a branch
+    return if (githubActionsBuild() && pullRequestEvent()) {
+        log("we're running under Github Actions during a PR event")
+        (pullRequestHeadRef().map { "${GitRef.RemoteOrigin}/$it" }.toEither { SemVerError.MissingRef("failed to find GITHUB_HEAD_REF for a pull request event??") }).flatMap { headRef ->
+            log("using $headRef as branch")
+            buildBranch(headRef, config)
+        }
+    } else
+        buildBranch(repository.fullBranch, config)
 }
 
 internal fun SemVerPluginContext.commitsSinceBranchPoint(

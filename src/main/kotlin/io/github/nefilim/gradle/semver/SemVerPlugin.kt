@@ -2,11 +2,9 @@ package io.github.nefilim.gradle.semver
 
 import arrow.core.Either
 import arrow.core.computations.either
-import arrow.core.flatMap
 import io.github.nefilim.gradle.semver.SemVerExtension.Companion.semver
 import io.github.nefilim.gradle.semver.config.SemVerPluginContext
 import io.github.nefilim.gradle.semver.domain.GitRef
-import io.github.nefilim.gradle.semver.domain.GitRef.Companion.RemoteOrigin
 import io.github.nefilim.gradle.semver.domain.SemVerError
 import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.ListBranchCommand
@@ -69,14 +67,14 @@ internal fun SemVerPluginContext.calculateVersion(): Either<SemVerError, SemVer>
             developRefName == null -> {
                 warn("missing [develop] branch, reverting to flat mode, all versions will be calculated from [$mainRefName]")
                 val main = buildBranch(mainRefName, config).bind() as GitRef.MainBranch
-                val current = buildCurrentBranch().bind()
+                val current = buildCurrentBranch(config.flatMode()).bind()
                 calculatedVersionFlat(main, current).bind()
             }
             else -> {
                 verbose("found main: $mainRefName, develop: $developRefName")
                 val main = buildBranch(mainRefName, config).bind() as GitRef.MainBranch
                 val develop = buildBranch(developRefName, config).bind() as GitRef.DevelopBranch
-                val current = buildCurrentBranch().bind()
+                val current = buildCurrentBranch(config).bind()
 
                 calculatedVersionFlow(
                     main,
@@ -86,18 +84,6 @@ internal fun SemVerPluginContext.calculateVersion(): Either<SemVerError, SemVer>
             }
         }
     }
-}
-
-private fun SemVerPluginContext.buildCurrentBranch(): Either<SemVerError, GitRef.Branch> {
-    // if we're running under GitHub Actions and this is a PR event, we're in detached HEAD state, not on a branch
-    return if (githubActionsBuild() && pullRequestEvent()) {
-        log("we're running under Github Actions during a PR event")
-        (pullRequestHeadRef().map { "$RemoteOrigin/$it" }.toEither { SemVerError.MissingRef("failed to find GITHUB_HEAD_REF for a pull request event??") }).flatMap { headRef ->
-            log("using $headRef as branch")
-            buildBranch(headRef, config)
-        }
-    } else
-        buildBranch(repository.fullBranch, config)
 }
 
 private fun SemVerPluginContext.warnMissingRequiredBranch(branchName: String) {
