@@ -17,7 +17,7 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import javax.inject.Inject
 
-open class SemVerExtension @Inject constructor(objects: ObjectFactory, private val project: Project) {
+abstract class SemVerExtension @Inject constructor(objects: ObjectFactory, private val project: Project) {
     private val verbose: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
     private val tagPrefix: Property<String> = objects.property(String::class.java).convention(PluginConfig.DefaultTagPrefix)
     private val initialVersion: Property<SemVer> = objects.property(SemVer::class.java).convention(PluginConfig.DefaultVersion)
@@ -26,28 +26,26 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory, private v
 
     fun verbose(b: Boolean) {
         verbose.set(b)
-        verbose.disallowChanges()
     }
     fun tagPrefix(prefix: String) {
         if (overrideVersion.orNull != null)
             throw IllegalArgumentException("cannot set the semver tagPrefix after override version has been set, the override version depends on the tagPrefix, set the tagPrefix first")
         tagPrefix.set(prefix)
-        tagPrefix.disallowChanges()
     }
     fun initialVersion(version: String?) {
         version?.also {
             initialVersion.set(SemVer.parse(it))
-            initialVersion.disallowChanges()
         }
     }
     fun overrideVersion(version: String) {
         overrideVersion.set(possiblyPrefixedVersion(version, tagPrefix.get())) // not great, requires tagPrefix to be set first
-        overrideVersion.disallowChanges()
     }
     fun featureBranchRegex(regex: List<String>) {
         featureBranchRegexes.add(GitRef.FeatureBranch.DefaultRegex)
         featureBranchRegexes.addAll(regex.map { it.toRegex() })
-        featureBranchRegexes.disallowChanges()
+    }
+    fun addFeatureBranchRegex(regex: String) {
+        featureBranchRegexes.add(regex.toRegex())
     }
 
     // defer version calculation since all our properties are lazy and needs to be configured first
@@ -76,7 +74,7 @@ open class SemVerExtension @Inject constructor(objects: ObjectFactory, private v
         action.execute(currentBranch)
     }
 
-    internal fun buildPluginConfig(): PluginConfig {
+    private fun buildPluginConfig(): PluginConfig {
         return PluginConfig(
             verbose.get(),
             tagPrefix.get(),
@@ -103,7 +101,6 @@ open class BranchHandler @Inject constructor(objects: ObjectFactory) {
         scope?.let {
             if (it.isNotBlank()) {
                 this.scope.set(Scope.fromValue(it))
-                this.scope.disallowChanges()
             }
         }
     }
@@ -112,7 +109,6 @@ open class BranchHandler @Inject constructor(objects: ObjectFactory) {
         stage?.let {
             if (it.isNotBlank()) {
                 this.stage.set(Stage.fromValue(it))
-                this.stage.disallowChanges()
             }
         }
     }

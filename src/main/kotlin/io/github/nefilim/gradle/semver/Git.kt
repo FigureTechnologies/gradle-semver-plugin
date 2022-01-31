@@ -132,9 +132,9 @@ internal fun SemVerPluginContext.buildBranch(branchRefName: String, config: Plug
 internal fun SemVerPluginContext.buildCurrentBranch(config: PluginConfig): Either<SemVerError, GitRef.Branch> {
     // if we're running under GitHub Actions and this is a PR event, we're in detached HEAD state, not on a branch
     return if (githubActionsBuild() && pullRequestEvent()) {
-        log("we're running under Github Actions during a PR event")
+        verbose("we're running under Github Actions during a PR event")
         (pullRequestHeadRef().map { "${GitRef.RemoteOrigin}/$it" }.toEither { SemVerError.MissingRef("failed to find GITHUB_HEAD_REF for a pull request event??") }).flatMap { headRef ->
-            log("using $headRef as branch")
+            verbose("using $headRef as branch")
             buildBranch(headRef, config)
         }
     } else
