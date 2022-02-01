@@ -32,13 +32,14 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
         is GitRef.DevelopBranch -> {
             // recalculate version automatically based on releases on main
             either.eager {
+                val mainVersion = git.calculateBaseBranchVersion(main, develop, tags).bind()
                 val branchPoint = git.headRevInBranch(main).bind()
                 val commitCount = commitsSinceBranchPoint(branchPoint, currentBranch, tags).bind()
-                git.calculateBaseBranchVersion(main, develop, tags).map {
-                    it.getOrElse {
-                        warn("unable to determine last version from main branch, using initialVersion [${config.initialVersion}]")
-                        config.initialVersion
-                    }.applyStageNumber(commitCount)
+                mainVersion.getOrElse {
+                    warn("unable to determine last version from main branch, using initialVersion [${config.initialVersion}] as base")
+                    config.initialVersion
+                }.let {
+                    applyScopeToVersion(currentBranch, it, currentBranch.scope, currentBranch.stage).map { it.applyStageNumber(commitCount) }
                 }.bind()
             }
         }

@@ -156,10 +156,13 @@ internal fun SemVerPluginContext.commitsSinceBranchPoint(
             // find latest tag on this branch
             warn("Unable to find the branch point [${branchPoint.id.name}: ${branchPoint.shortMessage}], typically happens when commits were squashed & merged and this branch [$branch] " +
                     "has not been rebased yet, using nearest commit with a semver tag, this is just a version estimation")
-            git.findYoungestTagCommitOnBranch(branch, tags).map { youngestTag ->
+            git.findYoungestTagCommitOnBranch(branch, tags).fold({
+                warn("failed to find any semver tags on branch [$branch], does main have any version tags? using 0 as commit count since branch point")
+                0
+            }, { youngestTag ->
                 verbose("youngest tag on this branch is at ${youngestTag.id.name} => ${tags[youngestTag.id]}")
                 commits.takeWhile { it.id != youngestTag.id }.size
-            }.toEither { SemVerError.Unexpected("failed to find any semver tags on branch [$branch], does main have any version tags?") }
+            }).right()
         }
         else -> SemVerError.Unexpected("the branch ${branch.refName} did not contain the branch point [${branchPoint.toObjectId()}: ${branchPoint.shortMessage}], have you rebased your current branch?").left()
     }
