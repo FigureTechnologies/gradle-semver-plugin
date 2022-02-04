@@ -173,13 +173,8 @@ internal fun Git.calculateBaseBranchVersion(
     branch: GitRef.Branch,
     tags: Map<ObjectId, SemVer>,
 ): Either<SemVerError, Option<SemVer>> {
-    return either.eager {
-        val head = headRevInBranch(branch).bind()
-        findYoungestTagOnBranchOlderThanTarget(branchTarget, head, tags).fold({
-            None.right()
-        }, {
-            applyScopeToVersion(branch, it, branch.scope, branch.stage).map { it.some() }
-        }).bind()
+    return headRevInBranch(branch).map { head ->
+        findYoungestTagOnBranchOlderThanTarget(branchTarget, head, tags)
     }
 }
 
