@@ -92,8 +92,8 @@ kotlin {
             kotlinOptions {
                 freeCompilerArgs = freeCompilerArgs + listOf("-version", "-Xjsr305=strict", "-Xopt-in=kotlin.RequiresOptIn")
                 jvmTarget = "11"
-                languageVersion = "1.6"
-                apiVersion = "1.6"
+                languageVersion = "1.5"
+                apiVersion = "1.5"
                 verbose = true
             }
         }

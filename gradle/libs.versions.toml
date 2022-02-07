@@ -1,17 +1,17 @@
 [versions]
-kotlin = "1.6.10"
+kotlin = "1.5.31"
 
 arrow = "1.0.1"
 jgit = "6.0.0.202111291000-r"
-kotest = "5.1.0"
-kotestExtensionsArrow = "1.2.1"
+kotest = "4.6.3"
+kotestExtensionsArrow = "1.2.2"
+swiftzer-semver = "1.2.0"
 
-gradle-benmanes-versions = "0.41.0"
-gradle-changelog = "1.11.1"
+gradle-benmanes-versions = "0.42.0"
 gradle-nexus-publish = "1.1.0"
-gradle-pluginPublish = "0.19.0"
+gradle-pluginPublish = "0.20.0"
 github-release = "2.2.12"
-gradle-semverPlugin = "0.0.28"
+gradle-semverPlugin = "0.1.6"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
@@ -19,13 +19,12 @@ eclipse-jgit-eclipseJgit = { module = "org.eclipse.jgit:org.eclipse.jgit", versi
 kotest-junit5-jvm = { module = "io.kotest:kotest-runner-junit5-jvm", version.ref = "kotest" }
 kotest-assertions-core-jvm = { module = "io.kotest:kotest-assertions-core-jvm", version.ref = "kotest" }
 kotest-assertions-arrow = { module = "io.kotest.extensions:kotest-assertions-arrow", version.ref = "kotestExtensionsArrow" }
-swiftzer-semver = { module = "net.swiftzer.semver:semver", version = "1.2.0" }
+swiftzer-semver = { module = "net.swiftzer.semver:semver", version.ref = "swiftzer-semver" }
 
 [bundles]
 kotest = [ "kotest-junit5-jvm", "kotest-assertions-core-jvm", "kotest-assertions-arrow" ]
 
 [plugins]
-changelog = { id = "org.hildan.github.changelog", version.ref = "gradle-changelog" }
 githubrelease = { id = "com.github.breadmoirai.github-release", version.ref = "github-release" }
 gradlePluginPublish = { id = "com.gradle.plugin-publish", version.ref = "gradle-pluginPublish" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
