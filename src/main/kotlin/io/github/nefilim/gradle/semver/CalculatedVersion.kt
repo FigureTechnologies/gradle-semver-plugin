@@ -34,12 +34,13 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
             either.eager {
                 val mainVersion = git.calculateBaseBranchVersion(main, develop, tags).bind()
                 val branchPoint = git.headRevInBranch(main).bind()
-                val commitCount = commitsSinceBranchPoint(branchPoint, currentBranch, tags).bind()
                 mainVersion.getOrElse {
                     warn("unable to determine last version from main branch, using initialVersion [${config.initialVersion}] as base")
                     config.initialVersion
                 }.let {
-                    applyScopeToVersion(currentBranch, it, currentBranch.scope, currentBranch.stage).map { it.applyStageNumber(commitCount) }
+                    applyScopeToVersion(currentBranch, it, currentBranch.scope, currentBranch.stage).map {
+                        qualifyStage(currentBranch, it) { commitsSinceBranchPoint(branchPoint, currentBranch, tags).getOrElse { 0 } }
+                    }
                 }.bind()
             }
         }
@@ -48,11 +49,12 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
             either.eager {
                 val devVersion = git.calculateBaseBranchVersion(develop, currentBranch, tags).bind()
                 val branchPoint = git.headRevInBranch(develop).bind()
-                val commitCount = commitsSinceBranchPoint(branchPoint, currentBranch, tags).bind()
                 devVersion.fold({
                     SemVerError.MissingVersion("unable to find version tag on develop branch, feature branches must be branched from develop").left()
                 }, {
-                    applyScopeToVersion(currentBranch, it, currentBranch.scope, currentBranch.stage).map { it.applyStageNumber(commitCount) }
+                    applyScopeToVersion(currentBranch, it, currentBranch.scope, currentBranch.stage).map {
+                        qualifyStage(currentBranch, it) { commitsSinceBranchPoint(branchPoint, currentBranch, tags).getOrElse { 0 } }
+                    }
                 }).bind()
             }
         }
@@ -61,11 +63,12 @@ internal fun SemVerPluginContext.calculatedVersionFlow(
             either.eager {
                 val devVersion = git.calculateBaseBranchVersion(main, currentBranch, tags).bind()
                 val branchPoint = git.headRevInBranch(main).bind()
-                val commitCount = commitsSinceBranchPoint(branchPoint, currentBranch, tags).bind()
                 devVersion.fold({
                     SemVerError.MissingVersion("unable to find version tag on main branch, hotfix branches must be branched from main").left()
                 }, {
-                    applyScopeToVersion(currentBranch, it, currentBranch.scope, currentBranch.stage).map { it.applyStageNumber(commitCount) }
+                    applyScopeToVersion(currentBranch, it, currentBranch.scope, currentBranch.stage).map {
+                        qualifyStage(currentBranch, it) { commitsSinceBranchPoint(branchPoint, currentBranch, tags).getOrElse { 0 } }
+                    }
                 }).bind()
             }
         }
@@ -92,12 +95,13 @@ internal fun SemVerPluginContext.calculatedVersionFlat(
             either.eager {
                 val mainVersion = git.calculateBaseBranchVersion(main, currentBranch, tags).bind()
                 val branchPoint = git.headRevInBranch(main).bind()
-                val commitCount = commitsSinceBranchPoint(branchPoint, currentBranch, tags).getOrElse { 0 }
                 mainVersion.getOrElse {
                     warn("unable to determine last version from main branch, using initialVersion [${config.initialVersion}] as base")
                     config.initialVersion
                 }.let {
-                    applyScopeToVersion(currentBranch, it, currentBranch.scope, currentBranch.stage).map { it.applyStageNumber(commitCount) }
+                    applyScopeToVersion(currentBranch, it, currentBranch.scope, currentBranch.stage).map {
+                        qualifyStage(currentBranch, it) { commitsSinceBranchPoint(branchPoint, currentBranch, tags).getOrElse { 0 } }
+                    }
                 }.bind()
             }
         }
@@ -106,9 +110,25 @@ internal fun SemVerPluginContext.calculatedVersionFlat(
 
 internal fun applyScopeToVersion(currentBranch: GitRef.Branch, version: SemVer, scope: Scope, stage: Stage): Either<SemVerError, SemVer> {
     return when (scope) {
-        Scope.Major -> version.nextMajor().copy(preRelease = stage.toStageName(currentBranch)).right()
-        Scope.Minor -> version.nextMinor().copy(preRelease = stage.toStageName(currentBranch)).right()
-        Scope.Patch -> version.nextPatch().copy(preRelease = stage.toStageName(currentBranch)).right()
+        Scope.Major -> version.nextMajor()
+        Scope.Minor -> version.nextMinor()
+        Scope.Patch -> version.nextPatch()
+    }.let {
+        if (currentBranch is GitRef.MainBranch)
+            it.right()
+        else
+            it.copy(preRelease = stage.toStageName(currentBranch)).right()
+    }
+}
+
+internal fun qualifyStage(
+    currentBranch: GitRef.Branch,
+    version: SemVer,
+    qualifier: () -> Int
+): SemVer {
+    return when(currentBranch.stage) {
+        Stage.Snapshot, Stage.Final -> version // Snapshot & Final does not need to be qualified
+        else -> version.copy(preRelease = "${version.preRelease}.${qualifier()}")
     }
 }
 
