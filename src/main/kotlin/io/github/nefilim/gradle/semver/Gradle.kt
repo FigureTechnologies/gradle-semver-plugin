@@ -2,6 +2,8 @@ package io.github.nefilim.gradle.semver
 
 import io.github.nefilim.gradle.semver.config.SemVerPluginContext
 import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
 internal val Project.hasSemVerPlugin: Boolean
     get() = pluginManager.hasPlugin("io.github.nefilim.gradle.semver-plugin")
@@ -12,13 +14,13 @@ internal val Project.appliedOnlyOnRootProject: Boolean
 private val LogPrefix = "semver: ".bold()
 
 internal fun SemVerPluginContext.log(message: String) {
-    project.logger.lifecycle("$LogPrefix $message")
+    Logging.getLogger(Logger.ROOT_LOGGER_NAME).lifecycle("$LogPrefix $message")
 }
 internal fun SemVerPluginContext.warn(message: String) {
-    project.logger.lifecycle("$LogPrefix ${message.yellow()}")
+    Logging.getLogger(Logger.ROOT_LOGGER_NAME).lifecycle("$LogPrefix ${message.yellow()}")
 }
 internal fun SemVerPluginContext.error(message: String) {
-    project.logger.error("$LogPrefix ${message.red()}")
+    Logging.getLogger(Logger.ROOT_LOGGER_NAME).error("$LogPrefix ${message.red()}")
 }
 
 internal fun SemVerPluginContext.verbose(message: String) {

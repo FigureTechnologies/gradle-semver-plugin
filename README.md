@@ -81,7 +81,7 @@ Feature branches can be customized with a regex to match the branch name, eg:
 *Hotfix Default Stage*: `Beta`
 *Hotfix Default Scope*: `Patch`
 
-#### Flat Mode
+### Flat Mode
 
 In case there is no `develop` branch the plugin will revert to "flat" mode which just bases all version decisions of `main` and assumes all branches were branched off `main`.
 

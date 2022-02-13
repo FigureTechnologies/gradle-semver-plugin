@@ -24,6 +24,9 @@ import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.gradle.api.Project
 
+
+typealias Tags = Map<ObjectId, SemVer>
+
 internal fun Git.currentBranchRef(): Option<String> {
     return if (githubActionsBuild() && pullRequestEvent()) {
         pullRequestHeadRef()
@@ -60,7 +63,7 @@ private fun Git.buildRef(refName: String): Either<SemVerError, Ref> {
         .flatMap { it.toEither { SemVerError.MissingRef("could not find a git ref for [$refName]")  } }
 }
 
-internal fun Git.tagMap(prefix: String): Map<ObjectId, SemVer> {
+internal fun Git.tagMap(prefix: String): Tags {
     val versionTags = tagList().call().toList().map { ref ->
         // have to unpeel annotated tags
         ref.semverTag(prefix).map { (repository.refDatabase.peel(ref).peeledObjectId ?: ref.objectId) to it }
@@ -86,7 +89,7 @@ internal fun Git.currentVersion(config: PluginConfig, branchRefName: String): Op
     }
 }
 
-internal fun SemVerPluginContext.buildBranch(branchRefName: String, config: PluginConfig): Either<SemVerError, GitRef.Branch> {
+internal fun SemVerPluginContext.buildBranch(git: Git, branchRefName: String, config: PluginConfig): Either<SemVerError, GitRef.Branch> {
     return either.eager {
         val shortName = git.buildRef(branchRefName).flatMap { it.shortName() }.bind().lowercase()
         with (shortName) {
@@ -129,22 +132,23 @@ internal fun SemVerPluginContext.buildBranch(branchRefName: String, config: Plug
     }
 }
 
-internal fun SemVerPluginContext.buildCurrentBranch(config: PluginConfig): Either<SemVerError, GitRef.Branch> {
+internal fun SemVerPluginContext.buildCurrentBranch(git: Git, config: PluginConfig): Either<SemVerError, GitRef.Branch> {
     // if we're running under GitHub Actions and this is a PR event, we're in detached HEAD state, not on a branch
     return if (githubActionsBuild() && pullRequestEvent()) {
         verbose("we're running under Github Actions during a PR event")
         (pullRequestHeadRef().map { "${GitRef.RemoteOrigin}/$it" }.toEither { SemVerError.MissingRef("failed to find GITHUB_HEAD_REF for a pull request event??") }).flatMap { headRef ->
             verbose("using $headRef as branch")
-            buildBranch(headRef, config)
+            buildBranch(git, headRef, config)
         }
     } else
-        buildBranch(repository.fullBranch, config)
+        buildBranch(git, git.repository.fullBranch, config)
 }
 
 internal fun SemVerPluginContext.commitsSinceBranchPoint(
+    git: Git,
     branchPoint: RevCommit,
     branch: GitRef.Branch,
-    tags: Map<ObjectId, SemVer>,
+    tags: Tags,
 ): Either<SemVerError, Int> {
     val commits = git.log().call().toList() // can this blow up for large repos?
     val newCommits = commits.takeWhile {
@@ -171,7 +175,7 @@ internal fun SemVerPluginContext.commitsSinceBranchPoint(
 internal fun Git.calculateBaseBranchVersion(
     branchTarget: GitRef.Branch,
     branch: GitRef.Branch,
-    tags: Map<ObjectId, SemVer>,
+    tags: Tags,
 ): Either<SemVerError, Option<SemVer>> {
     return headRevInBranch(branch).map { head ->
         findYoungestTagOnBranchOlderThanTarget(branchTarget, head, tags)
@@ -193,7 +197,7 @@ internal fun Git.headRevInBranch(branch: GitRef.Branch): Either<SemVerError, Rev
 internal fun Git.findYoungestTagOnBranchOlderThanTarget(
     branch: GitRef.Branch,
     target: RevCommit,
-    tags: Map<ObjectId, SemVer>
+    tags: Tags
 ): Option<SemVer> {
     return log().add(repository.exactRef(branch.refName).objectId).call()
         .firstOrNull { it.commitTime <= target.commitTime && tags.containsKey(it.toObjectId()) }
@@ -203,7 +207,7 @@ internal fun Git.findYoungestTagOnBranchOlderThanTarget(
 
 internal fun Git.findYoungestTagCommitOnBranch(
     branch: GitRef.Branch,
-    tags: Map<ObjectId, SemVer>
+    tags: Tags
 ): Option<RevCommit> {
     return log().add(repository.exactRef(branch.refName).objectId).call()
         .firstOrNull { tags.containsKey(it.toObjectId()) }

@@ -3,8 +3,6 @@ package io.github.nefilim.gradle.semver.config
 import arrow.core.None
 import arrow.core.Option
 import net.swiftzer.semver.SemVer
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.Repository
 import org.gradle.api.Project
 
 data class PluginConfig(
@@ -28,12 +26,8 @@ data class PluginConfig(
 }
 
 data class SemVerPluginContext(
-    val git: Git,
     val config: PluginConfig,
-    val project: Project,
-) {
-    val repository: Repository = git.repository
-}
+)
 
 enum class Stage(private val value: String) {
     Alpha("alpha"),
