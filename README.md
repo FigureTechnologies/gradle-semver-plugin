@@ -64,6 +64,10 @@ when the last version tag on main is `v1.2.3` the new version would be calculate
 *Default Stage*: `Beta`
 *Default Scope*: `Patch`
 
+#### Flat Mode
+
+In case there is no `develop` branch the plugin will revert to "flat" mode which just bases all version decisions of `main` and assumes all branches were branched off `main`.
+
 ### Feature & Hotfix Branches
 
 Feature & Hotfix branches are similar to `develop` but:
@@ -80,10 +84,6 @@ Feature branches can be customized with a regex to match the branch name, eg:
 
 *Hotfix Default Stage*: `Beta`
 *Hotfix Default Scope*: `Patch`
-
-### Flat Mode
-
-In case there is no `develop` branch the plugin will revert to "flat" mode which just bases all version decisions of `main` and assumes all branches were branched off `main`.
 
 ## Usage
 
