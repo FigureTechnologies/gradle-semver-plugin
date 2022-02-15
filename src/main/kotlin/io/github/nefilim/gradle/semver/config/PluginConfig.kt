@@ -2,8 +2,9 @@ package io.github.nefilim.gradle.semver.config
 
 import arrow.core.None
 import arrow.core.Option
+import arrow.core.orElse
+import arrow.core.some
 import net.swiftzer.semver.SemVer
-import org.gradle.api.Project
 
 data class PluginConfig(
     val verbose: Boolean = true,
@@ -21,7 +22,7 @@ data class PluginConfig(
     }
 
     fun flatMode(): PluginConfig {
-        return this.copy(featureBranchRegexes = this.featureBranchRegexes + """.*""".toRegex())
+        return this.copy(featureBranchRegexes = this.featureBranchRegexes + """.*""".toRegex(), currentBranchStage = this.currentBranchStage.orElse { Stage.Branch.some() })
     }
 }
 
