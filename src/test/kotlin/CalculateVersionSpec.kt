@@ -91,7 +91,8 @@ class CalculateVersionSpec: WordSpec() {
                     val context = SemVerPluginContext(buildPluginConfig(currentBranch))
 
                     context.calculatedVersionFlow(mainBranch, developBranch, currentBranch, ops)
-                        .shouldBeRight() shouldBe SemVer(1, 2, 4, "${currentBranch.stage.toString().lowercase()}.1")
+                        .shouldBeRight()
+                        .shouldBe(SemVer(1, 2, 4, "${currentBranch.stage.toString().lowercase()}.1"))
                 }
             }
         }
@@ -109,8 +110,21 @@ class CalculateVersionSpec: WordSpec() {
                     val context = SemVerPluginContext(buildPluginConfig(currentBranch))
 
                     context.calculatedVersionFlat(mainBranch, currentBranch, ops)
-                        .shouldBeRight() shouldBe SemVer(1, 2, 4, "${currentBranch.stage.toString().lowercase()}.1")
+                        .shouldBeRight()
+                        .shouldBe(SemVer(1, 2, 4, "${currentBranch.stage.toString().lowercase()}.1"))
                 }
+            }
+            "calculate the next version correctly - non labelled stages" {
+                val mainBranchVersion = SemVer(1, 2, 3)
+                val mainBranch = GitRef.MainBranch(version = mainBranchVersion.some(), scope = Scope.Minor, stage = Stage.Final)
+                val ops = getMockVersionCalculationOperations({ mainBranchVersion }, { "1" })
+
+                val currentBranch = GitRef.MainBranch(scope = Scope.Patch, stage = Stage.Final, version = mainBranchVersion.some())
+                val context = SemVerPluginContext(buildPluginConfig(currentBranch))
+
+                context.calculatedVersionFlat(mainBranch, currentBranch, ops)
+                    .shouldBeRight()
+                    .shouldBe(SemVer(1, 2, 4))
             }
         }
     }

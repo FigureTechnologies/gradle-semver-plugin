@@ -13,6 +13,7 @@ import arrow.core.some
 import arrow.core.toOption
 import io.github.nefilim.gradle.semver.config.PluginConfig
 import io.github.nefilim.gradle.semver.config.SemVerPluginContext
+import io.github.nefilim.gradle.semver.config.Stage
 import io.github.nefilim.gradle.semver.domain.GitRef
 import io.github.nefilim.gradle.semver.domain.SemVerError
 import net.swiftzer.semver.SemVer
@@ -100,7 +101,11 @@ internal fun SemVerPluginContext.buildBranch(git: Git, branchRefName: String, co
                         branchRefName,
                         git.currentVersion(config, branchRefName),
                         config.currentBranchScope.getOrElse { GitRef.MainBranch.DefaultScope },
-                        config.currentBranchStage.getOrElse { GitRef.MainBranch.DefaultStage }
+                        // make an opinionated decision here, cannot set Main to Stage=Branch ever
+                        if (config.currentBranchStage.isEmpty() || config.currentBranchStage.all { it == Stage.Branch })
+                            Stage.Final
+                        else
+                            GitRef.MainBranch.DefaultStage
                     ).right()
                 }
                 equals(GitRef.DevelopBranch.Name) -> {
