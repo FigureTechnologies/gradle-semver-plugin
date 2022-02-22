@@ -6,16 +6,13 @@ import arrow.core.Option
 import arrow.core.computations.either
 import arrow.core.flatMap
 import arrow.core.flattenOption
-import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.right
 import arrow.core.some
 import arrow.core.toOption
-import io.github.nefilim.gradle.semver.config.PluginConfig
-import io.github.nefilim.gradle.semver.config.SemVerPluginContext
-import io.github.nefilim.gradle.semver.config.Stage
-import io.github.nefilim.gradle.semver.domain.GitRef
+import io.github.nefilim.gradle.semver.config.VersionCalculatorConfig
 import io.github.nefilim.gradle.semver.domain.SemVerError
+import io.github.nefilim.gradle.semver.domain.GitRef
 import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ObjectId
@@ -24,9 +21,37 @@ import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
+private val logger = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 
 typealias Tags = Map<ObjectId, SemVer>
+
+fun getGitContextProviderOperations(git: Git, config: VersionCalculatorConfig): ContextProviderOperations {
+    return object: ContextProviderOperations {
+        private val tags = git.tagMap(config.tagPrefix)
+
+        override fun currentBranch(): Option<GitRef.Branch> {
+            return git.currentBranchRef().flatMap {
+                it.shortName().map {
+                    GitRef.Branch(it)
+                }.orNone()
+            }
+        }
+
+        override fun branchVersion(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch): Either<SemVerError, Option<SemVer>> {
+            return git.calculateBaseBranchVersion(targetBranch, currentBranch, tags)
+        }
+
+        override fun commitsSinceBranchPoint(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch): Either<SemVerError, Int> {
+            return either.eager<SemVerError, Int> {
+                val branchPoint = git.headRevInBranch(currentBranch).bind()
+                commitsSinceBranchPoint(git, branchPoint, targetBranch, tags).bind()
+            }
+        }
+    }
+}
 
 internal fun Git.currentBranchRef(): Option<String> {
     return if (githubActionsBuild() && pullRequestEvent()) {
@@ -48,20 +73,34 @@ internal fun Ref?.semverTag(prefix: String): Option<SemVer> {
     return this?.name?.semverTag(prefix) ?: None
 }
 
-internal fun Ref?.shortName(): Either<SemVerError, String> {
+internal fun String?.shortName(): Either<SemVerError, String> {
     return this?.let {
         when {
-            it.name.startsWith(GitRef.RefHead) -> Either.catch { name.substringAfter("${GitRef.RefHead}/") }.mapLeft { SemVerError.Git(it) }
-            it.name.startsWith(GitRef.RemoteOrigin) -> Either.catch { name.substringAfter("${GitRef.RemoteOrigin}/") }.mapLeft { SemVerError.Git(it) }
+            it.startsWith(GitRef.RefHead) -> Either.catch { it.substringAfter("${GitRef.RefHead}/") }.mapLeft { SemVerError.Git(it) }
+            it.startsWith(GitRef.RemoteOrigin) -> Either.catch { it.substringAfter("${GitRef.RemoteOrigin}/") }.mapLeft { SemVerError.Git(it) }
             else -> SemVerError.Unexpected("unable to parse branch Ref: [$it]").left()
         }
     } ?: SemVerError.Unexpected("unable to parse null branch Ref").left()
 }
 
-private fun Git.buildRef(refName: String): Either<SemVerError, Ref> {
+internal fun Ref?.shortName(): Either<SemVerError, String> {
+    return this?.name.shortName()
+}
+
+internal fun Git.buildRef(refName: String): Either<SemVerError, Ref> {
     return Either.catch { repository.findRef(refName).toOption() }
         .mapLeft { SemVerError.Git(it) }
         .flatMap { it.toEither { SemVerError.MissingRef("could not find a git ref for [$refName]")  } }
+}
+
+internal fun Git.hasBranch(shortName: String): List<Ref> {
+    return try {
+        branchList().setContains(shortName).call().filter {
+            it.name.shortName().exists { it == shortName }
+        }
+    } catch (e: Exception) {
+        emptyList()
+    }
 }
 
 internal fun Git.tagMap(prefix: String): Tags {
@@ -72,8 +111,7 @@ internal fun Git.tagMap(prefix: String): Tags {
     return versionTags.toMap()
 }
 
-internal fun Git.currentVersion(config: PluginConfig, branchRefName: String): Option<SemVer> {
-    val tags = tagMap(config.tagPrefix)
+internal fun Git.currentVersion(tags: Tags, branchRefName: String): Option<SemVer> {
     val tagsIDs = tags.keys
     return RevWalk(repository).use { walk ->
         val head = walk.parseCommit(GitRef.Branch.headCommitID(repository, branchRefName))
@@ -90,66 +128,7 @@ internal fun Git.currentVersion(config: PluginConfig, branchRefName: String): Op
     }
 }
 
-internal fun SemVerPluginContext.buildBranch(git: Git, branchRefName: String, config: PluginConfig): Either<SemVerError, GitRef.Branch> {
-    return either.eager {
-        val shortName = git.buildRef(branchRefName).flatMap { it.shortName() }.bind().lowercase()
-        with (shortName) {
-            when {
-                equals(GitRef.MainBranch.Name) || equals(GitRef.MainBranch.AlternativeName) -> {
-                    GitRef.MainBranch(
-                        GitRef.MainBranch.determineName(branchRefName),
-                        branchRefName,
-                        git.currentVersion(config, branchRefName),
-                        config.currentBranchScope.getOrElse { GitRef.MainBranch.DefaultScope },
-                        // make an opinionated decision here, cannot set Main to Stage=Branch ever
-                        if (config.currentBranchStage.isEmpty() || config.currentBranchStage.all { it == Stage.Branch })
-                            Stage.Final
-                        else
-                            GitRef.MainBranch.DefaultStage
-                    ).right()
-                }
-                equals(GitRef.DevelopBranch.Name) -> {
-                    GitRef.DevelopBranch(
-                        branchRefName,
-                        config.currentBranchScope.getOrElse { GitRef.DevelopBranch.DefaultScope },
-                        config.currentBranchStage.getOrElse { GitRef.DevelopBranch.DefaultStage }
-                    ).right()
-                }
-                config.featureBranchRegexes.any { it.matches(shortName) } -> {
-                    GitRef.FeatureBranch(
-                        shortName,
-                        branchRefName,
-                        config.currentBranchScope.getOrElse { GitRef.FeatureBranch.DefaultScope },
-                        config.currentBranchStage.getOrElse { GitRef.FeatureBranch.DefaultStage }
-                    ).right()
-                }
-                startsWith("hotfix/") -> {
-                    GitRef.HotfixBranch(
-                        shortName,
-                        branchRefName,
-                        config.currentBranchScope.getOrElse { GitRef.HotfixBranch.DefaultScope },
-                        config.currentBranchStage.getOrElse { GitRef.HotfixBranch.DefaultStage }
-                    ).right()
-                }
-                else -> SemVerError.UnsupportedBranch("unable to determine branch type for branch: $this").left()
-            }.bind()
-        }
-    }
-}
-
-internal fun SemVerPluginContext.buildCurrentBranch(git: Git, config: PluginConfig): Either<SemVerError, GitRef.Branch> {
-    // if we're running under GitHub Actions and this is a PR event, we're in detached HEAD state, not on a branch
-    return if (githubActionsBuild() && pullRequestEvent()) {
-        verbose("we're running under Github Actions during a PR event")
-        (pullRequestHeadRef().map { "${GitRef.RemoteOrigin}/$it" }.toEither { SemVerError.MissingRef("failed to find GITHUB_HEAD_REF for a pull request event??") }).flatMap { headRef ->
-            verbose("using $headRef as branch")
-            buildBranch(git, headRef, config)
-        }
-    } else
-        buildBranch(git, git.repository.fullBranch, config)
-}
-
-internal fun SemVerPluginContext.commitsSinceBranchPoint(
+internal fun commitsSinceBranchPoint(
     git: Git,
     branchPoint: RevCommit,
     branch: GitRef.Branch,
@@ -163,13 +142,12 @@ internal fun SemVerPluginContext.commitsSinceBranchPoint(
         (newCommits.map { it.toObjectId() }.contains(branchPoint.toObjectId())) -> newCommits.size.right()
         newCommits.size != commits.size -> {
             // find latest tag on this branch
-            warn("Unable to find the branch point [${branchPoint.id.name}: ${branchPoint.shortMessage}], typically happens when commits were squashed & merged and this branch [$branch] " +
-                    "has not been rebased yet, using nearest commit with a semver tag, this is just a version estimation")
+            logger.semverWarn("Unable to find the branch point [${branchPoint.id.name}: ${branchPoint.shortMessage}] typically happens when commits were squashed & merged and this branch [$branch] has not been rebased yet, using nearest commit with a semver tag, this is just a version estimation".yellow())
             git.findYoungestTagCommitOnBranch(branch, tags).fold({
-                warn("failed to find any semver tags on branch [$branch], does main have any version tags? using 0 as commit count since branch point")
+                logger.semverWarn("failed to find any semver tags on branch [$branch], does main have any version tags? using 0 as commit count since branch point")
                 0
             }, { youngestTag ->
-                verbose("youngest tag on this branch is at ${youngestTag.id.name} => ${tags[youngestTag.id]}")
+                logger.debug("youngest tag on this branch is at ${youngestTag.id.name} => ${tags[youngestTag.id]}")
                 commits.takeWhile { it.id != youngestTag.id }.size
             }).right()
         }
@@ -178,12 +156,12 @@ internal fun SemVerPluginContext.commitsSinceBranchPoint(
 }
 
 internal fun Git.calculateBaseBranchVersion(
-    branchTarget: GitRef.Branch,
-    branch: GitRef.Branch,
+    targetBranch: GitRef.Branch,
+    currentBranch: GitRef.Branch,
     tags: Tags,
 ): Either<SemVerError, Option<SemVer>> {
-    return headRevInBranch(branch).map { head ->
-        findYoungestTagOnBranchOlderThanTarget(branchTarget, head, tags)
+    return headRevInBranch(currentBranch).map { head ->
+        findYoungestTagOnBranchOlderThanTarget(targetBranch, head, tags)
     }
 }
 

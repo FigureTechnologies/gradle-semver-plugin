@@ -5,6 +5,7 @@ arrow = "1.0.1"
 jgit = "6.0.0.202111291000-r"
 kotest = "4.6.3"
 kotestExtensionsArrow = "1.2.2"
+logback = "1.2.+"
 swiftzer-semver = "1.2.0"
 
 gradle-benmanes-versions = "0.42.0"
@@ -16,10 +17,12 @@ gradle-semverPlugin = "0.2.0"
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 eclipse-jgit-eclipseJgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "jgit" }
+eclipse-jgit-ssh-apache = { module = "org.eclipse.jgit:org.eclipse.jgit.ssh.apache", version.ref = "jgit" }
 kotest-junit5-jvm = { module = "io.kotest:kotest-runner-junit5-jvm", version.ref = "kotest" }
 kotest-assertions-core-jvm = { module = "io.kotest:kotest-assertions-core-jvm", version.ref = "kotest" }
 kotest-assertions-arrow = { module = "io.kotest.extensions:kotest-assertions-arrow", version.ref = "kotestExtensionsArrow" }
 swiftzer-semver = { module = "net.swiftzer.semver:semver", version.ref = "swiftzer-semver" }
+logbackClassic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 
 [bundles]
 kotest = [ "kotest-junit5-jvm", "kotest-assertions-core-jvm", "kotest-assertions-arrow" ]

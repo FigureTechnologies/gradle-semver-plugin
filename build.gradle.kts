@@ -71,6 +71,7 @@ dependencies {
     api(kotlin("stdlib-jdk8"))
     implementation(libs.arrow.core)
     implementation(libs.eclipse.jgit.eclipseJgit)
+    runtimeOnly(libs.eclipse.jgit.ssh.apache)
     api(libs.swiftzer.semver)
     testImplementation(gradleTestKit())
     testImplementation(libs.bundles.kotest)

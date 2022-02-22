@@ -1,91 +1,52 @@
 # Gradle Semver Plugin
+     
+A Gradle plugin with a flexible approach to generating semantic versions, typically for use within a Gradle project. 
 
-Opinionated plugin broadly based on a [Git Flow workflow](https://nvie.com/posts/a-successful-git-branching-model/) without release branches, the following branches are supported:
+It comes bundled with a single Version Calculator that implements a target branch strategy: the version of the current branch is based on the latest version of the branch it targets, eg `develop` is branched from `main`, thus the version of `develop` is based on the current version of `main`. 
 
-* main
-* develop
-* feature/xxx
-* hotfix/xxx
+The Target Branch Version Calculator includes two Branch Matching strategies: 
+* Flow - broadly based on a [Git Flow workflow](https://nvie.com/posts/a-successful-git-branching-model/) without release branches, the following branches are supported:
+  * `main`: no prerelease label in the semver, eg: `1.2.3`
+  * `develop`: `beta` prerelease label in the semver, target branch: `main`, eg: `1.2.4-beta.13`
+  * `feature/mycool_feature`: `mycool_feature` prerelease label in the semver, target branch: `develop`, eg: `1.2.5-mycool_feature.1` 
+  * `hotfix/badthings`: `rc` prerelease label in the semver, target branch: `main`, eg `1.2.4-rc.2`
+* Flat - ideal for simpler projects without a `develop` branch:
+  * `main`: no prerelease label in the semver, eg: `1.2.3`
+  * `xxx`: `xxx` prerelease label in the semver, target branch: `main`, eg: `1.2.4-beta.13`
+
+The `Flow` strategy is automatically selected if a `develop` branch is present, otherwise the `Flat` strategy is selected.
 
 ## Version Calculation
 
 The semver is calculated primarily based on:
-* the version of the base branch
+* the version of the target branch
 * the current branch
-* the scope & stage properties declared for the current branch (or the default values for the branch in the absence of explicit settings)
+* the branchMatching strategy 
 
-The `Scope` property has following valid values: 
-* Major
-* Minor
-* Patch
-and refers to the semver component to alter when determining the current version. 
+## Branch Matching Strategy
 
-The `Stage` property refers to the label (typically for pre-release builds) following the patch component, eg: given `1.2.3-alpha.1`, the `Stage` would be `alpha`. The supported stages are:
-* Final - results in a release version, eg `1.2.3`
-* Snapshot - results in a snapshot version, eg `1.2.3-SNAPSHOT`
-* Alpha - `1.2.3-alpha.6`
-* Beta - `1.2.3-beta.2`
-* RC - `1.2.3-rc.3`
-* Branch - `1.2.3-my_branch.1` this stage will use the branch name (everything after the last /) as the stage name, this can be useful on a high traffic repo to avoid version collisions in concurrent feature branches
- 
-### Main Branch
-                                                                             
-_**The main branch is the only branch that should be tagged with versions.**_ The calculated version is based on the most recent version on the `main` branch which is then modified based on the scope & stage properties for `main`.
-eg. given 
+A Strategy contains a list of `BranchMatchingConfiguration` instances which are applied in order until the first match is reached (recommend the last entry's regex to be `.*`), it contains the following properties:
+  * branch name regex
+  * target branch
+  * version modifier: modifies the major, minor or patch components of the semver
+  * version qualifier: optionally qualifies the semver with a prerelease label and build metadata
+
+The `VersionModifier` can be set for every `BranchMatchingConfiguration` instance in the strategy with the plugin extension:
 
 ```kotlin
-currentBranch {
-    scope("patch")
-    stage("final")
+semver {
+    versionModifier { nextPatch() }
+    // OR
+    versionModifier("patch")
 }
 ```
+Only a single `BranchMatchingConfiguration` which regex matches the current branch will be applied, so effectively this sets the `VersionModifier` for the current branch.
 
-when the last version tag on main is `v1.2.3` the new version would be calculated as `v1.2.4` 
-
-*Default Stage*: `Final`
-*Default Scope*: `Minor`
-
-`master` is also supported as the "main" branch in case it has not been renamed yet. 
-
-### Develop Branch
-
-The `develop` branch should be rebased from main before releasing (eg locally or to a staging system). 
-The calculated version is based on the most recent version on the `main` branch which is then modified based on the scope & stage properties for `develop`, eg given
-
-```kotlin
-currentBranch {
-    scope("patch")
-    stage("beta")
-}
-```
-
-when the last version tag on main is `v1.2.3` the new version would be calculated as `v1.2.4-beta.1`. The `.1` in the stage indicates there has been 1 commit since the branch point. 
-
-*Default Stage*: `Beta`
-*Default Scope*: `Patch`
-
-#### Flat Mode
-
-In case there is no `develop` branch the plugin will revert to "flat" mode which just bases all version decisions of `main` and assumes all branches were branched off `main`.
-
-### Feature & Hotfix Branches
-
-Feature & Hotfix branches are similar to `develop` but:
-* `feature/xxx` is always branched from `develop` and the version is calculated based on the latest in `develop` 
-  * eg, if main is at `v1.2.3`, develop is at `v1.2.4-beta.0`, the feature branch could be `v1.2.5-alpha.0`
-* `hotfix/xxx` is always branched from `main` and the version is calculated based on the latest in `main`
-            
-Feature branches can be customized with a regex to match the branch name, eg:
-
-`featureBranchRegex(listOf("[a-zA-Z\\-_0-9]+\\/sc-\\d+\\/[a-zA-Z\\-_0-9]+"))` will allow `peter/sc-123123/add_new_feature` to be considered as a feature branch.
-
-*Feature Default Stage*: `Alpha`
-*Feature Default Scope*: `Patch`
-
-*Hotfix Default Stage*: `Beta`
-*Hotfix Default Scope*: `Patch`
+The supported values are `major`, `minor` and `patch`. 
 
 ## Usage
+
+The plugin is not opinionated on Gradle property names, you can decide your own names and connect them with the DSL.
 
 ```kotlin
 plugins {
@@ -96,15 +57,10 @@ plugins {
 semver {
     // all properties are optional but it's a good idea to declare those that you would want  
     // to override with Gradle properties or environment variables, eg "overrideVersion" below
-    verbose(true)
     tagPrefix("v")
     initialVersion("0.0.3")
     findProperty("semver.overrideVersion")?.toString()?.let { overrideVersion(it) }
-    featureBranchRegex(listOf("[a-zA-Z\\-_0-9]+\\/sc-\\d+\\/[a-zA-Z\\-_0-9]+"))
-    currentBranch {
-        scope(findProperty("semver.currentBranch.scope")?.toString())
-        stage(findProperty("semver.currentBranch.stage")?.toString())
-    }
+    findProperty("semver.modifier")?.toString()?.let { versionModifier(it) } 
 }
 
 version = semver.version
@@ -117,6 +73,7 @@ Two extension properties are available on the `semver` extension:
 * `version: String` returns the calculated version
 * `versionTagName: String` returns the tag name for the current calculated version, ie `tagPrefix` + `version`   
 
-The plugin supports a two tasks: 
+The plugin supports two tasks: 
 * `cv` that will print out the current calculated version
-* `generateVersionFile` that will generate `build/semver/version.txt` containing the raw version and the tag version
+* `generateVersionFile` will generate `build/semver/version.txt` containing the raw version and the tag version
+* `createAndPushVersionTag` will create a tag from `semver.versionTagName` and push the tag to the remote repo, take care to use `:createAndPushVersionTag` in a multi module project otherwise it will attempt to create duplicates 

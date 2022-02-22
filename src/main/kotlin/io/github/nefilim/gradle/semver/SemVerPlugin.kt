@@ -16,6 +16,7 @@ public class SemVerPlugin: Plugin<Project> {
 
         target.tasks.register("cv", CurrentVersionTask::class.java)
         target.tasks.register("generateVersionFile", GenerateVersionFileTask::class.java)
+        target.tasks.register("createAndPushVersionTag", CreateAndPushVersionTag::class.java)
     }
 }
 
@@ -42,5 +43,15 @@ open class GenerateVersionFileTask: DefaultTask() {
                 )
             }
         }
+    }
+}
+
+open class CreateAndPushVersionTag: DefaultTask() {
+    @TaskAction
+    fun createAndPushTag() {
+        val extension = (project.extensions[SemVerExtension.ExtensionName] as SemVerExtension)
+        project.git.tag().setName(extension.versionTagName).call()
+        project.logger.semver("created version tag: ${extension.versionTagName}, pushing...")
+        project.git.push().setPushTags().call()
     }
 }

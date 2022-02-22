@@ -1,4 +1,5 @@
-import io.github.nefilim.gradle.semver.semverTag
+package io.github.nefilim.gradle.semver
+
 import io.kotest.assertions.arrow.core.shouldBeNone
 import io.kotest.assertions.arrow.core.shouldBeSome
 import io.kotest.core.spec.style.WordSpec
@@ -11,6 +12,11 @@ class SemVerSpec: WordSpec() {
             "match valid existing semver tags on refs" {
                 "refs/tags/v123".semverTag("v").shouldBeNone()
                 "refs/tags/v1.2.3".semverTag("v").shouldBeSome(SemVer(1, 2, 3))
+                "refs/tags/v0.1.2-main".semverTag("v").shouldBeSome(SemVer(0, 1, 2, "main"))
+
+                // SemVer lib can't understand qualified labels apparently
+//                "refs/tags/v0.1.2-main.2".semverTag("v").shouldBeSome(SemVer(0, 1, 2, "main.2"))
+//                SemVer.parse("v0.1.2-main.2") shouldBe SemVer(0, 1, 2, "main.2")
             }
         }
     }
