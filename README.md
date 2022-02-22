@@ -2,7 +2,7 @@
      
 A Gradle plugin with a flexible approach to generating semantic versions, typically for use within a Gradle project. 
 
-It comes bundled with a single Version Calculator that implements a target branch strategy: the version of the current branch is based on the latest version of the branch it targets, eg `develop` is branched from `main`, thus the version of `develop` is based on the current version of `main`. 
+It comes bundled with a single Version Calculator that implements a target branch calculator: the version of the current branch is based on the latest version of the branch it targets, eg `develop` is branched from `main`, thus the version of `develop` is based on the current version of `main`. 
 
 The Target Branch Version Calculator includes two Branch Matching strategies: 
 * Flow - broadly based on a [Git Flow workflow](https://nvie.com/posts/a-successful-git-branching-model/) without release branches, the following branches are supported:
