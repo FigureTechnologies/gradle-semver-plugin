@@ -6,13 +6,17 @@ It comes bundled with a single Version Calculator that implements a target branc
 
 The Target Branch Version Calculator includes two Branch Matching strategies: 
 * Flow - broadly based on a [Git Flow workflow](https://nvie.com/posts/a-successful-git-branching-model/) without release branches, the following branches are supported:
-  * `main`: no prerelease label in the semver, eg: `1.2.3`
-  * `develop`: `beta` prerelease label in the semver, target branch: `main`, eg: `1.2.4-beta.13`
-  * `feature/mycool_feature`: `mycool_feature` prerelease label in the semver, target branch: `develop`, eg: `1.2.5-mycool_feature.1` 
-  * `hotfix/badthings`: `rc` prerelease label in the semver, target branch: `main`, eg `1.2.4-rc.2`
+  |branch|pre release label|target branch|example|
+  |------|-----------------|-------------|-------|
+  |`main`| |main|1.2.3|
+  |`develop`|beta|main|1.2.4-beta.13|
+  |`feature/mycool_feature`|mycool_feature|develop|1.2.5-mycool_feature.1|
+  |`hotfix/badthings`|rc|main|1.2.4-rc.2|
 * Flat - ideal for simpler projects without a `develop` branch:
-  * `main`: no prerelease label in the semver, eg: `1.2.3`
-  * `xxx`: `xxx` prerelease label in the semver, target branch: `main`, eg: `1.2.4-beta.13`
+  |branch|pre release label|target branch|example|
+  |------|-----------------|-------------|-------|
+  |`main`| |main|1.2.3|
+  |`xxx`|xxx|main|1.2.4-xxx.13|
 
 The `Flow` strategy is automatically selected if a `develop` branch is present, otherwise the `Flat` strategy is selected.
 
