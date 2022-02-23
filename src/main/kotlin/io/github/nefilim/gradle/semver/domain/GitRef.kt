@@ -20,9 +20,9 @@ sealed interface GitRef {
         constructor(name: String): this(name, "$RefHead/$name")
 
         companion object {
-            val Main = Branch("main")
-            val Master = Branch("master")
-            val Develop = Branch("develop")
+            val Main = Branch("main", "$RemoteOrigin/main")
+            val Master = Branch("master", "$RemoteOrigin/master")
+            val Develop = Branch("develop", "$RemoteOrigin/develop")
 
             fun headCommitID(repo: Repository, refName: String): ObjectId = repo.findRef(refName).objectId
         }
