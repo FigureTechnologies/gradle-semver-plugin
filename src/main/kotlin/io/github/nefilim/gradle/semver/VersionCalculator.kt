@@ -74,8 +74,9 @@ fun getTargetBranchVersionCalculator(
         return config.branchMatching.firstOrNull {
             it.regex.matches(currentBranch.name)
         }?.let { bmc ->
+            logger.info("using BranchMatchingConfiguration: $bmc for previousVersion() with currentBranch $currentBranch")
             contextProviderOperations.branchVersion(currentBranch, bmc.targetBranch).map {
-                logger.debug("branch version for current $currentBranch and target ${bmc.targetBranch}: $it")
+                logger.info("branch version for current $currentBranch and target ${bmc.targetBranch}: $it")
                 it.getOrElse {
                     logger.warn("no version found for target branch ${bmc.targetBranch}, using initial version")
                     config.initialVersion
@@ -91,6 +92,7 @@ fun getTargetBranchVersionCalculator(
         return config.branchMatching.firstOrNull {
             it.regex.matches(currentBranch.name)
         }?.let {
+            logger.info("using BranchMatchingConfiguration: $it for versionModifier() with currentBranch $currentBranch")
             val fn = it.versionModifier
             current.fn()
         } ?: run {
@@ -103,7 +105,7 @@ fun getTargetBranchVersionCalculator(
         return config.branchMatching.firstOrNull {
             it.regex.matches(currentBranch.name)
         }?.let {
-            logger.info("found branch match [$it] for current [$currentBranch]")
+            logger.info("using BranchMatchingConfiguration: $it for versionQualifier() with currentBranch $currentBranch")
             val fn = it.versionQualifier
             context.fn(currentBranch).let {
                 current.copy(

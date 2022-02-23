@@ -181,7 +181,7 @@ internal fun Git.findYoungestTagOnBranchOlderThanTarget(
     target: RevCommit,
     tags: Tags
 ): Option<SemVer> {
-    logger.debug("pulling log for $branch refName")
+    logger.info("pulling log for $branch refName, exactRef: ${repository.exactRef(branch.refName)}, target: $target")
     return log().add(repository.exactRef(branch.refName).objectId).call()
         .firstOrNull { it.commitTime <= target.commitTime && tags.containsKey(it.toObjectId()) }
         .toOption()
