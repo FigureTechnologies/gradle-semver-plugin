@@ -5,7 +5,6 @@ import arrow.core.Option
 import arrow.core.right
 import arrow.core.some
 import arrow.core.toOption
-import io.github.nefilim.gradle.semver.config.VersionCalculatorConfig
 import io.github.nefilim.gradle.semver.domain.GitRef
 import io.github.nefilim.gradle.semver.domain.SemVerError
 import io.kotest.assertions.arrow.core.shouldBeRight
@@ -34,7 +33,7 @@ class CalculateVersionSpec: WordSpec() {
                 val mainBranch = GitRef.Branch.Main
                 val developBranchVersion = SemVer(1, 2, 4, "beta")
                 val developBranch = GitRef.Branch.Develop
-                val config = buildPluginConfig(FlatDefaultBranchMatching { nextPatch() })
+                val config = buildPluginConfig(FlatVersionCalculatorStrategy { nextPatch() })
                 val branchVersions: Map<GitRef.Branch, SemVer> = mapOf(mainBranch to mainBranchVersion, developBranch to developBranchVersion)
 
                 // current == main
@@ -59,7 +58,7 @@ class CalculateVersionSpec: WordSpec() {
                 val mainBranch = GitRef.Branch.Main
                 val developBranchVersion = SemVer(1, 2, 4, "beta")
                 val developBranch = GitRef.Branch.Develop
-                val config = buildPluginConfig(FlowDefaultBranchMatching { nextPatch() })
+                val config = buildPluginConfig(FlowVersionCalculatorStrategy { nextPatch() })
                 val branchVersions: Map<GitRef.Branch, SemVer> = mapOf(mainBranch to mainBranchVersion, developBranch to developBranchVersion)
 
                 // current == main

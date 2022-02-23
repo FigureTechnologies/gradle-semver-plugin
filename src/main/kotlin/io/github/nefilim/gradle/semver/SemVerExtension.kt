@@ -3,9 +3,9 @@ package io.github.nefilim.gradle.semver
 import arrow.core.getOrElse
 import arrow.core.getOrHandle
 import arrow.core.toOption
-import io.github.nefilim.gradle.semver.config.VersionCalculatorConfig
 import io.github.nefilim.gradle.semver.domain.GitRef
 import net.swiftzer.semver.SemVer
+import org.eclipse.jgit.api.Git
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -17,18 +17,14 @@ import javax.inject.Inject
 private val logger = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 
 abstract class SemVerExtension @Inject constructor(objects: ObjectFactory, private val project: Project) {
-    private val verbose: Property<Boolean> = objects.property(Boolean::class.java).convention(true)
     private val tagPrefix: Property<String> = objects.property(String::class.java).convention(VersionCalculatorConfig.DefaultTagPrefix)
     private val initialVersion: Property<SemVer> = objects.property(SemVer::class.java).convention(VersionCalculatorConfig.DefaultVersion)
     private val overrideVersion: Property<SemVer> = objects.property(SemVer::class.java).convention(null)
-    private val branchMatching: ListProperty<BranchMatchingConfiguration> = objects.listProperty(BranchMatchingConfiguration::class.java).convention(FlowDefaultBranchMatching { nextPatch() })
+    private val versionStrategy: ListProperty<BranchMatchingConfiguration> = objects.listProperty(BranchMatchingConfiguration::class.java).convention(null)
 
     // TODO UGHHHHH
     private var versionModifier: VersionModifier = { nextPatch() }
 
-    fun verbose(b: Boolean) {
-        verbose.set(b)
-    }
     fun tagPrefix(prefix: String) {
         if (overrideVersion.orNull != null)
             throw IllegalArgumentException("cannot set the semver tagPrefix after override version has been set, the override version depends on the tagPrefix, set the tagPrefix first")
@@ -56,17 +52,14 @@ abstract class SemVerExtension @Inject constructor(objects: ObjectFactory, priva
             }
         }
     }
+    fun versionCalculatorStrategy(strategy: VersionCalculatorStrategy) {
+        versionStrategy.set(strategy)
+    }
 
     // defer version calculation since all our properties are lazy and needs to be configured first
     private fun version(): SemVer {
         val git = project.git
-        val config = if (git.hasBranch(GitRef.Branch.Develop.name).isNotEmpty()) {// if we have a develop branch, assume Git Flow hybrid
-            logger.semver("enabling Git Flow mode")
-            buildCalculatorConfig().withBranchMatchingConfig(FlowDefaultBranchMatching(versionModifier))
-        } else { // if we don't have a develop branch, fallback to Flat mode
-            logger.semver("enabling Flat mode")
-            buildCalculatorConfig().withBranchMatchingConfig(FlatDefaultBranchMatching(versionModifier))
-        }
+        val config = buildCalculatorConfig(git)
         val ops = getGitContextProviderOperations(git, config)
         val context = GradleSemVerContext(project, ops)
 
@@ -95,12 +88,26 @@ abstract class SemVerExtension @Inject constructor(objects: ObjectFactory, priva
     val version by lazy { version().toString() }
     val versionTagName by lazy { versionTagName() }
 
-    private fun buildCalculatorConfig(): VersionCalculatorConfig {
-        return VersionCalculatorConfig(
+    private fun buildCalculatorConfig(git: Git): VersionCalculatorConfig {
+        val initialConfig = VersionCalculatorConfig(
             tagPrefix.get(),
             initialVersion.get(),
             overrideVersion.orNull.toOption(),
         )
+        return when {
+            versionStrategy.isPresent -> {
+                logger.semver("enabling extension configured strategy")
+                initialConfig.withBranchMatchingConfig(versionStrategy.get())
+            }
+            git.hasBranch(GitRef.Branch.Develop.name).isNotEmpty() -> {
+                logger.semver("enabling Git Flow mode")
+                initialConfig.withBranchMatchingConfig(FlowVersionCalculatorStrategy(versionModifier))
+            }
+            else -> { // if we don't have a develop branch, fallback to Flat mode
+                logger.semver("enabling Flat mode")
+                initialConfig.withBranchMatchingConfig(FlatVersionCalculatorStrategy(versionModifier))
+            }
+        }
     }
 
     companion object {

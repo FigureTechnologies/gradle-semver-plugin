@@ -1,10 +1,10 @@
 package io.github.nefilim.gradle.semver
 
 import arrow.core.Either
+import arrow.core.None
 import arrow.core.Option
 import arrow.core.getOrElse
 import arrow.core.left
-import io.github.nefilim.gradle.semver.config.VersionCalculatorConfig
 import io.github.nefilim.gradle.semver.domain.GitRef
 import io.github.nefilim.gradle.semver.domain.SemVerError
 import net.swiftzer.semver.SemVer
@@ -35,6 +35,32 @@ interface SemVerContext {
 
 typealias VersionModifier = SemVer.() -> SemVer
 typealias VersionQualifier = SemVerContext.(current: GitRef.Branch) -> Pair<PreReleaseLabel, BuildMetadataLabel>
+
+
+data class BranchMatchingConfiguration(
+    val regex: Regex,
+    val targetBranch: GitRef.Branch,
+    val versionQualifier: VersionQualifier,
+    val versionModifier: VersionModifier = { nextPatch() },
+)
+
+typealias VersionCalculatorStrategy = List<BranchMatchingConfiguration>
+
+data class VersionCalculatorConfig(
+    val tagPrefix: String,
+    val initialVersion: SemVer = SemVer(0, 0, 1),
+    val overrideVersion: Option<SemVer> = None,
+    val branchMatching: VersionCalculatorStrategy = FlowVersionCalculatorStrategy { nextPatch() }, // first one matched will apply, put least specific last
+) {
+    companion object {
+        internal val DefaultVersion = SemVer(0, 1, 0, null, null)
+        internal const val DefaultTagPrefix = "v"
+    }
+
+    fun withBranchMatchingConfig(branchMatching: List<BranchMatchingConfiguration>): VersionCalculatorConfig {
+        return this.copy(branchMatching = branchMatching)
+    }
+}
 
 fun getTargetBranchVersionCalculator(
     contextProviderOperations: ContextProviderOperations,
@@ -97,13 +123,6 @@ fun getTargetBranchVersionCalculator(
     }
 }
 
-data class BranchMatchingConfiguration(
-    val regex: Regex,
-    val targetBranch: GitRef.Branch,
-    val versionQualifier: VersionQualifier,
-    val versionModifier: VersionModifier = { nextPatch() },
-)
-
 fun SemVerContext.preReleaseWithCommitCount(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch, label: String): String {
     return ops.commitsSinceBranchPoint(currentBranch, targetBranch).fold({
         logger.warn("Unable to calculate commits since branch point on current $currentBranch")
@@ -113,14 +132,14 @@ fun SemVerContext.preReleaseWithCommitCount(currentBranch: GitRef.Branch, target
     })
 }
 
-fun FlowDefaultBranchMatching(versionModifier: VersionModifier) = listOf(
+fun FlowVersionCalculatorStrategy(versionModifier: VersionModifier) = listOf(
     BranchMatchingConfiguration("""^main$""".toRegex(), GitRef.Branch.Main, { "" to "" }, versionModifier),
     BranchMatchingConfiguration("""^develop$""".toRegex(), GitRef.Branch.Main, { preReleaseWithCommitCount(it, GitRef.Branch.Main, "beta") to "" }, versionModifier),
     BranchMatchingConfiguration("""^feature/.*""".toRegex(), GitRef.Branch.Develop, { current -> preReleaseWithCommitCount(current, GitRef.Branch.Main, current.sanitizedNameWithoutPrefix()) to "" }, versionModifier),
     BranchMatchingConfiguration("""^hotfix/.*""".toRegex(), GitRef.Branch.Main, { preReleaseWithCommitCount(it, GitRef.Branch.Main, "rc") to "" }, versionModifier),
 )
 
-fun FlatDefaultBranchMatching(versionModifier: VersionModifier) = listOf(
+fun FlatVersionCalculatorStrategy(versionModifier: VersionModifier) = listOf(
     BranchMatchingConfiguration("""^main$""".toRegex(), GitRef.Branch.Main, { "" to "" }, versionModifier),
     BranchMatchingConfiguration(""".*""".toRegex(), GitRef.Branch.Main, { preReleaseWithCommitCount(it, GitRef.Branch.Main, it.sanitizedNameWithoutPrefix()) to "" }, versionModifier),
 )

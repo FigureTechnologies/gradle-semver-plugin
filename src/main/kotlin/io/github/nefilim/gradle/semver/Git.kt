@@ -10,7 +10,6 @@ import arrow.core.left
 import arrow.core.right
 import arrow.core.some
 import arrow.core.toOption
-import io.github.nefilim.gradle.semver.config.VersionCalculatorConfig
 import io.github.nefilim.gradle.semver.domain.SemVerError
 import io.github.nefilim.gradle.semver.domain.GitRef
 import net.swiftzer.semver.SemVer

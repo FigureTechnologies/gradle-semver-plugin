@@ -64,7 +64,15 @@ semver {
     tagPrefix("v")
     initialVersion("0.0.3")
     findProperty("semver.overrideVersion")?.toString()?.let { overrideVersion(it) }
-    findProperty("semver.modifier")?.toString()?.let { versionModifier(it) } 
+    findProperty("semver.modifier")?.toString()?.let { versionModifier(it) } // this is only used for non user defined strategies
+    // the following strategy is equivalent to Flat mode + increasing minor for both branches
+    // NOTE: the "semver.modifier" override above will have no effect here, it should replace `{ nextMinor() }` below if that's desired
+    versionCalculatorStrategy(
+        listOf(
+            BranchMatchingConfiguration("""^main$""".toRegex(), GitRef.Branch.Main, { "" to "" }, { nextMinor() }),
+            BranchMatchingConfiguration(""".*""".toRegex(), GitRef.Branch.Main, { preReleaseWithCommitCount(it, GitRef.Branch.Main, it.sanitizedNameWithoutPrefix()) to "" }, { nextMinor() }),
+        )
+    )    
 }
 
 version = semver.version
