@@ -64,6 +64,7 @@ abstract class SemVerExtension @Inject constructor(objects: ObjectFactory, priva
             logger.error("failed to find current branch, cannot calculate semver".red())
             throw Exception("failed to find current branch")
         }, { currentBranch ->
+            logger.semver("current branch: $currentBranch")
             val calculator = getTargetBranchVersionCalculator(ops, config, context, currentBranch)
             logger.info("semver configuration while calculating version: $config")
 

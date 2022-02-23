@@ -76,6 +76,7 @@ jobs:
             clean build
             ${{ steps.stage_param.outputs.publishCommand }}
             githubRelease
+            --stacktrace
         env:
           GITHUB_TOKEN: ${{ github.token }}
           OSS_USER: '${{ secrets.OSS_USER }}'

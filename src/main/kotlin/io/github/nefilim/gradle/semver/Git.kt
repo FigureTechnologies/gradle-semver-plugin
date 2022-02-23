@@ -32,9 +32,9 @@ fun getGitContextProviderOperations(git: Git, config: VersionCalculatorConfig): 
         private val tags = git.tagMap(config.tagPrefix)
 
         override fun currentBranch(): Option<GitRef.Branch> {
-            return git.currentBranchRef().flatMap {
-                it.shortName().map {
-                    GitRef.Branch(it)
+            return git.currentBranchRef().flatMap { ref ->
+                ref.shortName().map {
+                    GitRef.Branch(it, ref)
                 }.orNone()
             }
         }
@@ -181,6 +181,7 @@ internal fun Git.findYoungestTagOnBranchOlderThanTarget(
     target: RevCommit,
     tags: Tags
 ): Option<SemVer> {
+    logger.debug("pulling log for $branch refName")
     return log().add(repository.exactRef(branch.refName).objectId).call()
         .firstOrNull { it.commitTime <= target.commitTime && tags.containsKey(it.toObjectId()) }
         .toOption()

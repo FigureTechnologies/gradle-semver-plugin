@@ -32,6 +32,7 @@ jobs:
           arguments: |
             -Psemver.develop.stage=beta 
             clean build
+            --stacktrace
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
