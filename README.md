@@ -64,18 +64,32 @@ semver {
     tagPrefix("v")
     initialVersion("0.0.3")
     findProperty("semver.overrideVersion")?.toString()?.let { overrideVersion(it) }
-    findProperty("semver.modifier")?.toString()?.let { versionModifier(it) } // this is only used for non user defined strategies
-    // the following strategy is equivalent to Flat mode + increasing minor for both branches
-    // NOTE: the "semver.modifier" override above will have no effect here, it should replace `{ nextMinor() }` below if that's desired
-    versionCalculatorStrategy(
-        listOf(
-            BranchMatchingConfiguration("""^main$""".toRegex(), GitRef.Branch.Main, { "" to "" }, { nextMinor() }),
-            BranchMatchingConfiguration(""".*""".toRegex(), GitRef.Branch.Main, { preReleaseWithCommitCount(it, GitRef.Branch.Main, it.sanitizedNameWithoutPrefix()) to "" }, { nextMinor() }),
-        )
-    )    
+    findProperty("semver.modifier")?.toString()?.let { versionModifier(buildVersionModifier(it)) } // this is only used for non user defined strategies, ie predefined Flow or Flat
 }
 
 version = semver.version
+```
+Using a custom Strategy: 
+```kotlin
+semver {
+    // all properties are optional but it's a good idea to declare those that you would want  
+    // to override with Gradle properties or environment variables, eg "overrideVersion" below
+    tagPrefix("v")
+    initialVersion("0.0.3")
+    findProperty("semver.overrideVersion")?.toString()?.let { overrideVersion(it) }
+    val semVerModifier = findProperty("semver.modifier")?.toString()?.let { buildVersionModifier(it) } ?: { nextMinor() }
+    versionCalculatorStrategy(
+        FlatVersionCalculatorStrategy(semVerModifier)
+    )
+    // OR from scratch:
+    versionCalculatorStrategy(
+        listOf(
+            BranchMatchingConfiguration("""^main$""".toRegex(), GitRef.Branch.Main, { "" to "" }, semVerModifier),
+            BranchMatchingConfiguration(""".*""".toRegex(), GitRef.Branch.Main, { preReleaseWithCommitCount(it, GitRef.Branch.Main, it.sanitizedNameWithoutPrefix()) to "" }, semVerModifier),
+        )
+    )
+}
+
 ```
 
 _**PLEASE NOTE:**_ the `semver` stanza should be declared **before** the `semver` extension functions are used.

@@ -41,16 +41,13 @@ abstract class SemVerExtension @Inject constructor(objects: ObjectFactory, priva
     fun versionModifier(modifier: VersionModifier) {
         this.versionModifier = modifier
     }
-    fun versionModifier(modifier: String) {
-        when (val mod = modifier.trim().lowercase()) {
-            "major" -> versionModifier { nextMajor() }
-            "minor" -> versionModifier { nextMinor() }
-            "patch" -> versionModifier { nextPatch() }
-            else -> {
-                logger.error("unknown version modifier [$mod]")
-                throw Exception("unknown version modifier [$mod]")
-            }
-        }
+    fun buildVersionModifier(modifier: String): VersionModifier {
+        return versionModifierFromString(modifier).fold({
+            logger.error("unknown version modifier [$modifier]")
+            throw Exception("unknown version modifier [$modifier]")
+        }, {
+            it
+        })
     }
     fun versionCalculatorStrategy(strategy: VersionCalculatorStrategy) {
         versionStrategy.set(strategy)

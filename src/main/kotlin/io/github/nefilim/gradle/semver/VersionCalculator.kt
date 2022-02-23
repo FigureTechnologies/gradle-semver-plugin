@@ -5,6 +5,7 @@ import arrow.core.None
 import arrow.core.Option
 import arrow.core.getOrElse
 import arrow.core.left
+import arrow.core.some
 import io.github.nefilim.gradle.semver.domain.GitRef
 import io.github.nefilim.gradle.semver.domain.SemVerError
 import net.swiftzer.semver.SemVer
@@ -130,6 +131,19 @@ fun SemVerContext.preReleaseWithCommitCount(currentBranch: GitRef.Branch, target
     }, {
         "$label.$it"
     })
+}
+
+// sticking to nullable rather than Option here so not to leak arrow in the public interface
+internal fun versionModifierFromString(modifier: String): Option<VersionModifier> {
+    return when (val mod = modifier.trim().lowercase()) {
+        "major" -> SemVer::nextMajor.some()
+        "minor" -> SemVer::nextMinor.some()
+        "patch" -> SemVer::nextPatch.some()
+        else -> {
+            logger.error("unknown version modifier [$mod]")
+            None
+        }
+    }
 }
 
 fun FlowVersionCalculatorStrategy(versionModifier: VersionModifier) = listOf(
