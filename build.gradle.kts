@@ -14,15 +14,10 @@ plugins {
 }
 
 semver {
-    verbose(true)
     tagPrefix("v")
     initialVersion("0.0.1")
     findProperty("semver.overrideVersion")?.toString()?.let { overrideVersion(it) }
-
-    currentBranch {
-        scope(findProperty("semver.currentBranch.scope")?.toString())
-        stage(findProperty("semver.currentBranch.stage")?.toString())
-    }
+    findProperty("semver.modifier")?.toString()?.let { versionModifier(buildVersionModifier(it)) } // this is only used for non user defined strategies, ie predefined Flow or Flat
 }
 
 val invalidQualifiers = setOf("alpha", "beta", "rc", "nightly")

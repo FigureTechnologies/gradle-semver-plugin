@@ -54,7 +54,7 @@ fun getGitContextProviderOperations(git: Git, config: VersionCalculatorConfig): 
 
 internal fun Git.currentBranchRef(): Option<String> {
     return if (githubActionsBuild() && pullRequestEvent()) {
-        pullRequestHeadRef()
+        pullRequestHeadRef().map { "${GitRef.RemoteOrigin}/$it" } // why does GITHUB_HEAD_REF not refer to a ref like GITHUB_REF???
     } else
         repository.fullBranch.some()
 }

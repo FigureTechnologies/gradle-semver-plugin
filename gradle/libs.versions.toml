@@ -12,7 +12,7 @@ gradle-benmanes-versions = "0.42.0"
 gradle-nexus-publish = "1.1.0"
 gradle-pluginPublish = "0.20.0"
 github-release = "2.2.12"
-gradle-semverPlugin = "0.2.0"
+gradle-semverPlugin = "0.3.+"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }

@@ -3,25 +3,16 @@ name: Manual release
 on:
   workflow_dispatch:
     inputs:
-      stage:
-        description: 'Stage'
-        required: true
-        default: 'default'
-        type: choice
-        options:
-          - 'default'
-          - 'beta'
-          - 'rc'
-          - 'final'
-      scope:
-        description: 'Scope'
-        required: true
+      versionModifier:
+        description: 'Version Modifier'
         default: 'patch'
         type: choice
+        required: true
         options:
           - 'patch'
           - 'minor'
           - 'major'
+
       skipPublishing:
         description: 'Skip artifact publishing to nexus?'
         required: false
@@ -45,36 +36,26 @@ jobs:
           fetch-depth: 0
 
       - name: Set defaults for Build Parameters
-        id: stage_param
+        id: build_parameters
         shell: bash
         run: |
-          if [ "$INPUT_STAGE" = "default" ] || [ -z "$INPUT_STAGE" ]; then
-            echo 'using defaults for stage'
-            echo '::set-output name=stageParam::-Psemver.currentBranch.stage='
-          else
-            echo 'using supplied input for stage: ${{ github.event.inputs.stage }}'
-            echo "::set-output name=stage::-Psemver.currentBranch.stage=$INPUT_STAGE"
-          fi
           if [ "$SKIP_PUBLISH" = "true" ]; then
             echo 'SKIPPING publish'
             echo '::set-output name=publishCommand::'
           else
             echo 'not skipping publish'
-            echo '::set-output name=publishCommand::publishToSonatype closeAndReleaseSonatypeStagingRepository publishPlugins'
+            echo '::set-output name=publishCommand::publish'
           fi
         env:
-          INPUT_STAGE: ${{ github.event.inputs.stage }}
           SKIP_PUBLISH: ${{ github.event.inputs.skipPublishing }}
 
       - name: Build and Release Main
         uses: gradle/gradle-build-action@v2
         with:
-          build-root-directory: ${{ inputs.source }}
           cache-read-only: ${{ github.ref != 'refs/heads/main' }} # only update the cache on the default branch https://github.com/gradle/gradle-build-action#optimizing-cache-effectiveness
           arguments: |
-            -Psemver.currentBranch.scope=${{ github.event.inputs.scope }} ${{ steps.stage_param.outputs.stage }} 
-            clean build
-            ${{ steps.stage_param.outputs.publishCommand }}
+            -Psemver.modifier=${{ github.event.inputs.versionModifier }}
+            clean build ${{ steps.stage_param.outputs.publishCommand }}
             githubRelease
             --stacktrace
         env:
