@@ -44,7 +44,7 @@ jobs:
             echo '::set-output name=publishCommand::'
           else
             echo 'not skipping publish'
-            echo '::set-output name=publishCommand::publish'
+            echo '::set-output name=publishCommand::publishToSonatype closeAndReleaseSonatypeStagingRepository publishPlugins'            
           fi
         env:
           SKIP_PUBLISH: ${{ github.event.inputs.skipPublishing }}
