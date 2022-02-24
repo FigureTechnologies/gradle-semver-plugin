@@ -14,7 +14,7 @@ on:
           - 'major'
 
       skipPublishing:
-        description: 'Skip artifact publishing to nexus?'
+        description: 'Skip artifact publishing'
         required: false
         type: boolean
         default: 'false'
@@ -55,7 +55,7 @@ jobs:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }} # only update the cache on the default branch https://github.com/gradle/gradle-build-action#optimizing-cache-effectiveness
           arguments: |
             -Psemver.modifier=${{ github.event.inputs.versionModifier }}
-            clean build ${{ steps.stage_param.outputs.publishCommand }}
+            clean build ${{ steps.build_parameters.outputs.publishCommand }}
             githubRelease
             --stacktrace
         env:
