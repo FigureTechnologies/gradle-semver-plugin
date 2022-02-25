@@ -29,7 +29,7 @@ The semver is calculated primarily based on:
 
 ## Branch Matching Strategy
 
-A Strategy contains a list of `BranchMatchingConfiguration` instances which are applied in order until the first match is reached (recommend the last entry's regex to be `.*`), it contains the following properties:
+A Strategy contains a list of `BranchMatchingConfiguration` instances which are applied in order until the first match is reached, it contains the following properties:
   * branch name regex
   * target branch
   * version modifier: modifies the major, minor or patch components of the semver
@@ -89,17 +89,15 @@ semver {
         )
     )
 }
-
 ```
 
 _**PLEASE NOTE:**_ the `semver` stanza should be declared **before** the `semver` extension functions are used.
 
-Two extension properties are available on the `semver` extension:
-
+## Plugin Extension Properties
 * `version: String` returns the calculated version
 * `versionTagName: String` returns the tag name for the current calculated version, ie `tagPrefix` + `version`   
 
-The plugin supports two tasks: 
+## Plugin Tasks 
 * `cv` that will print out the current calculated version
 * `generateVersionFile` will generate `build/semver/version.txt` containing the raw version and the tag version
 * `createAndPushVersionTag` will create a tag from `semver.versionTagName` and push the tag to the remote repo, take care to use `:createAndPushVersionTag` in a multi module project otherwise it will attempt to create duplicates 
