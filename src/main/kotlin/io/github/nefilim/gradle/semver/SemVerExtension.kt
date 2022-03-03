@@ -74,7 +74,7 @@ abstract class SemVerExtension @Inject constructor(objects: ObjectFactory, priva
                     throw Exception("$it")
                 }
             }.also {
-                logger.info("semver: $it".bold())
+                logger.semver(it.toString())
             }
         })
     }

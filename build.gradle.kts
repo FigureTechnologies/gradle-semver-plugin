@@ -185,8 +185,10 @@ fun MavenPublication.addSonaTypeRequirements() {
 afterEvaluate {
     publishing {
         publications {
-            findByName("pluginMaven")?.let { it as MavenPublication }?.apply { addSonaTypeRequirements() }
-            findByName("semver-pluginPluginMarkerMaven")?.let { it as MavenPublication }?.apply { addSonaTypeRequirements() }
+            names.filter { it.contains("plugin", ignoreCase = true) }.map {
+                logger.lifecycle("decorating publication [$it]")
+                findByName(it)?.let { it as MavenPublication }?.apply { addSonaTypeRequirements() } ?: logger.error("failed to find publication [$it]")
+            }
         }
     }
     signing.sign(publishing.publications)
