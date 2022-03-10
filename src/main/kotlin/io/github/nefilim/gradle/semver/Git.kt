@@ -181,8 +181,12 @@ internal fun Git.findYoungestTagOnBranchOlderThanTarget(
     target: RevCommit,
     tags: Tags
 ): Option<SemVer> {
-    logger.info("pulling log for $branch refName, exactRef: ${repository.exactRef(branch.refName)}, target: $target")
-    return log().add(repository.exactRef(branch.refName).objectId).call()
+    val branchRef = repository.exactRef(branch.refName)
+    if (branchRef == null)
+        logger.semverError("failed to find exact git ref for branch [$branch], aborting...")
+    else
+        logger.info("pulling log for $branch refName, exactRef: ${branchRef}, target: $target")
+    return log().add(branchRef.objectId).call()
         .firstOrNull { it.commitTime <= target.commitTime && tags.containsKey(it.toObjectId()) }
         .toOption()
         .flatMap { tags[it.id].toOption() }
@@ -192,7 +196,12 @@ internal fun Git.findYoungestTagCommitOnBranch(
     branch: GitRef.Branch,
     tags: Tags
 ): Option<RevCommit> {
-    return log().add(repository.exactRef(branch.refName).objectId).call()
+    val branchRef = repository.exactRef(branch.refName)
+    if (branchRef == null)
+        logger.semverError("failed to find exact git ref for branch [$branch], aborting...")
+    else
+        logger.info("pulling log for $branch refName, exactRef: $branchRef")
+    return log().add(branchRef.objectId).call()
         .firstOrNull { tags.containsKey(it.toObjectId()) }
         .toOption()
 }

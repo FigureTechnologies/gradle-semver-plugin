@@ -7,6 +7,7 @@ import arrow.core.some
 import arrow.core.toOption
 import io.github.nefilim.gradle.semver.domain.GitRef
 import io.github.nefilim.gradle.semver.domain.SemVerError
+import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
@@ -71,6 +72,54 @@ class CalculateVersionSpec: WordSpec() {
                     .shouldBeRight()
                     .shouldBe(mainBranchVersion.nextPatch().nextPatch().copy(preRelease = "something_something-bla.2"))
 
+            }
+
+            "support custom formats such as ShortCut" {
+                val mainBranchVersion = SemVer(1, 2, 3)
+                val mainBranch = GitRef.Branch.Main
+                val developBranchVersion = SemVer(1, 2, 4, "beta")
+                val developBranch = GitRef.Branch.Develop
+                val versionModifier: VersionModifier = { nextPatch() }
+                val config = buildPluginConfig(
+                    listOf(
+                        BranchMatchingConfiguration("""^main$""".toRegex(), GitRef.Branch.Main, { "" to "" }, versionModifier),
+                        BranchMatchingConfiguration("""^develop$""".toRegex(), GitRef.Branch.Main, { preReleaseWithCommitCount(it, GitRef.Branch.Main, "beta") to "" }, versionModifier),
+                        BranchMatchingConfiguration("""^feature/.*""".toRegex(), GitRef.Branch.Develop, { current -> preReleaseWithCommitCount(current, GitRef.Branch.Main, current.sanitizedNameWithoutPrefix()) to "" }, versionModifier),
+                        BranchMatchingConfiguration("""^.+/sc-\d+/.+""".toRegex(), GitRef.Branch.Develop, { current -> preReleaseWithCommitCount(current, GitRef.Branch.Main, current.sanitizedNameWithoutPrefix()) to "" }, versionModifier),
+                        BranchMatchingConfiguration("""^.+/\d+/.+""".toRegex(), GitRef.Branch.Develop, { current -> preReleaseWithCommitCount(current, GitRef.Branch.Main, current.sanitizedNameWithoutPrefix()) to "" }, versionModifier),
+                        BranchMatchingConfiguration("""^.+/no-ticket/.+""".toRegex(), GitRef.Branch.Develop, { current -> preReleaseWithCommitCount(current, GitRef.Branch.Main, current.sanitizedNameWithoutPrefix()) to "" }, versionModifier),
+                        BranchMatchingConfiguration("""^hotfix/.*""".toRegex(), GitRef.Branch.Main, { preReleaseWithCommitCount(it, GitRef.Branch.Main, "rc") to "" }, versionModifier),
+                    )
+                )
+                val branchVersions: Map<GitRef.Branch, SemVer> = mapOf(mainBranch to mainBranchVersion, developBranch to developBranchVersion)
+
+                // current == main
+                calculateBranchVersion(mainBranch, branchVersions, config).shouldBeRight() shouldBe mainBranchVersion.nextPatch()
+
+                calculateBranchVersion(developBranch, branchVersions, config).shouldBeRight() shouldBe mainBranchVersion.nextPatch().copy(preRelease = "beta.2")
+
+                calculateBranchVersion(GitRef.Branch("hotfix/something"), branchVersions, config)
+                    .shouldBeRight()
+                    .shouldBe(mainBranchVersion.nextPatch().copy(preRelease = "rc.2"))
+
+                calculateBranchVersion(GitRef.Branch("feature/something_something*bla"), branchVersions, config)
+                    .shouldBeRight()
+                    .shouldBe(mainBranchVersion.nextPatch().nextPatch().copy(preRelease = "something_something-bla.2"))
+
+                calculateBranchVersion(GitRef.Branch("sroman/sc-145300/standardized-gradle-build"), branchVersions, config)
+                    .shouldBeRight()
+                    .shouldBe(mainBranchVersion.nextPatch().nextPatch().copy(preRelease = "sc-145300-standardized-gradle-build.2"))
+
+                calculateBranchVersion(GitRef.Branch("sroman/no-ticket/standardized-gradle-build"), branchVersions, config)
+                    .shouldBeRight()
+                    .shouldBe(mainBranchVersion.nextPatch().nextPatch().copy(preRelease = "no-ticket-standardized-gradle-build.2"))
+
+                calculateBranchVersion(GitRef.Branch("sroman/145300/standardized-gradle-build"), branchVersions, config)
+                    .shouldBeRight()
+                    .shouldBe(mainBranchVersion.nextPatch().nextPatch().copy(preRelease = "145300-standardized-gradle-build.2"))
+
+                calculateBranchVersion(GitRef.Branch("sroman/abc/standardized-gradle-build"), branchVersions, config)
+                    .shouldBeLeft()
             }
         }
     }
