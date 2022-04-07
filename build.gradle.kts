@@ -191,7 +191,9 @@ afterEvaluate {
             }
         }
     }
-    signing.sign(publishing.publications)
+    val skipSigning = findProperty("skipSigning")?.let { (it as String).toBoolean() } ?: false
+    if (!skipSigning)
+        signing.sign(publishing.publications)
 }
 
 val githubTokenValue = findProperty("githubToken")?.toString() ?: System.getenv("GITHUB_TOKEN")

@@ -60,23 +60,22 @@ abstract class SemVerExtension @Inject constructor(objects: ObjectFactory, priva
         val ops = getGitContextProviderOperations(git, config)
         val context = GradleSemVerContext(project, ops)
 
-        return ops.currentBranch().fold({
-            logger.error("failed to find current branch, cannot calculate semver".red())
-            throw Exception("failed to find current branch")
-        }, { currentBranch ->
-            logger.semver("current branch: $currentBranch")
-            val calculator = getTargetBranchVersionCalculator(ops, config, context, currentBranch)
-            logger.info("semver configuration while calculating version: $config")
-
-            config.overrideVersion.getOrElse {
+        return config.overrideVersion.getOrElse {
+            ops.currentBranch().fold({
+                logger.error("failed to find current branch, cannot calculate semver".red())
+                throw Exception("failed to find current branch")
+            }, { currentBranch ->
+                logger.semver("current branch: $currentBranch")
+                val calculator = getTargetBranchVersionCalculator(ops, config, context, currentBranch)
+                logger.info("semver configuration while calculating version: $config")
                 calculator.calculateVersion().getOrHandle {
                     logger.error("failed to calculate version: $it".red())
                     throw Exception("$it")
                 }
-            }.also {
-                logger.semver(it.toString())
-            }
-        })
+            })
+        }.also {
+            logger.semver(it.toString())
+        }
     }
     private fun versionTagName(): String = tagPrefix.map { "$it${version}" }.get()
     private fun possiblyPrefixedVersion(version: String, prefix: String): SemVer {

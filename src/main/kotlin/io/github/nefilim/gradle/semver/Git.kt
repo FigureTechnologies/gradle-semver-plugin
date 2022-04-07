@@ -146,7 +146,7 @@ internal fun commitsSinceBranchPoint(
                 logger.semverWarn("failed to find any semver tags on branch [$branch], does main have any version tags? using 0 as commit count since branch point")
                 0
             }, { youngestTag ->
-                logger.debug("youngest tag on this branch is at ${youngestTag.id.name} => ${tags[youngestTag.id]}")
+                logger.info("youngest tag on this branch is at ${youngestTag.id.name} => ${tags[youngestTag.id]}")
                 commits.takeWhile { it.id != youngestTag.id }.size
             }).right()
         }
