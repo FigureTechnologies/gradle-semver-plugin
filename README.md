@@ -1,5 +1,16 @@
 # Gradle Semver Plugin
-     
+
+* [Overview](#overview)
+* [Version Calculation](#version-calculation)
+* [Branch Matching Strategy](#branch-matching-strategy)
+* [Usage](#usage)
+* [Plugin Extension Properties](#plugin-extension-properties)
+* [Plugin Tasks](#plugin-tasks)
+* [Using with CI/CD](#using-with-cicd)
+* [Unsupported](#not-supported)     
+
+## Overview 
+
 A Gradle plugin with a flexible approach to generating semantic versions, typically for use within a Gradle project. It supports running under Github Actions. 
 
 It comes bundled with a single Version Calculator that implements a target branch calculator: the version of the current branch is based on the latest version of the branch it targets, eg `develop` is branched from `main`, thus the version of `develop` is based on the current version of `main`. 
@@ -101,6 +112,15 @@ _**PLEASE NOTE:**_ the `semver` stanza should be declared **before** the `semver
 * `cv` that will print out the current calculated version
 * `generateVersionFile` will generate `build/semver/version.txt` containing the raw version and the tag version
 * `createAndPushVersionTag` will create a tag from `semver.versionTagName` and push the tag to the remote repo, take care to use `:createAndPushVersionTag` in a multi module project otherwise it will attempt to create duplicates 
+
+## Using with CI/CD
+
+Make sure to check out all branches & tags, eg using GitHub Actions:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
 ## Not Supported
 * Discrete versions for sub projects, all subprojects are calculated with the same version
