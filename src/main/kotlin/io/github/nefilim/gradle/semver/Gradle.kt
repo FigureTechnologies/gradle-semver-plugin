@@ -1,5 +1,6 @@
 package io.github.nefilim.gradle.semver
 
+import io.github.nefilim.gradle.semver.domain.SemVerError
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 

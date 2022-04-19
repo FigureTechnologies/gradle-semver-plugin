@@ -4,6 +4,7 @@ import arrow.core.getOrElse
 import arrow.core.getOrHandle
 import arrow.core.toOption
 import io.github.nefilim.gradle.semver.domain.GitRef
+import io.github.nefilim.gradle.semver.domain.toError
 import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.Git
 import org.gradle.api.Project
@@ -69,7 +70,7 @@ abstract class SemVerExtension @Inject constructor(objects: ObjectFactory, priva
                 val calculator = getTargetBranchVersionCalculator(ops, config, context, currentBranch)
                 logger.info("semver configuration while calculating version: $config")
                 calculator.calculateVersion().getOrHandle {
-                    logger.error("failed to calculate version: $it".red())
+                    logger.error("failed to calculate version: ${it.toError()}".red())
                     throw Exception("$it")
                 }
             })
