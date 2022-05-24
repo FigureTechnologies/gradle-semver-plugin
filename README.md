@@ -65,7 +65,7 @@ The plugin is not opinionated on Gradle property names, you can decide your own 
 
 ```kotlin
 plugins {
-    id("io.github.nefilim.gradle.semver-plugin") version "<latest version>"
+    id("com.figure.gradle.semver-plugin") version "<latest version>"
 }
 
 // semver extension must be declared before invoking semver.version()  
