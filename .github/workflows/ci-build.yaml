@@ -8,9 +8,13 @@ on:
     paths-ignore:
       - '**.md'
 
+env:
+  NEXUS_USER: ${{ secrets.NEXUS_USER }}
+  NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
+
 jobs:
   build-and-publish:
-    runs-on: ubuntu-latest
+    runs-on: [linux, self-hosted]
 
     steps:
       - name: Set up JDK 11
