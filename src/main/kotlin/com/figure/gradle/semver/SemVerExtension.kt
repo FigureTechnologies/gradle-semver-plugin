@@ -1,10 +1,10 @@
-package io.github.nefilim.gradle.semver
+package com.figure.gradle.semver
 
 import arrow.core.getOrElse
 import arrow.core.getOrHandle
 import arrow.core.toOption
-import io.github.nefilim.gradle.semver.domain.GitRef
-import io.github.nefilim.gradle.semver.domain.toError
+import com.figure.gradle.semver.domain.GitRef
+import com.figure.gradle.semver.domain.toError
 import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.Git
 import org.gradle.api.Project

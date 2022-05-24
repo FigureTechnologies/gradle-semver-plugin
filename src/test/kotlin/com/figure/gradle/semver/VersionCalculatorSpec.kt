@@ -1,12 +1,12 @@
-package io.github.nefilim.gradle.semver
+package com.figure.gradle.semver
 
 import arrow.core.Either
 import arrow.core.Option
 import arrow.core.right
 import arrow.core.some
 import arrow.core.toOption
-import io.github.nefilim.gradle.semver.domain.GitRef
-import io.github.nefilim.gradle.semver.domain.SemVerError
+import com.figure.gradle.semver.domain.GitRef
+import com.figure.gradle.semver.domain.SemVerError
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.WordSpec

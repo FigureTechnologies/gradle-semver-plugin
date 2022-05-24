@@ -1,6 +1,6 @@
-package io.github.nefilim.gradle.semver
+package com.figure.gradle.semver
 
-import io.github.nefilim.gradle.semver.SemVerExtension.Companion.semver
+import com.figure.gradle.semver.SemVerExtension.Companion.semver
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project

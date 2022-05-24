@@ -1,4 +1,4 @@
-package io.github.nefilim.gradle.semver.domain
+package com.figure.gradle.semver.domain
 
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.ObjectId
