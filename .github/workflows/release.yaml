@@ -68,7 +68,7 @@ jobs:
           arguments: |
             -Psemver.modifier=${{ github.event.inputs.versionModifier }}
             clean build ${{ steps.build_parameters.outputs.publishCommand }}
-            ${{ steps.build_parameters.outputs.githubRelease }}
+            ${{ steps.build_parameters.outputs.githubReleaseCommand }}
             --stacktrace
         env:
           GITHUB_TOKEN: ${{ github.token }}
