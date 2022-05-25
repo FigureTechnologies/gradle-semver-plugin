@@ -6,7 +6,6 @@ plugins {
     signing
     `maven-publish`
     alias(libs.plugins.githubrelease)
-    alias(libs.plugins.gradlePluginPublish)
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.semver)
     alias(libs.plugins.versions)
@@ -151,14 +150,6 @@ publishing {
                 username = System.getenv("NEXUS_USER")
                 password = System.getenv("NEXUS_PASS")
             }
-        }
-    }
-    publications {
-        create<MavenPublication>("semver-plugin") {
-            artifactId = project.name
-            groupId = project.group.toString()
-            version = project.version.toString()
-            from(components["java"])
         }
     }
 }
