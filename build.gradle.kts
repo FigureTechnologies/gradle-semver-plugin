@@ -154,7 +154,7 @@ publishing {
         }
     }
     publications {
-        create<MavenPublication>("mavenJava") {
+        create<MavenPublication>("semver-plugin") {
             artifactId = project.name
             groupId = project.group.toString()
             version = project.version.toString()
