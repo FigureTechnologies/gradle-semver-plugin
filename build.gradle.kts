@@ -6,7 +6,6 @@ plugins {
     signing
     `maven-publish`
     alias(libs.plugins.githubrelease)
-    alias(libs.plugins.gradlePluginPublish)
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.semver)
     alias(libs.plugins.versions)
@@ -14,7 +13,7 @@ plugins {
 
 semver {
     tagPrefix("v")
-    initialVersion("0.0.1")
+    initialVersion("0.0.8")
     findProperty("semver.overrideVersion")?.toString()?.let { overrideVersion(it) }
     findProperty("semver.modifier")?.toString()?.let { versionModifier(buildVersionModifier(it)) } // this is only used for non user defined strategies, ie predefined Flow or Flat
 }
@@ -151,6 +150,14 @@ publishing {
                 username = System.getenv("NEXUS_USER")
                 password = System.getenv("NEXUS_PASS")
             }
+        }
+    }
+    publications {
+        create<MavenPublication>("semver-plugin") {
+            artifactId = project.name
+            groupId = project.group.toString()
+            version = project.version.toString()
+            from(components["java"])
         }
     }
 }
