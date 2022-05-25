@@ -13,7 +13,7 @@ env:
   NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
 
 jobs:
-  build-and-publish:
+  build:
     runs-on: [linux, self-hosted]
 
     steps:
