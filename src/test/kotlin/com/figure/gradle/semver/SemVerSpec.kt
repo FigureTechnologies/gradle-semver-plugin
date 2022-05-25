@@ -1,4 +1,4 @@
-package io.github.nefilim.gradle.semver
+package com.figure.gradle.semver
 
 import io.kotest.assertions.arrow.core.shouldBeNone
 import io.kotest.assertions.arrow.core.shouldBeSome

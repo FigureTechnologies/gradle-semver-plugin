@@ -1,11 +1,11 @@
-package io.github.nefilim.gradle.semver
+package com.figure.gradle.semver
 
-import io.github.nefilim.gradle.semver.domain.SemVerError
+import com.figure.gradle.semver.domain.SemVerError
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 
 internal val Project.hasSemVerPlugin: Boolean
-    get() = pluginManager.hasPlugin("io.github.nefilim.gradle.semver-plugin")
+    get() = pluginManager.hasPlugin("com.figure.gradle.semver-plugin")
 
 internal val Project.appliedOnlyOnRootProject: Boolean
     get() = rootProject.hasSemVerPlugin && rootProject.subprojects.none(Project::hasSemVerPlugin)

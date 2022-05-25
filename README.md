@@ -23,7 +23,7 @@ The Target Branch Version Calculator includes two Branch Matching strategies:
   |`develop`|beta|main|1.2.4-beta.13|
   |`feature/mycool_feature`|mycool_feature|develop|1.2.5-mycool_feature.1|
   |`hotfix/badthings`|rc|main|1.2.4-rc.2|
-* Flat - ideal for simpler projects without an integratin branch such as `develop`:
+* Flat - ideal for simpler projects without an integration branch such as `develop`:
   |branch|pre release label|target branch|example|
   |------|-----------------|-------------|-------|
   |`main`| |main|1.2.3|
@@ -65,7 +65,7 @@ The plugin is not opinionated on Gradle property names, you can decide your own 
 
 ```kotlin
 plugins {
-    id("io.github.nefilim.gradle.semver-plugin") version "<latest version>"
+    id("com.figure.gradle.semver-plugin") version "<latest version>"
 }
 
 // semver extension must be declared before invoking semver.version()  

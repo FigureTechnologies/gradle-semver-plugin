@@ -1,4 +1,4 @@
-package io.github.nefilim.gradle.semver
+package com.figure.gradle.semver
 
 import arrow.core.Option
 import arrow.core.toOption

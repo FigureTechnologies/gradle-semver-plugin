@@ -1,4 +1,4 @@
-package io.github.nefilim.gradle.semver
+package com.figure.gradle.semver
 
 import arrow.core.Either
 import arrow.core.None
@@ -10,8 +10,8 @@ import arrow.core.left
 import arrow.core.right
 import arrow.core.some
 import arrow.core.toOption
-import io.github.nefilim.gradle.semver.domain.SemVerError
-import io.github.nefilim.gradle.semver.domain.GitRef
+import com.figure.gradle.semver.domain.SemVerError
+import com.figure.gradle.semver.domain.GitRef
 import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ObjectId

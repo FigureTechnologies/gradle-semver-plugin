@@ -1,4 +1,4 @@
-package io.github.nefilim.gradle.semver.domain
+package com.figure.gradle.semver.domain
 
 import java.io.PrintWriter
 import java.io.StringWriter
