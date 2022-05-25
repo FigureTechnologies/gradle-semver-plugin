@@ -13,7 +13,7 @@ plugins {
 
 semver {
     tagPrefix("v")
-    initialVersion("0.0.9")
+    initialVersion("0.0.1")
     findProperty("semver.overrideVersion")?.toString()?.let { overrideVersion(it) }
     findProperty("semver.modifier")?.toString()?.let { versionModifier(buildVersionModifier(it)) } // this is only used for non user defined strategies, ie predefined Flow or Flat
 }
