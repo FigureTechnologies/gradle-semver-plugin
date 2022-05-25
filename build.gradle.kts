@@ -162,3 +162,7 @@ publishing {
         }
     }
 }
+
+// hatz testing
+// avoid implicit dependency otherwise sourcesJar will depend on task execution order
+tasks["sourcesJar"].dependsOn(JavaPlugin.CLASSES_TASK_NAME)
