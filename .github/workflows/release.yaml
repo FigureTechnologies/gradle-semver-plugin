@@ -50,6 +50,14 @@ jobs:
             echo 'not skipping publish'
             echo '::set-output name=publishCommand::publish'            
           fi
+          
+          if [ ${{ github.ref }} != 'refs/heads/main' ]; then
+            echo 'SKIPPING github release since this is a branch release'
+            echo '::set-output name=githubReleaseCommand::'
+          else
+            echo 'not skipping github release'
+            echo '::set-output name=githubReleaseCommand::githubRelease'
+          fi
         env:
           SKIP_PUBLISH: ${{ github.event.inputs.skipPublishing }}
 
@@ -60,7 +68,7 @@ jobs:
           arguments: |
             -Psemver.modifier=${{ github.event.inputs.versionModifier }}
             clean build ${{ steps.build_parameters.outputs.publishCommand }}
-            githubRelease
+            ${{ steps.build_parameters.outputs.githubRelease }}
             --stacktrace
         env:
           GITHUB_TOKEN: ${{ github.token }}
