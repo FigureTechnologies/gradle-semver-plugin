@@ -146,7 +146,7 @@ githubRelease {
 publishing {
     repositories {
         maven {
-            url = uri("https://nexus.figure.com/repository/gradle-plugins")
+            url = uri("https://nexus.figure.com/repository/figure")
             credentials {
                 username = System.getenv("NEXUS_USER")
                 password = System.getenv("NEXUS_PASS")
