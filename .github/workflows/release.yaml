@@ -73,3 +73,4 @@ jobs:
         env:
           NEXUS_PASS: '${{ secrets.NEXUS_PASS }}'
           NEXUS_USER: '${{ secrets.NEXUS_USER }}'
+          GITHUB_TOKEN: '${{ secrets.PAT }}'
