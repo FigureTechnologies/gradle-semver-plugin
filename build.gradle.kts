@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION as KOTLIN_VERSI
 plugins {
     `java-gradle-plugin`
     signing
+    `maven-publish`
     alias(libs.plugins.github.release)
     alias(libs.plugins.gradle.plugin.publish)
     alias(libs.plugins.kotlin.jvm)
