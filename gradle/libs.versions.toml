@@ -28,5 +28,5 @@ kotest = [ "kotest-junit5-jvm", "kotest-assertions-core-jvm", "kotest-assertions
 [plugins]
 githubrelease = { id = "com.github.breadmoirai.github-release", version.ref = "github-release" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-semver = { id = "io.github.nefilim.gradle.semver-plugin", version.ref = "gradle-semverPlugin" }
+semver = { id = "com.figure.gradle.semver-plugin", version.ref = "gradle-semverPlugin" }
 versions = { id = "com.github.ben-manes.versions", version.ref = "gradle-benmanes-versions" }
