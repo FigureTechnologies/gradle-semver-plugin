@@ -9,6 +9,7 @@ logback = "1.2.+"
 swiftzer-semver = "1.2.0"
 
 gradle-benmanes-versions = "0.42.0"
+gradle-plugin-publish = "0.20.0"
 github-release = "2.2.12"
 gradle-semver-plugin = "0.3.+"
 
@@ -26,7 +27,8 @@ logbackClassic = { module = "ch.qos.logback:logback-classic", version.ref = "log
 kotest = [ "kotest-junit5-jvm", "kotest-assertions-core-jvm", "kotest-assertions-arrow" ]
 
 [plugins]
-githubrelease = { id = "com.github.breadmoirai.github-release", version.ref = "github-release" }
+github-release = { id = "com.github.breadmoirai.github-release", version.ref = "github-release" }
+gradle-plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "gradle-plugin-publish" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 semver = { id = "com.figure.gradle.semver-plugin", version.ref = "gradle-semver-plugin" }
 versions = { id = "com.github.ben-manes.versions", version.ref = "gradle-benmanes-versions" }

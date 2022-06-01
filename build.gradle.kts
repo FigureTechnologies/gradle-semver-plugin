@@ -5,7 +5,8 @@ plugins {
     `java-gradle-plugin`
     signing
     `maven-publish`
-    alias(libs.plugins.githubrelease)
+    alias(libs.plugins.github.release)
+    alias(libs.plugins.gradle.plugin.publish)
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.semver)
     alias(libs.plugins.versions)
