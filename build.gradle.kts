@@ -5,8 +5,6 @@ plugins {
     `java-gradle-plugin`
     signing
     `maven-publish`
-    alias(libs.plugins.github.release)
-    alias(libs.plugins.gradle.plugin.publish)
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.semver)
     alias(libs.plugins.versions)
@@ -52,10 +50,6 @@ inner class ProjectInfo {
     val tags = listOf("semver", "gitflow")
 }
 val info = ProjectInfo()
-
-repositories {
-    mavenCentral()
-}
 
 dependencies {
     api(gradleApi())
@@ -123,24 +117,6 @@ gradlePlugin {
             implementationClass = info.pluginImplementationClass
         }
     }
-}
-
-val githubTokenValue = findProperty("githubToken")?.toString() ?: System.getenv("GITHUB_TOKEN")
-
-githubRelease {
-    token(githubTokenValue)
-    owner("FigureTechnologies")
-    repo("gradle-semver-plugin")
-    tagName(semver.versionTagName)
-    targetCommitish("main")
-    body(changelog())
-    draft(false)
-    prerelease(false)
-
-    overwrite(false)
-    dryRun(false)
-    apiEndpoint("https://api.github.com")
-    client
 }
 
 publishing {
