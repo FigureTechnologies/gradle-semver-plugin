@@ -151,8 +151,11 @@ internal fun versionModifierFromString(modifier: String): Option<VersionModifier
 fun FlowVersionCalculatorStrategy(versionModifier: VersionModifier) = listOf(
     BranchMatchingConfiguration("""^main$""".toRegex(), GitRef.Branch.Main, { "" to "" }, versionModifier),
     BranchMatchingConfiguration("""^develop$""".toRegex(), GitRef.Branch.Main, { preReleaseWithCommitCount(it, GitRef.Branch.Main, "beta") to "" }, versionModifier),
-    BranchMatchingConfiguration("""^feature/.*""".toRegex(), GitRef.Branch.Develop, { current -> preReleaseWithCommitCount(current, GitRef.Branch.Main, current.sanitizedNameWithoutPrefix()) to "" }, versionModifier),
     BranchMatchingConfiguration("""^hotfix/.*""".toRegex(), GitRef.Branch.Main, { preReleaseWithCommitCount(it, GitRef.Branch.Main, "rc") to "" }, versionModifier),
+
+    // This one must be last so the other things get matched first.
+    // This matches the old `feature/` setup, but also allows for any branch name so it doesn't break people
+    BranchMatchingConfiguration(""".*""".toRegex(), GitRef.Branch.Develop, { preReleaseWithCommitCount(it, GitRef.Branch.Main, it.sanitizedNameWithoutPrefix()) to "" }, versionModifier),
 )
 
 fun FlatVersionCalculatorStrategy(versionModifier: VersionModifier) = listOf(

@@ -72,6 +72,11 @@ class CalculateVersionSpec: WordSpec() {
                     .shouldBeRight()
                     .shouldBe(mainBranchVersion.nextPatch().nextPatch().copy(preRelease = "something_something-bla.2"))
 
+                // Assert that any branch name gets matched properly (previously only feature/ was allowed)
+                calculateBranchVersion(GitRef.Branch("something_something*bla"), branchVersions, config)
+                    .shouldBeRight()
+                    .shouldBe(mainBranchVersion.nextPatch().nextPatch().copy(preRelease = "something_something-bla.2"))
+
             }
 
             "support custom formats such as ShortCut" {
@@ -162,7 +167,7 @@ private fun mockSemVerContext(
     return object: SemVerContext {
         override val ops: ContextProviderOperations
             get() = ops
-        
+
         override fun property(name: String): Any? {
             return props[name]
         }
