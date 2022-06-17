@@ -135,10 +135,8 @@ githubRelease {
     targetCommitish("main")
     body("")
     generateReleaseNotes(true)
-//    body()
     draft(false)
     prerelease(false)
-
     overwrite(false)
     dryRun(false)
     apiEndpoint("https://api.github.com")
