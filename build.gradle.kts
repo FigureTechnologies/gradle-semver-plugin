@@ -133,10 +133,10 @@ githubRelease {
     repo("gradle-semver-plugin")
     tagName(semver.versionTagName)
     targetCommitish("main")
-    body(changelog())
+    body("")
+    generateReleaseNotes(true)
     draft(false)
     prerelease(false)
-
     overwrite(false)
     dryRun(false)
     apiEndpoint("https://api.github.com")
