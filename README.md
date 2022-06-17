@@ -16,18 +16,21 @@ A Gradle plugin with a flexible approach to generating semantic versions, typica
 It comes bundled with a single Version Calculator that implements a target branch calculator: the version of the current branch is based on the latest version of the branch it targets, eg `develop` is branched from `main`, thus the version of `develop` is based on the current version of `main`. 
 
 The Target Branch Version Calculator includes two Branch Matching strategies: 
-* Flow - broadly based on a [Git Flow workflow](https://nvie.com/posts/a-successful-git-branching-model/) without release branches, the following branches are supported:
-  |branch|pre release label|target branch|example|
-  |------|-----------------|-------------|-------|
-  |`main`| |main|1.2.3|
-  |`develop`|beta|main|1.2.4-beta.13|
-  |`feature/mycool_feature`|mycool_feature|develop|1.2.5-mycool_feature.1|
-  |`hotfix/badthings`|rc|main|1.2.4-rc.2|
-* Flat - ideal for simpler projects without an integration branch such as `develop`:
-  |branch|pre release label|target branch|example|
-  |------|-----------------|-------------|-------|
-  |`main`| |main|1.2.3|
-  |`xxx`|xxx|main|1.2.4-xxx.13|
+-Flow - broadly based on a [Git Flow workflow](https://nvie.com/posts/a-successful-git-branching-model/) without release branches, the following branches are supported:
+
+| branch                   | pre release label | target branch | example                |
+|--------------------------|-------------------|---------------|------------------------|
+| `main`                   | ''                | main          | 1.2.3                  |
+| `develop`                | beta              | main          | 1.2.4-beta.13          |
+| `hotfix/badthings`       | rc                | main          | 1.2.4-rc.2             |
+| `xxx`                    | xxx               | develop       | 1.2.5-xxx.13           |
+
+- Flat - ideal for simpler projects without an integration branch such as `develop`:
+
+| branch | pre release label | target branch | example      |
+|--------|-------------------|---------------|--------------|
+| `main` |                   | main          | 1.2.3        |
+| `xxx`  | xxx               | main          | 1.2.4-xxx.13 |
 
 The `Flow` strategy is automatically selected if a `develop` branch is present, otherwise the `Flat` strategy is selected.
 
@@ -92,7 +95,7 @@ semver {
     versionCalculatorStrategy(
         FlatVersionCalculatorStrategy(semVerModifier)
     )
-    // OR from scratch:
+    // OR from scratch - this is rarely used now that Flat and Flow support anything - .*
     versionCalculatorStrategy(
         listOf(
             BranchMatchingConfiguration("""^main$""".toRegex(), GitRef.Branch.Main, { "" to "" }, semVerModifier),
@@ -117,10 +120,12 @@ _**PLEASE NOTE:**_ the `semver` stanza should be declared **before** the `semver
 
 Make sure to check out all branches & tags, eg using GitHub Actions:
 
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+```yaml
+- name: Checkout
+  uses: actions/checkout@v3
+  with:
+    fetch-depth: 0
+```
 
 ## Not Supported
-* Discrete versions for sub projects, all subprojects are calculated with the same version
+* Discrete versions for subprojects, all subprojects are calculated with the same version

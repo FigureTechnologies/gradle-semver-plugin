@@ -11,6 +11,7 @@ class BranchSpec: WordSpec() {
                 GitRef.Branch("feature/something.5-bla\$bla").sanitizedName() shouldBe "feature-something.5-bla-bla"
                 GitRef.Branch("feature/something.5-bla\$bla").sanitizedNameWithoutPrefix() shouldBe "something.5-bla-bla"
                 GitRef.Branch("feature/something_other.5").sanitizedNameWithoutPrefix() shouldBe "something_other.5"
+                GitRef.Branch("something_other.5").sanitizedNameWithoutPrefix() shouldBe "something_other.5"
             }
         }
     }
