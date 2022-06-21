@@ -5,7 +5,7 @@ on:
     inputs:
       versionModifier:
         description: 'Version Modifier'
-        default: 'patch'
+        default: 'minor'
         type: choice
         required: true
         options:
