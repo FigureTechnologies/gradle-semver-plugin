@@ -1,0 +1,33 @@
+autolabeler:
+  - label: 'BREAKING'
+    title:
+      - '/breaking/i'
+  - label: 'feature'
+    title:
+      - '/add/i'
+  - label: 'enhancement'
+    title:
+      - '/improve/i'
+  - label: 'bug'
+    branch:
+      - '/fix\/.+/'
+    title:
+      - '/fix/i'
+  - label: 'chore'
+    title:
+      - '/chore/i'
+      - '/clean/i'
+      - '/remove/i'
+  - label: 'docs'
+    title:
+      - '/doc/i'
+      - '/docs/i'
+  - label: 'dependencies'
+    title:
+      - '/update/i'
+      - '/upgrade/i'
+      - '/rev/i'
+template: |
+  # What's Changed
+  
+  $CHANGES
