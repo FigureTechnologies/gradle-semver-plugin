@@ -177,14 +177,14 @@ publishing {
                         email.set("eharris@figure.com")
                     }
                     developer {
-                        id.set("jonasg13")
-                        name.set("Jonas Gorauskas")
-                        email.set("jgorauskas@figure.com")
-                    }
-                    developer {
                         id.set("luinstra")
                         name.set("Jeremy Luinstra")
                         email.set("jluinstra@figure.com")
+                    }
+                    developer {
+                        id.set("jonasg13")
+                        name.set("Jonas Gorauskas")
+                        email.set("jgorauskas@figure.com")
                     }
                 }
 //                scm {
