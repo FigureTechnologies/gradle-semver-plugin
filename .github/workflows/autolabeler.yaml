@@ -1,0 +1,24 @@
+name: PR Autolabeler
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+    branches-ignore:
+      - 'renovate/**'
+
+jobs:
+  autolabel-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Figure Platform shared actions
+        uses: actions/checkout@v3
+        with:
+          repository: FigureTechnologies/platform-shared-actions
+          ref: v4
+          token: ${{ secrets.PAT }}
+          path: platform-shared-actions
+
+      - name: Autolabeler
+        uses: ./platform-shared-actions/autolabeler
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
