@@ -39,22 +39,6 @@ configurations.all {
     }
 }
 
-/*
- * Project information
- */
-group = "com.figure.gradle"
-description = "Figure modified Git Flow based semver plugin"
-version = semver.version
-
-inner class ProjectInfo {
-    val longName = "Gradle Semver Plugin"
-    val pluginImplementationClass = "$group.semver.SemVerPlugin"
-    val tags = listOf("semver", "gradle", "gitflow", "gitubflow")
-    val website = "https://github.com/FigureTechnologies/gradle-semver-plugin"
-    val vcsURL = "https://github.com/FigureTechnologies/gradle-semver-plugin.git"
-}
-val info = ProjectInfo()
-
 repositories {
     mavenCentral()
 }
@@ -116,6 +100,22 @@ tasks.withType<Test> {
     }
 }
 
+/*
+ * Project information
+ */
+group = "com.figure.gradle"
+description = "Figure modified Git Flow based semver plugin"
+version = semver.version
+
+inner class ProjectInfo {
+    val longName = "Gradle Semver Plugin"
+    val pluginImplementationClass = "$group.semver.SemVerPlugin"
+    val tags = listOf("semver", "gradle", "gitflow", "gitubflow")
+    val website = "https://github.com/FigureTechnologies/gradle-semver-plugin"
+    val vcsURL = "https://github.com/FigureTechnologies/gradle-semver-plugin.git"
+}
+val info = ProjectInfo()
+
 pluginBundle {
     website = info.website
     vcsUrl = info.vcsURL
@@ -126,7 +126,7 @@ gradlePlugin {
     plugins {
         create(project.name) {
             id = "$group.${project.name}"
-            displayName = info.longName
+            displayName = "SHIT"
             description = project.description
             implementationClass = info.pluginImplementationClass
         }
