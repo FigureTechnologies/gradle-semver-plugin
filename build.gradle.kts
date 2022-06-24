@@ -116,13 +116,8 @@ tasks.withType<Test> {
     }
 }
 
-pluginBundle {
-    website = info.website
-    vcsUrl = info.vcsURL
-    tags = info.tags
-}
-
 gradlePlugin {
+    println("hey")
     plugins {
         create(project.name) {
             id = "$group.${project.name}"
@@ -131,6 +126,12 @@ gradlePlugin {
             implementationClass = info.pluginImplementationClass
         }
     }
+}
+
+pluginBundle {
+    website = info.website
+    vcsUrl = info.vcsURL
+    tags = info.tags
 }
 
 val githubTokenValue = findProperty("githubToken")?.toString() ?: System.getenv("GITHUB_TOKEN")
@@ -164,8 +165,8 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
 //            from(components)
-            artifact(tasks.kotlinSourcesJar)
-            artifact(tasks.javadoc)
+//            artifact(tasks.kotlinSourcesJar)
+//            artifact(tasks.javadoc)
             pom {
                 name.set("gradle-semver-plugin")
                 description.set("Gradle Plugin for Automated Semantic Versioning")
@@ -206,5 +207,4 @@ publishing {
             }
         }
     }
-
 }
