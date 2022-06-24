@@ -165,7 +165,7 @@ publishing {
         create<MavenPublication>("mavenJava") {
             pom {
                 name.set("gradle-semver-plugin")
-                description.set("Gradle Plugin for Automated Semantic Versioning")
+                description.set("COMEONGradle Plugin for Automated Semantic Versioning")
                 url.set("https://github.com/FigureTechnologies/gradle-semver-plugin")
                 licenses {
                     license {
