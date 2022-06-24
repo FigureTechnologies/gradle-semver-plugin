@@ -154,7 +154,8 @@ publishing {
     }
     publications {
         create<MavenPublication>("mavenJava") {
-//            from(components["java"])
+            // this from() takes all of the jars from java{}, aka javadocs and sources
+            from(components["java"])
             pom {
                 name.set(info.longName)
                 description.set(project.description)
