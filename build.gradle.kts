@@ -43,7 +43,7 @@ configurations.all {
  * Project information
  */
 group = "com.figure.gradle"
-description = "Figure modified Git Flow based semver plugin"
+description = "Gradle Plugin for Automated Semantic Versioning"
 version = semver.version
 
 inner class ProjectInfo {
@@ -163,6 +163,9 @@ publishing {
     }
     publications {
         create<MavenPublication>("mavenJava") {
+//            from(components)
+            artifact(tasks.kotlinSourcesJar)
+            artifact(tasks.javadoc)
             pom {
                 name.set("gradle-semver-plugin")
                 description.set("Gradle Plugin for Automated Semantic Versioning")
