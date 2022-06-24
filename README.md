@@ -11,8 +11,6 @@
 
 ## Overview 
 
-kick
-
 A Gradle plugin with a flexible approach to generating semantic versions, typically for use within a Gradle project. It supports running under Github Actions. 
 
 It comes bundled with a single Version Calculator that implements a target branch calculator: the version of the current branch is based on the latest version of the branch it targets, eg `develop` is branched from `main`, thus the version of `develop` is based on the current version of `main`. 
