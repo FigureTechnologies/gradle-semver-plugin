@@ -12,6 +12,22 @@ plugins {
     alias(libs.plugins.versions)
 }
 
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api(gradleApi())
+    api(gradleKotlinDsl())
+    api(kotlin("stdlib-jdk8"))
+    implementation(libs.arrow.core)
+    implementation(libs.eclipse.jgit.eclipseJgit)
+    runtimeOnly(libs.eclipse.jgit.ssh.apache)
+    api(libs.swiftzer.semver)
+    testImplementation(gradleTestKit())
+    testImplementation(libs.bundles.kotest)
+}
+
 semver {
     tagPrefix("v")
     initialVersion("0.0.1")
@@ -19,21 +35,11 @@ semver {
     findProperty("semver.modifier")?.toString()?.let { versionModifier(buildVersionModifier(it)) } // this is only used for non user defined strategies, ie predefined Flow or Flat
 }
 
-val invalidQualifiers = setOf("alpha", "beta", "rc", "nightly")
-fun hasInvalidQualifier(candidate: ModuleComponentIdentifier): Boolean {
-    return invalidQualifiers.any { candidate.version.contains(it) }
-}
 configurations.all {
     resolutionStrategy {
         eachDependency {
             if (requested.group == "org.jetbrains.kotlin") {
                 useVersion(libs.versions.kotlin.get())
-            }
-        }
-        componentSelection {
-            all {
-                if (!(candidate.group.startsWith("com.figure") || (candidate.group.startsWith("io.provenance"))) && hasInvalidQualifier(candidate))
-                    reject("invalid qualifier versions for $candidate")
             }
         }
     }
@@ -54,22 +60,6 @@ inner class ProjectInfo {
     val vcsURL = "https://github.com/FigureTechnologies/gradle-semver-plugin.git"
 }
 val info = ProjectInfo()
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    api(gradleApi())
-    api(gradleKotlinDsl())
-    api(kotlin("stdlib-jdk8"))
-    implementation(libs.arrow.core)
-    implementation(libs.eclipse.jgit.eclipseJgit)
-    runtimeOnly(libs.eclipse.jgit.ssh.apache)
-    api(libs.swiftzer.semver)
-    testImplementation(gradleTestKit())
-    testImplementation(libs.bundles.kotest)
-}
 
 // Enforce Kotlin version coherence
 configurations.all {
@@ -117,7 +107,6 @@ tasks.withType<Test> {
 }
 
 gradlePlugin {
-    println("hey")
     plugins {
         create(project.name) {
             id = "$group.${project.name}"
@@ -152,59 +141,58 @@ githubRelease {
     client
 }
 
-//publishing {
-//    repositories {
-//        maven {
-//            url = uri("https://nexus.figure.com/repository/figure")
-//            credentials {
-//                username = System.getenv("NEXUS_USER")
-//                password = System.getenv("NEXUS_PASS")
-//            }
-//        }
-//    }
-//    publications {
-//        create<MavenPublication>("mavenJava") {
-////            from(components)
-////            artifact(tasks.kotlinSourcesJar)
-////            artifact(tasks.javadoc)
-//            pom {
-//                name.set("gradle-semver-plugin")
-//                description.set("Gradle Plugin for Automated Semantic Versioning")
-//                url.set("https://github.com/FigureTechnologies/gradle-semver-plugin")
-//                licenses {
-//                    license {
-//                        name.set("The Apache License, Version 2.0")
-//                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-//                    }
-//                }
-//                developers {
-//                    developer {
-//                        id.set("ahatzz11")
-//                        name.set("Alex Hatzenbuhler")
-//                        email.set("ahatzenbuhler@figure.com")
-//                    }
-//                    developer {
-//                        id.set("happyphan")
-//                        name.set("Emily Harris")
-//                        email.set("eharris@figure.com")
-//                    }
-//                    developer {
-//                        id.set("luinstra")
-//                        name.set("Jeremy Luinstra")
-//                        email.set("jluinstra@figure.com")
-//                    }
-//                    developer {
-//                        id.set("jonasg13")
-//                        name.set("Jonas Gorauskas")
-//                        email.set("jgorauskas@figure.com")
-//                    }
-//                }
-////                scm {
-////                    connection.set("scm:git:git://example.com/my-library.git")
-////                    developerConnection.set("scm:git:ssh://example.com/my-library.git")
-////                    url.set("http://example.com/my-library/")
-////                }
-//            }
-//        }
-//    }
-//}
+// this does the maven publishing
+publishing {
+    repositories {
+        maven {
+            url = uri("https://nexus.figure.com/repository/figure")
+            credentials {
+                username = System.getenv("NEXUS_USER")
+                password = System.getenv("NEXUS_PASS")
+            }
+        }
+    }
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            pom {
+                name.set(info.longName)
+                description.set(project.description)
+                url.set(info.website)
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("ahatzz11")
+                        name.set("Alex Hatzenbuhler")
+                        email.set("ahatzenbuhler@figure.com")
+                    }
+                    developer {
+                        id.set("happyphan")
+                        name.set("Emily Harris")
+                        email.set("eharris@figure.com")
+                    }
+                    developer {
+                        id.set("luinstra")
+                        name.set("Jeremy Luinstra")
+                        email.set("jluinstra@figure.com")
+                    }
+                    developer {
+                        id.set("jonasg13")
+                        name.set("Jonas Gorauskas")
+                        email.set("jgorauskas@figure.com")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:git://example.com/my-library.git")
+                    developerConnection.set("scm:git:ssh://example.com/my-library.git")
+                    url.set("https://github.com/FigureTechnologies/gradle-semver-plugin")
+                }
+            }
+        }
+    }
+}
