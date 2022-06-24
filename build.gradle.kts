@@ -152,59 +152,59 @@ githubRelease {
     client
 }
 
-publishing {
-    repositories {
-        maven {
-            url = uri("https://nexus.figure.com/repository/figure")
-            credentials {
-                username = System.getenv("NEXUS_USER")
-                password = System.getenv("NEXUS_PASS")
-            }
-        }
-    }
-    publications {
-        create<MavenPublication>("mavenJava") {
-//            from(components)
-//            artifact(tasks.kotlinSourcesJar)
-//            artifact(tasks.javadoc)
-            pom {
-                name.set("gradle-semver-plugin")
-                description.set("Gradle Plugin for Automated Semantic Versioning")
-                url.set("https://github.com/FigureTechnologies/gradle-semver-plugin")
-                licenses {
-                    license {
-                        name.set("The Apache License, Version 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                    }
-                }
-                developers {
-                    developer {
-                        id.set("ahatzz11")
-                        name.set("Alex Hatzenbuhler")
-                        email.set("ahatzenbuhler@figure.com")
-                    }
-                    developer {
-                        id.set("happyphan")
-                        name.set("Emily Harris")
-                        email.set("eharris@figure.com")
-                    }
-                    developer {
-                        id.set("luinstra")
-                        name.set("Jeremy Luinstra")
-                        email.set("jluinstra@figure.com")
-                    }
-                    developer {
-                        id.set("jonasg13")
-                        name.set("Jonas Gorauskas")
-                        email.set("jgorauskas@figure.com")
-                    }
-                }
-//                scm {
-//                    connection.set("scm:git:git://example.com/my-library.git")
-//                    developerConnection.set("scm:git:ssh://example.com/my-library.git")
-//                    url.set("http://example.com/my-library/")
+//publishing {
+//    repositories {
+//        maven {
+//            url = uri("https://nexus.figure.com/repository/figure")
+//            credentials {
+//                username = System.getenv("NEXUS_USER")
+//                password = System.getenv("NEXUS_PASS")
+//            }
+//        }
+//    }
+//    publications {
+//        create<MavenPublication>("mavenJava") {
+////            from(components)
+////            artifact(tasks.kotlinSourcesJar)
+////            artifact(tasks.javadoc)
+//            pom {
+//                name.set("gradle-semver-plugin")
+//                description.set("Gradle Plugin for Automated Semantic Versioning")
+//                url.set("https://github.com/FigureTechnologies/gradle-semver-plugin")
+//                licenses {
+//                    license {
+//                        name.set("The Apache License, Version 2.0")
+//                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+//                    }
 //                }
-            }
-        }
-    }
-}
+//                developers {
+//                    developer {
+//                        id.set("ahatzz11")
+//                        name.set("Alex Hatzenbuhler")
+//                        email.set("ahatzenbuhler@figure.com")
+//                    }
+//                    developer {
+//                        id.set("happyphan")
+//                        name.set("Emily Harris")
+//                        email.set("eharris@figure.com")
+//                    }
+//                    developer {
+//                        id.set("luinstra")
+//                        name.set("Jeremy Luinstra")
+//                        email.set("jluinstra@figure.com")
+//                    }
+//                    developer {
+//                        id.set("jonasg13")
+//                        name.set("Jonas Gorauskas")
+//                        email.set("jgorauskas@figure.com")
+//                    }
+//                }
+////                scm {
+////                    connection.set("scm:git:git://example.com/my-library.git")
+////                    developerConnection.set("scm:git:ssh://example.com/my-library.git")
+////                    url.set("http://example.com/my-library/")
+////                }
+//            }
+//        }
+//    }
+//}
