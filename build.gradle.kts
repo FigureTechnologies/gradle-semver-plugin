@@ -100,6 +100,24 @@ tasks.withType<Test> {
     }
 }
 
+val githubTokenValue = findProperty("githubToken")?.toString() ?: System.getenv("GITHUB_TOKEN")
+
+githubRelease {
+    token(githubTokenValue)
+    owner("FigureTechnologies")
+    repo("gradle-semver-plugin")
+    tagName(semver.versionTagName)
+    targetCommitish("main")
+    body("")
+    generateReleaseNotes(true)
+    draft(false)
+    prerelease(false)
+    overwrite(false)
+    dryRun(false)
+    apiEndpoint("https://api.github.com")
+    client
+}
+
 /*
  * Project information
  */
@@ -133,33 +151,8 @@ gradlePlugin {
     }
 }
 
-val githubTokenValue = findProperty("githubToken")?.toString() ?: System.getenv("GITHUB_TOKEN")
-
-githubRelease {
-    token(githubTokenValue)
-    owner("FigureTechnologies")
-    repo("gradle-semver-plugin")
-    tagName(semver.versionTagName)
-    targetCommitish("main")
-    body("")
-    generateReleaseNotes(true)
-    draft(false)
-    prerelease(false)
-    overwrite(false)
-    dryRun(false)
-    apiEndpoint("https://api.github.com")
-    client
-}
-
 publishing {
     repositories {
-        maven {
-            url = uri("https://nexus.figure.com/repository/figure")
-            credentials {
-                username = System.getenv("NEXUS_USER")
-                password = System.getenv("NEXUS_PASS")
-            }
-        }
     }
     publications {
         create<MavenPublication>("mavenJava") {
