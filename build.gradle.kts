@@ -164,6 +164,9 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             pom {
+                // This line is what includes the java{} block, aka javadocs and sources
+                from(components["java"])
+
                 name.set("gradle-semver-plugin")
                 description.set("Gradle Plugin for Automated Semantic Versioning")
                 url.set("https://github.com/FigureTechnologies/gradle-semver-plugin")
