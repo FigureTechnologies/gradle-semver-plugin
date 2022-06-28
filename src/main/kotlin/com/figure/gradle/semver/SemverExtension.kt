@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 private val logger = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 
-abstract class SemVerExtension @Inject constructor(objects: ObjectFactory, private val project: Project) {
+abstract class SemverExtension @Inject constructor(objects: ObjectFactory, private val project: Project) {
     private val tagPrefix: Property<String> = objects.property(String::class.java).convention(VersionCalculatorConfig.DefaultTagPrefix)
     private val initialVersion: Property<SemVer> = objects.property(SemVer::class.java).convention(VersionCalculatorConfig.DefaultVersion)
     private val overrideVersion: Property<SemVer> = objects.property(SemVer::class.java).convention(null)
@@ -111,6 +111,6 @@ abstract class SemVerExtension @Inject constructor(objects: ObjectFactory, priva
     companion object {
         const val ExtensionName = "semver"
 
-        internal fun Project.semver(): SemVerExtension = extensions.create(ExtensionName, SemVerExtension::class.java)
+        internal fun Project.semver(): SemverExtension = extensions.create(ExtensionName, SemverExtension::class.java)
     }
 }

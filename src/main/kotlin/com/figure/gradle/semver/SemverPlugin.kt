@@ -1,6 +1,6 @@
 package com.figure.gradle.semver
 
-import com.figure.gradle.semver.SemVerExtension.Companion.semver
+import com.figure.gradle.semver.SemverExtension.Companion.semver
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -8,7 +8,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.get
 import java.io.File
 
-public class SemVerPlugin: Plugin<Project> {
+public class SemverPlugin: Plugin<Project> {
     override fun apply(target: Project) {
         target.semver() // impure! but needed to create and register the extension with the project so that we can use it in the tasks below
         if (!target.hasGit)
@@ -23,14 +23,14 @@ public class SemVerPlugin: Plugin<Project> {
 open class CurrentVersionTask: DefaultTask() {
     @TaskAction
     fun currentVersion() {
-        project.logger.lifecycle("version: ${(project.extensions[SemVerExtension.ExtensionName] as SemVerExtension).version}".purple())
+        project.logger.lifecycle("version: ${(project.extensions[SemverExtension.ExtensionName] as SemverExtension).version}".purple())
     }
 }
 
 open class GenerateVersionFileTask: DefaultTask() {
     @TaskAction
     fun generateVersionFile() {
-        val extension = (project.extensions[SemVerExtension.ExtensionName] as SemVerExtension)
+        val extension = (project.extensions[SemverExtension.ExtensionName] as SemverExtension)
         with (project) {
             File("$buildDir/semver/version.txt").apply {
                 parentFile.mkdirs()
@@ -49,7 +49,7 @@ open class GenerateVersionFileTask: DefaultTask() {
 open class CreateAndPushVersionTag: DefaultTask() {
     @TaskAction
     fun createAndPushTag() {
-        val extension = (project.extensions[SemVerExtension.ExtensionName] as SemVerExtension)
+        val extension = (project.extensions[SemverExtension.ExtensionName] as SemverExtension)
         project.git.tag().setName(extension.versionTagName).call()
         project.logger.semver("created version tag: ${extension.versionTagName}, pushing...")
         project.git.push().setPushTags().call()

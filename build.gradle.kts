@@ -74,6 +74,8 @@ kotlin {
  */
 group = "com.figure.gradle"
 description = "Gradle Plugin for Automated Semantic Versioning"
+
+// todo does this apply for the publish in the plugin?
 version = semver.version
 
 java {

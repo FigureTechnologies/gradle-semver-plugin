@@ -9,20 +9,32 @@ plugins {
 inner class ProjectInfo {
     val longName = "Gradle Semver Plugin"
     val description = "Gradle Plugin for Automated Semantic Versioning"
-    val pluginImplementationClass = "$group.semver.SemVerPlugin"
+    val pluginImplementationClass = "$group.semver.SemverPlugin"
     val tags = listOf("semver", "gradle", "gitflow", "gitubflow")
     val website = "https://github.com/FigureTechnologies/gradle-semver-plugin"
     val vcsURL = "https://github.com/FigureTechnologies/gradle-semver-plugin.git"
 }
 val info = ProjectInfo()
 
+/**
+ * Eventually we will be able to merge the pluginBundle and gradlePlugin section.
+ * Unfortunately, we can't do that gradle 7.6 is out, so we wait.
+ *
+ * Gradle 8+ will remove the pluginBundle
+ * Link: https://plugins.gradle.org/docs/publish-plugin-new
+ */
+
 pluginBundle {
     website = info.website
     vcsUrl = info.vcsURL
     tags = info.tags
+
+    // shared description
+//    description = info.description
 }
 
 gradlePlugin {
+
     plugins {
         create(project.name) {
             id = "$group.${project.name}"
