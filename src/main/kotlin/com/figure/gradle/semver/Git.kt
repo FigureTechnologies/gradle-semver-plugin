@@ -10,7 +10,7 @@ import arrow.core.left
 import arrow.core.right
 import arrow.core.some
 import arrow.core.toOption
-import com.figure.gradle.semver.domain.SemVerError
+import com.figure.gradle.semver.domain.SemverError
 import com.figure.gradle.semver.domain.GitRef
 import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.Git
@@ -39,12 +39,12 @@ fun getGitContextProviderOperations(git: Git, config: VersionCalculatorConfig): 
             }
         }
 
-        override fun branchVersion(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch): Either<SemVerError, Option<SemVer>> {
+        override fun branchVersion(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch): Either<SemverError, Option<SemVer>> {
             return git.calculateBaseBranchVersion(targetBranch, currentBranch, tags)
         }
 
-        override fun commitsSinceBranchPoint(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch): Either<SemVerError, Int> {
-            return either.eager<SemVerError, Int> {
+        override fun commitsSinceBranchPoint(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch): Either<SemverError, Int> {
+            return either.eager<SemverError, Int> {
                 val branchPoint = git.headRevInBranch(currentBranch).bind()
                 commitsSinceBranchPoint(git, branchPoint, targetBranch, tags).bind()
             }
@@ -72,24 +72,24 @@ internal fun Ref?.semverTag(prefix: String): Option<SemVer> {
     return this?.name?.semverTag(prefix) ?: None
 }
 
-internal fun String?.shortName(): Either<SemVerError, String> {
+internal fun String?.shortName(): Either<SemverError, String> {
     return this?.let {
         when {
-            it.startsWith(GitRef.RefHead) -> Either.catch { it.substringAfter("${GitRef.RefHead}/") }.mapLeft { SemVerError.Git(it) }
-            it.startsWith(GitRef.RemoteOrigin) -> Either.catch { it.substringAfter("${GitRef.RemoteOrigin}/") }.mapLeft { SemVerError.Git(it) }
-            else -> SemVerError.Unexpected("unable to parse branch Ref: [$it]").left()
+            it.startsWith(GitRef.RefHead) -> Either.catch { it.substringAfter("${GitRef.RefHead}/") }.mapLeft { SemverError.Git(it) }
+            it.startsWith(GitRef.RemoteOrigin) -> Either.catch { it.substringAfter("${GitRef.RemoteOrigin}/") }.mapLeft { SemverError.Git(it) }
+            else -> SemverError.Unexpected("unable to parse branch Ref: [$it]").left()
         }
-    } ?: SemVerError.Unexpected("unable to parse null branch Ref").left()
+    } ?: SemverError.Unexpected("unable to parse null branch Ref").left()
 }
 
-internal fun Ref?.shortName(): Either<SemVerError, String> {
+internal fun Ref?.shortName(): Either<SemverError, String> {
     return this?.name.shortName()
 }
 
-internal fun Git.buildRef(refName: String): Either<SemVerError, Ref> {
+internal fun Git.buildRef(refName: String): Either<SemverError, Ref> {
     return Either.catch { repository.findRef(refName).toOption() }
-        .mapLeft { SemVerError.Git(it) }
-        .flatMap { it.toEither { SemVerError.MissingRef("could not find a git ref for [$refName]")  } }
+        .mapLeft { SemverError.Git(it) }
+        .flatMap { it.toEither { SemverError.MissingRef("could not find a git ref for [$refName]")  } }
 }
 
 internal fun Git.hasBranch(shortName: String): List<Ref> {
@@ -132,7 +132,7 @@ internal fun commitsSinceBranchPoint(
     branchPoint: RevCommit,
     branch: GitRef.Branch,
     tags: Tags,
-): Either<SemVerError, Int> {
+): Either<SemverError, Int> {
     val commits = git.log().call().toList() // can this blow up for large repos?
     val newCommits = commits.takeWhile {
         it.toObjectId() != branchPoint.toObjectId() && it.commitTime > branchPoint.commitTime
@@ -150,7 +150,7 @@ internal fun commitsSinceBranchPoint(
                 commits.takeWhile { it.id != youngestTag.id }.size
             }).right()
         }
-        else -> SemVerError.Unexpected("the branch ${branch.refName} did not contain the branch point [${branchPoint.toObjectId()}: ${branchPoint.shortMessage}], have you rebased your current branch?").left()
+        else -> SemverError.Unexpected("the branch ${branch.refName} did not contain the branch point [${branchPoint.toObjectId()}: ${branchPoint.shortMessage}], have you rebased your current branch?").left()
     }
 }
 
@@ -158,13 +158,13 @@ internal fun Git.calculateBaseBranchVersion(
     targetBranch: GitRef.Branch,
     currentBranch: GitRef.Branch,
     tags: Tags,
-): Either<SemVerError, Option<SemVer>> {
+): Either<SemverError, Option<SemVer>> {
     return headRevInBranch(currentBranch).map { head ->
         findYoungestTagOnBranchOlderThanTarget(targetBranch, head, tags)
     }
 }
 
-internal fun Git.headRevInBranch(branch: GitRef.Branch): Either<SemVerError, RevCommit> {
+internal fun Git.headRevInBranch(branch: GitRef.Branch): Either<SemverError, RevCommit> {
     return Either.catch {
         with(repository) {
             RevWalk(this).use { walk ->
@@ -173,7 +173,7 @@ internal fun Git.headRevInBranch(branch: GitRef.Branch): Either<SemVerError, Rev
                 }
             }
         }
-    }.mapLeft { SemVerError.Git(it) }
+    }.mapLeft { SemverError.Git(it) }
 }
 
 internal fun Git.findYoungestTagOnBranchOlderThanTarget(

@@ -1,16 +1,15 @@
 package com.figure.gradle.semver
 
-import com.figure.gradle.semver.domain.SemVerError
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 
-internal val Project.hasSemVerPlugin: Boolean
+internal val Project.hasSemverPlugin: Boolean
     get() = pluginManager.hasPlugin("com.figure.gradle.semver-plugin")
 
 internal val Project.appliedOnlyOnRootProject: Boolean
-    get() = rootProject.hasSemVerPlugin && rootProject.subprojects.none(Project::hasSemVerPlugin)
+    get() = rootProject.hasSemverPlugin && rootProject.subprojects.none(Project::hasSemverPlugin)
 
-class GradleSemVerContext(private val project: Project, override val ops: ContextProviderOperations): SemVerContext {
+class GradleSemverContext(private val project: Project, override val ops: ContextProviderOperations): SemverContext {
     override fun property(name: String): Any? {
         return project.findProperty(name)
     }

@@ -6,7 +6,7 @@ import arrow.core.right
 import arrow.core.some
 import arrow.core.toOption
 import com.figure.gradle.semver.domain.GitRef
-import com.figure.gradle.semver.domain.SemVerError
+import com.figure.gradle.semver.domain.SemverError
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.WordSpec
@@ -20,7 +20,7 @@ class CalculateVersionSpec: WordSpec() {
         branchVersions: Map<GitRef.Branch, SemVer>,
         config: VersionCalculatorConfig,
         commitsSinceBranchPoint: Int = 2,
-    ): Either<SemVerError, SemVer> {
+    ): Either<SemverError, SemVer> {
         val ops = getMockContextProviderOperations(currentBranch, branchVersions, commitsSinceBranchPoint)
         val context = mockSemVerContext(ops)
         val calculator = getTargetBranchVersionCalculator(ops, config, context, currentBranch)
@@ -139,12 +139,12 @@ private fun getMockContextProviderOperations(
         return currentBranch.some()
     }
 
-    override fun branchVersion(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch): Either<SemVerError, Option<SemVer>> {
+    override fun branchVersion(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch): Either<SemverError, Option<SemVer>> {
         return branchVersion
             .filter { it.key.name == targetBranch.name }.toList().firstOrNull()?.second.toOption().right()
     }
 
-    override fun commitsSinceBranchPoint(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch): Either<SemVerError, Int> {
+    override fun commitsSinceBranchPoint(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch): Either<SemverError, Int> {
         return commitsSinceBranchPoint.right()
     }
 }
@@ -163,8 +163,8 @@ private fun mockSemVerContext(
     ops: ContextProviderOperations,
     props: Map<String, Any?> = emptyMap(),
     env: Map<String, String?> = emptyMap(),
-): SemVerContext {
-    return object: SemVerContext {
+): SemverContext {
+    return object: SemverContext {
         override val ops: ContextProviderOperations
             get() = ops
 
