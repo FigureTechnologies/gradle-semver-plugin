@@ -2,9 +2,8 @@ import org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION as KOTLIN_VERSI
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-//    signing
+    signing
     alias(libs.plugins.github.release)
-//    alias(libs.plugins.gradle.plugin.publish)
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.semver)
     alias(libs.plugins.versions)
