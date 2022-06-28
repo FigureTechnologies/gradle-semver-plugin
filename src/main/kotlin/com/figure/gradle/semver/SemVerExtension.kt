@@ -81,6 +81,7 @@ abstract class SemVerExtension @Inject constructor(objects: ObjectFactory, priva
 
     private fun versionTagName(): String = tagPrefix.map { "$it${version}" }.get()
 
+    private fun patchVersion(): String = version().patch.toString()
     private fun minorVersion(): String = version().minor.toString()
     private fun majorVersion(): String = version().major.toString()
 
@@ -90,6 +91,7 @@ abstract class SemVerExtension @Inject constructor(objects: ObjectFactory, priva
 
     val version by lazy { version().toString() }
     val versionTagName by lazy { versionTagName() }
+    val patchVersion by lazy { patchVersion() }
     val minorVersion by lazy { minorVersion() }
     val majorVersion by lazy { majorVersion() }
 
