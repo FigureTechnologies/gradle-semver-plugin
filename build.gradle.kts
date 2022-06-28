@@ -19,21 +19,11 @@ semver {
     findProperty("semver.modifier")?.toString()?.let { versionModifier(buildVersionModifier(it)) } // this is only used for non user defined strategies, ie predefined Flow or Flat
 }
 
-val invalidQualifiers = setOf("alpha", "beta", "rc", "nightly")
-fun hasInvalidQualifier(candidate: ModuleComponentIdentifier): Boolean {
-    return invalidQualifiers.any { candidate.version.contains(it) }
-}
 configurations.all {
     resolutionStrategy {
         eachDependency {
             if (requested.group == "org.jetbrains.kotlin") {
                 useVersion(libs.versions.kotlin.get())
-            }
-        }
-        componentSelection {
-            all {
-                if (!(candidate.group.startsWith("com.figure") || (candidate.group.startsWith("io.provenance"))) && hasInvalidQualifier(candidate))
-                    reject("invalid qualifier versions for $candidate")
             }
         }
     }
@@ -83,7 +73,7 @@ kotlin {
  * Project information
  */
 group = "com.figure.gradle"
-description = "Figure modified Git Flow based semver plugin"
+description = "Gradle Plugin for Automated Semantic Versioning"
 version = semver.version
 
 java {

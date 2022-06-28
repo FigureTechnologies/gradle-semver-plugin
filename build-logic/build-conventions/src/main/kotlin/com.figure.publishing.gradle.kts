@@ -8,6 +8,7 @@ plugins {
 
 inner class ProjectInfo {
     val longName = "Gradle Semver Plugin"
+    val description = "Gradle Plugin for Automated Semantic Versioning"
     val pluginImplementationClass = "$group.semver.SemVerPlugin"
     val tags = listOf("semver", "gradle", "gitflow", "gitubflow")
     val website = "https://github.com/FigureTechnologies/gradle-semver-plugin"
@@ -26,12 +27,11 @@ gradlePlugin {
         create(project.name) {
             id = "$group.${project.name}"
             displayName = info.longName
-            description = project.description
+            description = info.description
             implementationClass = info.pluginImplementationClass
         }
     }
 }
-
 
 publishing {
     repositories {
@@ -49,8 +49,8 @@ publishing {
                 // This line is what includes the java{} block, aka javadocs and sources
                 from(components["java"])
 
-                name.set("gradle-semver-plugin")
-                description.set("Gradle Plugin for Automated Semantic Versioning")
+                name.set(info.longName)
+                description.set(info.description)
                 url.set(info.website)
                 licenses {
                     license {
@@ -83,10 +83,9 @@ publishing {
                 scm {
                     connection.set("scm:git:git://github.com/FigureTechnologies/gradle-semver-plugin.git")
                     developerConnection.set("scm:git:ssh://github.com/FigureTechnologies/gradle-semver-plugin.git")
-                    url.set("https://github.com/FigureTechnologies/gradle-semver-plugin")
+                    url.set(info.website)
                 }
             }
         }
     }
-
 }
