@@ -198,11 +198,11 @@ publishing {
                         email.set("jgorauskas@figure.com")
                     }
                 }
-//                scm {
-//                    connection.set("scm:git:git://example.com/my-library.git")
-//                    developerConnection.set("scm:git:ssh://example.com/my-library.git")
-//                    url.set("http://example.com/my-library/")
-//                }
+                scm {
+                    connection.set("scm:git:git://github.com/FigureTechnologies/gradle-semver-plugin.git")
+                    developerConnection.set("scm:git:ssh://github.com/FigureTechnologies/gradle-semver-plugin.git")
+                    url.set("https://github.com/FigureTechnologies/gradle-semver-plugin")
+                }
             }
         }
     }
