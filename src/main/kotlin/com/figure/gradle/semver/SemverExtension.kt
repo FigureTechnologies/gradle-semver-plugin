@@ -59,7 +59,7 @@ abstract class SemverExtension @Inject constructor(objects: ObjectFactory, priva
         val git = project.git
         val config = buildCalculatorConfig(git)
         val ops = getGitContextProviderOperations(git, config)
-        val context = GradleSemVerContext(project, ops)
+        val context = GradleSemverContext(project, ops)
 
         return config.overrideVersion.getOrElse {
             ops.currentBranch().fold({
