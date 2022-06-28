@@ -6,6 +6,12 @@ plugins {
     id("com.gradle.plugin-publish")
 }
 
+/*
+ * Project information
+ */
+group = "com.figure.gradle"
+description = "Gradle Plugin for Automated Semantic Versioning"
+
 inner class ProjectInfo {
     val longName = "Gradle Semver Plugin"
     val description = "Gradle Plugin for Automated Semantic Versioning"
@@ -24,6 +30,7 @@ val info = ProjectInfo()
  * Link: https://plugins.gradle.org/docs/publish-plugin-new
  */
 
+// I think this is specifically for the gradle portal
 pluginBundle {
     website = info.website
     vcsUrl = info.vcsURL

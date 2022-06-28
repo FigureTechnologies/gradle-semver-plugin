@@ -2,9 +2,9 @@ import org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION as KOTLIN_VERSI
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    signing
+//    signing
     alias(libs.plugins.github.release)
-    alias(libs.plugins.gradle.plugin.publish)
+//    alias(libs.plugins.gradle.plugin.publish)
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.semver)
     alias(libs.plugins.versions)
@@ -69,14 +69,7 @@ kotlin {
     }
 }
 
-/*
- * Project information
- */
-group = "com.figure.gradle"
-description = "Gradle Plugin for Automated Semantic Versioning"
 
-// todo does this apply for the publish in the plugin?
-version = semver.version
 
 java {
     withSourcesJar()
@@ -99,6 +92,8 @@ tasks.withType<Test>().configureEach {
     }
 }
 
+// project version, also used for publishing
+version = semver.version
 
 val githubTokenValue = findProperty("githubToken")?.toString() ?: System.getenv("GITHUB_TOKEN")
 
