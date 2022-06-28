@@ -164,6 +164,9 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             pom {
+                // This line is what includes the java{} block, aka javadocs and sources
+                from(components["java"])
+
                 name.set("gradle-semver-plugin")
                 description.set("Gradle Plugin for Automated Semantic Versioning")
                 url.set("https://github.com/FigureTechnologies/gradle-semver-plugin")
@@ -195,11 +198,11 @@ publishing {
                         email.set("jgorauskas@figure.com")
                     }
                 }
-//                scm {
-//                    connection.set("scm:git:git://example.com/my-library.git")
-//                    developerConnection.set("scm:git:ssh://example.com/my-library.git")
-//                    url.set("http://example.com/my-library/")
-//                }
+                scm {
+                    connection.set("scm:git:git://github.com/FigureTechnologies/gradle-semver-plugin.git")
+                    developerConnection.set("scm:git:ssh://github.com/FigureTechnologies/gradle-semver-plugin.git")
+                    url.set("https://github.com/FigureTechnologies/gradle-semver-plugin")
+                }
             }
         }
     }
