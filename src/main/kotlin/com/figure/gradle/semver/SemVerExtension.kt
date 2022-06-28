@@ -78,13 +78,20 @@ abstract class SemVerExtension @Inject constructor(objects: ObjectFactory, priva
             logger.semver(it.toString())
         }
     }
+
     private fun versionTagName(): String = tagPrefix.map { "$it${version}" }.get()
+
+    private fun minorVersion(): String = version().minor.toString()
+    private fun majorVersion(): String = version().major.toString()
+
     private fun possiblyPrefixedVersion(version: String, prefix: String): SemVer {
         return SemVer.parse(version.trimMargin(prefix)) // fail fast, don't let an invalid version propagate to runtime
     }
 
     val version by lazy { version().toString() }
     val versionTagName by lazy { versionTagName() }
+    val minorVersion by lazy { minorVersion() }
+    val majorVersion by lazy { majorVersion() }
 
     private fun buildCalculatorConfig(git: Git): VersionCalculatorConfig {
         val initialConfig = VersionCalculatorConfig(
