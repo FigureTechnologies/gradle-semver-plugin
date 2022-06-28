@@ -1,6 +1,6 @@
 # Gradle Semver Plugin
 
-:wave: Welcome to the gradle-semver-plugin!
+ Welcome to the gradle-semver-plugin!
 This plugin adds a flexible approach to adding semantic versioning to your gradle project.
 It supports multi-module gradle projects, running in CI, and multiple types of git strategies.
 
