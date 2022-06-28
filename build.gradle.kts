@@ -2,14 +2,13 @@ import org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION as KOTLIN_VERSI
 
 @Suppress("DSL_SCOPE_VIOLATION")
 plugins {
-    `java-gradle-plugin`
-    signing
-    `maven-publish`
+//    signing
     alias(libs.plugins.github.release)
-    alias(libs.plugins.gradle.plugin.publish)
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.semver)
     alias(libs.plugins.versions)
+
+    id("com.figure.publishing") // maven and gradle publishing info - build-logic/publishing
 }
 
 semver {
@@ -19,10 +18,6 @@ semver {
     findProperty("semver.modifier")?.toString()?.let { versionModifier(buildVersionModifier(it)) } // this is only used for non user defined strategies, ie predefined Flow or Flat
 }
 
-val invalidQualifiers = setOf("alpha", "beta", "rc", "nightly")
-fun hasInvalidQualifier(candidate: ModuleComponentIdentifier): Boolean {
-    return invalidQualifiers.any { candidate.version.contains(it) }
-}
 configurations.all {
     resolutionStrategy {
         eachDependency {
@@ -30,30 +25,8 @@ configurations.all {
                 useVersion(libs.versions.kotlin.get())
             }
         }
-        componentSelection {
-            all {
-                if (!(candidate.group.startsWith("com.figure") || (candidate.group.startsWith("io.provenance"))) && hasInvalidQualifier(candidate))
-                    reject("invalid qualifier versions for $candidate")
-            }
-        }
     }
 }
-
-/*
- * Project information
- */
-group = "com.figure.gradle"
-description = "Figure modified Git Flow based semver plugin"
-version = semver.version
-
-inner class ProjectInfo {
-    val longName = "Gradle Semver Plugin"
-    val pluginImplementationClass = "$group.semver.SemVerPlugin"
-    val tags = listOf("semver", "gradle", "gitflow", "gitubflow")
-    val website = "https://github.com/FigureTechnologies/gradle-semver-plugin"
-    val vcsURL = "https://github.com/FigureTechnologies/gradle-semver-plugin.git"
-}
-val info = ProjectInfo()
 
 repositories {
     mavenCentral()
@@ -95,17 +68,19 @@ kotlin {
     }
 }
 
+
+
 java {
     withSourcesJar()
     withJavadocJar()
 }
 
-tasks.withType<JavaCompile> {
+tasks.withType<JavaCompile>().configureEach {
     sourceCompatibility = JavaVersion.VERSION_11.toString()
     targetCompatibility = sourceCompatibility
 }
 
-tasks.withType<Test> {
+tasks.withType<Test>().configureEach {
     useJUnitPlatform()
     testLogging {
         showStandardStreams = true
@@ -116,22 +91,8 @@ tasks.withType<Test> {
     }
 }
 
-pluginBundle {
-    website = info.website
-    vcsUrl = info.vcsURL
-    tags = info.tags
-}
-
-gradlePlugin {
-    plugins {
-        create(project.name) {
-            id = "$group.${project.name}"
-            displayName = info.longName
-            description = project.description
-            implementationClass = info.pluginImplementationClass
-        }
-    }
-}
+// project version, also used for publishing
+version = semver.version
 
 val githubTokenValue = findProperty("githubToken")?.toString() ?: System.getenv("GITHUB_TOKEN")
 
@@ -149,62 +110,4 @@ githubRelease {
     dryRun(false)
     apiEndpoint("https://api.github.com")
     client
-}
-
-publishing {
-    repositories {
-        maven {
-            url = uri("https://nexus.figure.com/repository/figure")
-            credentials {
-                username = System.getenv("NEXUS_USER")
-                password = System.getenv("NEXUS_PASS")
-            }
-        }
-    }
-    publications {
-        create<MavenPublication>("mavenJava") {
-            pom {
-                // This line is what includes the java{} block, aka javadocs and sources
-                from(components["java"])
-
-                name.set("gradle-semver-plugin")
-                description.set("Gradle Plugin for Automated Semantic Versioning")
-                url.set("https://github.com/FigureTechnologies/gradle-semver-plugin")
-                licenses {
-                    license {
-                        name.set("The Apache License, Version 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                    }
-                }
-                developers {
-                    developer {
-                        id.set("ahatzz11")
-                        name.set("Alex Hatzenbuhler")
-                        email.set("ahatzenbuhler@figure.com")
-                    }
-                    developer {
-                        id.set("happyphan")
-                        name.set("Emily Harris")
-                        email.set("eharris@figure.com")
-                    }
-                    developer {
-                        id.set("luinstra")
-                        name.set("Jeremy Luinstra")
-                        email.set("jluinstra@figure.com")
-                    }
-                    developer {
-                        id.set("jonasg13")
-                        name.set("Jonas Gorauskas")
-                        email.set("jgorauskas@figure.com")
-                    }
-                }
-                scm {
-                    connection.set("scm:git:git://github.com/FigureTechnologies/gradle-semver-plugin.git")
-                    developerConnection.set("scm:git:ssh://github.com/FigureTechnologies/gradle-semver-plugin.git")
-                    url.set("https://github.com/FigureTechnologies/gradle-semver-plugin")
-                }
-            }
-        }
-    }
-
 }

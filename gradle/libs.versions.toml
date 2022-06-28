@@ -9,7 +9,7 @@ logback = "1.2.+"
 swiftzer-semver = "1.2.0"
 
 gradle-benmanes-versions = "0.42.0"
-gradle-plugin-publish = "0.20.0"
+gradle-plugin-publish = "1.0.0-rc-3"
 github-release = "2.4.+"
 gradle-semver-plugin = "0.3.+"
 
@@ -22,6 +22,9 @@ kotest-assertions-core-jvm = { module = "io.kotest:kotest-assertions-core-jvm", 
 kotest-assertions-arrow = { module = "io.kotest.extensions:kotest-assertions-arrow", version.ref = "kotest-extensions-arrow" }
 swiftzer-semver = { module = "net.swiftzer.semver:semver", version.ref = "swiftzer-semver" }
 logbackClassic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+
+# this is the library version of the gradle-plugin-publish so that it can be given to our convention plugin
+gradle-plugin-publish = { module = "com.gradle.plugin-publish:com.gradle.plugin-publish.gradle.plugin", version.ref = "gradle-plugin-publish" }
 
 [bundles]
 kotest = [ "kotest-junit5-jvm", "kotest-assertions-core-jvm", "kotest-assertions-arrow" ]

@@ -7,7 +7,7 @@ import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.some
 import com.figure.gradle.semver.domain.GitRef
-import com.figure.gradle.semver.domain.SemVerError
+import com.figure.gradle.semver.domain.SemverError
 import net.swiftzer.semver.SemVer
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -19,23 +19,23 @@ typealias PreReleaseLabel = String
 typealias BuildMetadataLabel = String
 
 interface VersionCalculator {
-    fun calculateVersion(): Either<SemVerError, SemVer>
+    fun calculateVersion(): Either<SemverError, SemVer>
 }
 
 interface ContextProviderOperations {
     fun currentBranch(): Option<GitRef.Branch>
-    fun branchVersion(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch): Either<SemVerError, Option<SemVer>>
-    fun commitsSinceBranchPoint(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch): Either<SemVerError, Int>
+    fun branchVersion(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch): Either<SemverError, Option<SemVer>>
+    fun commitsSinceBranchPoint(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch): Either<SemverError, Int>
 }
 
-interface SemVerContext {
+interface SemverContext {
     fun property(name: String): Any?
     fun env(name: String): String?
     val ops: ContextProviderOperations
 }
 
 typealias VersionModifier = SemVer.() -> SemVer
-typealias VersionQualifier = SemVerContext.(current: GitRef.Branch) -> Pair<PreReleaseLabel, BuildMetadataLabel>
+typealias VersionQualifier = SemverContext.(current: GitRef.Branch) -> Pair<PreReleaseLabel, BuildMetadataLabel>
 
 
 data class BranchMatchingConfiguration(
@@ -66,11 +66,11 @@ data class VersionCalculatorConfig(
 fun getTargetBranchVersionCalculator(
     contextProviderOperations: ContextProviderOperations,
     config: VersionCalculatorConfig,
-    context: SemVerContext,
+    context: SemverContext,
     currentBranch: GitRef.Branch,
 ): VersionCalculator = object: VersionCalculator {
 
-    private fun previousVersion(): Either<SemVerError, SemVer> {
+    private fun previousVersion(): Either<SemverError, SemVer> {
         return config.branchMatching.firstOrNull {
             it.regex.matches(currentBranch.name)
         }?.let { bmc ->
@@ -84,7 +84,7 @@ fun getTargetBranchVersionCalculator(
             }
         } ?: run {
             logger.warn("no match found for $currentBranch in ${config.branchMatching}, using initial version as previous version")
-            SemVerError.MissingBranchMatchingConfiguration(currentBranch).left()
+            SemverError.MissingBranchMatchingConfiguration(currentBranch).left()
         }
     }
 
@@ -119,14 +119,14 @@ fun getTargetBranchVersionCalculator(
         }
     }
 
-    override fun calculateVersion(): Either<SemVerError, SemVer> {
+    override fun calculateVersion(): Either<SemverError, SemVer> {
         return previousVersion().map {
             versionQualifier(versionModifier(it))
         }
     }
 }
 
-fun SemVerContext.preReleaseWithCommitCount(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch, label: String): String {
+fun SemverContext.preReleaseWithCommitCount(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch, label: String): String {
     return ops.commitsSinceBranchPoint(currentBranch, targetBranch).fold({
         logger.warn("Unable to calculate commits since branch point on current $currentBranch")
         label
