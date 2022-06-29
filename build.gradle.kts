@@ -9,13 +9,18 @@ plugins {
     alias(libs.plugins.versions)
 
     id("com.figure.publishing") // maven and gradle publishing info - build-logic/publishing
+
+    // https://github.com/CadixDev/licenser
+    id("org.cadixdev.licenser") version "0.6.1"
+
 }
 
 semver {
     tagPrefix("v")
     initialVersion("0.0.1")
     findProperty("semver.overrideVersion")?.toString()?.let { overrideVersion(it) }
-    findProperty("semver.modifier")?.toString()?.let { versionModifier(buildVersionModifier(it)) } // this is only used for non user defined strategies, ie predefined Flow or Flat
+    findProperty("semver.modifier")?.toString()
+        ?.let { versionModifier(buildVersionModifier(it)) } // this is only used for non user defined strategies, ie predefined Flow or Flat
 }
 
 configurations.all {
@@ -58,7 +63,8 @@ kotlin {
     target {
         compilations.all {
             kotlinOptions {
-                freeCompilerArgs = freeCompilerArgs + listOf("-version", "-Xjsr305=strict", "-Xopt-in=kotlin.RequiresOptIn")
+                freeCompilerArgs =
+                    freeCompilerArgs + listOf("-version", "-Xjsr305=strict", "-Xopt-in=kotlin.RequiresOptIn")
                 jvmTarget = "11"
                 languageVersion = "1.6"
                 apiVersion = "1.6"
@@ -110,4 +116,21 @@ githubRelease {
     dryRun(false)
     apiEndpoint("https://api.github.com")
     client
+}
+
+license {
+    header(project.file("HEADER.txt"))
+
+//    style {
+//        java = 'JAVADOC' // Sets Java license header style to JAVADOC (/**)
+//    }
+
+//    properties {
+//        name = "Figure"
+//        year = java.util.Calendar.getInstance().get(Calendar.YEAR);
+//    }
+//    include("**/*.kt") // Apply license header ONLY to Java files
+//    exclude("**/*.yaml") // Apply license header NOT to properties files
+
+    // Example license header: Copyright (C) ${year} ${name}
 }
