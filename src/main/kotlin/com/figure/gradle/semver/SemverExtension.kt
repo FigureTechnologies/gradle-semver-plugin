@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2022 Figure Technologies and its affiliates.
  *
  * This source code is licensed under the Apache 2.0 license found in the

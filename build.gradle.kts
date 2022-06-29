@@ -122,6 +122,9 @@ githubRelease {
 license {
     header(project.file("HEADER.txt"))
 
+    // use /** for kotlin files
+    style.put("kt", "JAVADOC")
+
     // This is kinda weird in kotlin but the plugin is groovy so it works
     properties {
         this.set("year", Calendar.getInstance().get(Calendar.YEAR))
