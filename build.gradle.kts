@@ -1,3 +1,4 @@
+import java.util.Calendar
 import org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION as KOTLIN_VERSION
 
 @Suppress("DSL_SCOPE_VIOLATION")
@@ -121,16 +122,11 @@ githubRelease {
 license {
     header(project.file("HEADER.txt"))
 
-//    style {
-//        java = 'JAVADOC' // Sets Java license header style to JAVADOC (/**)
-//    }
+    // This is kinda weird in kotlin but the plugin is groovy so it works
+    properties {
+        this.set("year", Calendar.getInstance().get(Calendar.YEAR))
+        this.set("company", "Figure Technologies")
+    }
 
-//    properties {
-//        name = "Figure"
-//        year = java.util.Calendar.getInstance().get(Calendar.YEAR);
-//    }
-//    include("**/*.kt") // Apply license header ONLY to Java files
-//    exclude("**/*.yaml") // Apply license header NOT to properties files
-
-    // Example license header: Copyright (C) ${year} ${name}
+    include("**/*.kt") // Apply license header ONLY to kotlin files
 }
