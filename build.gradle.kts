@@ -133,3 +133,7 @@ license {
 
     include("**/*.kt") // Apply license header ONLY to kotlin files
 }
+
+tasks.named("check") {
+    dependsOn("updateLicenses")
+}
