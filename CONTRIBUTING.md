@@ -7,11 +7,7 @@ If you'd like to work on something please consider making an issue to help track
 ## Licensing
 
 One thing we need to ensure is that we maintain a license header on each source file.
-We have automated this through the use of a gradle plugin.
-To re-generate the license headers, simply run:
-
-```
-./gradlew updateLicenses
-```
+We have automated this through the use of a gradle plugin!
+Whenever a `.gradlew build` is run, the license headers will automatically be regenerated. Please make sure to commit these updates.
 
 More info about this plugin is available on github: https://github.com/CadixDev/licenser
