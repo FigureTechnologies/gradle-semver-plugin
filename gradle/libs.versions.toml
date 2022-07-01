@@ -9,7 +9,7 @@ logback = "1.2.+"
 swiftzer-semver = "1.2.0"
 
 gradle-benmanes-versions = "0.42.0"
-gradle-plugin-publish = "1.0.0-rc-3"
+gradle-plugin-publish = "1.0.0"
 github-release = "2.4.+"
 gradle-semver-plugin = "0.3.+"
 
