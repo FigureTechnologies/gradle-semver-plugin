@@ -9,7 +9,7 @@ plugins {
     alias(libs.plugins.semver)
     alias(libs.plugins.versions)
 
-    id("com.figure.publishing") // maven and gradle publishing info - build-logic/publishing
+    id("local.figure.publishing") // maven and gradle publishing info - build-logic/publishing
 
     // https://github.com/CadixDev/licenser
     id("org.cadixdev.licenser") version "0.6.1"
