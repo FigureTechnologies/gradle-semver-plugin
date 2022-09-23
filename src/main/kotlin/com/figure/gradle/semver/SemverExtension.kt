@@ -30,22 +30,25 @@ abstract class SemverExtension @Inject constructor(objects: ObjectFactory, priva
     private val overrideVersion: Property<SemVer> = objects.property(SemVer::class.java).convention(null)
     private val versionStrategy: ListProperty<BranchMatchingConfiguration> = objects.listProperty(BranchMatchingConfiguration::class.java).convention(null)
 
-    // TODO UGHHHHH
+    // TODO?
     private var versionModifier: VersionModifier = { nextPatch() }
 
     fun tagPrefix(prefix: String) {
         if (overrideVersion.orNull != null)
-            throw IllegalArgumentException("cannot set the semver tagPrefix after override version has been set, the override version depends on the tagPrefix, set the tagPrefix first")
+            throw IllegalArgumentException("Cannot set the semver tagPrefix after override version has been set, the override version depends on the tagPrefix, set the tagPrefix first")
         tagPrefix.set(prefix)
     }
+
     fun initialVersion(version: String?) {
         version?.also {
             initialVersion.set(SemVer.parse(it))
         }
     }
+
     fun overrideVersion(version: String) {
         overrideVersion.set(possiblyPrefixedVersion(version, tagPrefix.get())) // not great, requires tagPrefix to be set first
     }
+
     fun versionModifier(modifier: VersionModifier) {
         this.versionModifier = modifier
     }
@@ -61,7 +64,7 @@ abstract class SemverExtension @Inject constructor(objects: ObjectFactory, priva
         versionStrategy.set(strategy)
     }
 
-    // defer version calculation since all our properties are lazy and needs to be configured first
+    // defer version calculation since all our properties are lazy and need to be configured first
     private fun version(): SemVer {
         val git = project.git
         val config = buildCalculatorConfig(git)
@@ -70,8 +73,10 @@ abstract class SemverExtension @Inject constructor(objects: ObjectFactory, priva
 
         return config.overrideVersion.getOrElse {
             ops.currentBranch().fold({
-                logger.error("failed to find current branch, cannot calculate semver".red())
-                throw Exception("failed to find current branch")
+                logger.error("failed to find current branch, defaulting to 1.1.1. THIS IS NOT WHAT YOU WANT".red())
+
+                return SemVer(1, 1, 1)
+//                throw Exception("failed to find current branch")
             }, { currentBranch ->
                 logger.semver("current branch: $currentBranch")
                 val calculator = getTargetBranchVersionCalculator(ops, config, context, currentBranch)
@@ -85,7 +90,9 @@ abstract class SemverExtension @Inject constructor(objects: ObjectFactory, priva
             logger.semver(it.toString())
         }
     }
+
     private fun versionTagName(): String = tagPrefix.map { "$it${version}" }.get()
+
     private fun possiblyPrefixedVersion(version: String, prefix: String): SemVer {
         return SemVer.parse(version.trimMargin(prefix)) // fail fast, don't let an invalid version propagate to runtime
     }

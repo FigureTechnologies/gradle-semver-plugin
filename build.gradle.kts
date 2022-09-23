@@ -42,10 +42,14 @@ dependencies {
     api(gradleApi())
     api(gradleKotlinDsl())
     api(kotlin("stdlib-jdk8"))
+    api(libs.swiftzer.semver)
+
     implementation(libs.arrow.core)
     implementation(libs.eclipse.jgit.eclipseJgit)
+
     runtimeOnly(libs.eclipse.jgit.ssh.apache)
-    api(libs.swiftzer.semver)
+
+    // tests
     testImplementation(gradleTestKit())
     testImplementation(libs.bundles.kotest)
 }
