@@ -80,7 +80,8 @@ abstract class SemverExtension @Inject constructor(objects: ObjectFactory, priva
             }, { currentBranch ->
                 logger.semver("current branch: $currentBranch")
                 val calculator = getTargetBranchVersionCalculator(ops, config, context, currentBranch)
-                logger.info("semver configuration while calculating version: $config")
+                logger.semver("semver configuration while calculating version: $config")
+
                 calculator.calculateVersion().getOrHandle {
                     logger.error("failed to calculate version: ${it.toError()}".red())
                     throw Exception("$it")

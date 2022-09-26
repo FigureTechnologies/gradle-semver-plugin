@@ -25,6 +25,11 @@ class BuildLogicFunctionalSpec : FunSpec({
     // withData() is a TestType, not a TestCase, which needs beforeAny{}
     beforeAny {
         directory = tempdir()
+        directory.createNewFile()
+
+
+        // KILL GIT
+        File("$directory/.git").deleteRecursively()
 
         buildFile = File("$directory", "build.gradle.kts")
         settingsFile = File("$directory", "settings.gradle.kts")
@@ -32,6 +37,10 @@ class BuildLogicFunctionalSpec : FunSpec({
         buildFile.writeText("""
         plugins {
             id("com.figure.gradle.semver-plugin")
+        }
+        
+        semver {
+            overrideVersion("0.0.1")
         }
         """.trimIndent()
         )
@@ -42,7 +51,7 @@ class BuildLogicFunctionalSpec : FunSpec({
         )
 
         runner = GradleRunner.create()
-            .withProjectDir(File("/private/" + directory.path.toString()))
+            .withProjectDir(File(directory.path.toString()))
             .withPluginClasspath()
     }
 
@@ -55,12 +64,12 @@ class BuildLogicFunctionalSpec : FunSpec({
         ) { task: String ->
             // first one loads the cache
             val firstRun = runner
-                .withArguments(task, "--configuration-cache")
+                .withArguments(task, "--configuration-cache", "--scan")
                 .build()
 
             // second one uses the cache
             val secondRun = runner
-                .withArguments(task, "--configuration-cache")
+                .withArguments(task, "--configuration-cache", "--scan")
                 .build()
 
             firstRun.output shouldContain "0 problems were found storing the configuration cache."

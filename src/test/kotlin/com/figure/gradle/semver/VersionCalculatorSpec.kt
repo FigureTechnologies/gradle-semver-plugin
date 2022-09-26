@@ -20,7 +20,7 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 import net.swiftzer.semver.SemVer
 
-// Kotest 5 is not functional until Gradle gets its act together and move to 1.6: https://github.com/kotest/kotest/issues/2785
+// Kotest 5 is not functional until Gradle moves to 1.6: https://github.com/kotest/kotest/issues/2785
 class CalculateVersionSpec: WordSpec() {
     private fun calculateBranchVersion(
         currentBranch: GitRef.Branch,
@@ -54,7 +54,6 @@ class CalculateVersionSpec: WordSpec() {
                     GitRef.Branch("something"),
                     GitRef.Branch("hotfix/fix-1"),
                 ).forEach { currentBranch ->
-                    println("testing $currentBranch")
                     calculateBranchVersion(currentBranch, branchVersions, config).shouldBeRight() shouldBe mainBranchVersion.nextPatch().copy(preRelease = "${currentBranch.sanitizedNameWithoutPrefix()}.2")
                 }
             }

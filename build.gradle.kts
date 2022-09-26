@@ -69,7 +69,7 @@ kotlin {
         compilations.all {
             kotlinOptions {
                 freeCompilerArgs =
-                    freeCompilerArgs + listOf("-version", "-Xjsr305=strict", "-Xopt-in=kotlin.RequiresOptIn")
+                    freeCompilerArgs + listOf("-version", "-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
                 jvmTarget = "11"
                 languageVersion = "1.7"
                 apiVersion = "1.7"

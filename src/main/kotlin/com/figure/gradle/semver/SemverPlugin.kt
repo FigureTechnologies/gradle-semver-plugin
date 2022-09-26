@@ -27,7 +27,7 @@ open class SemverPlugin : Plugin<Project> {
         val semverExtension = project.extensions[SemverExtension.ExtensionName] as SemverExtension
 
         if (!project.hasGit) {
-            project.logger.warn("the current directory is not part of a git repo, cannot determine project semantic version number, please initialize a git repo with main & develop branches")
+            project.logger.warn("the current directory is not part of a git repo, cannot determine project semantic version number, please initialize a git repo")
         }
 
         project.tasks.register("cv", CurrentVersionTask::class.java) {
