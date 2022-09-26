@@ -133,3 +133,24 @@ GitHub Actions Example:
 
 ## Not Supported
 - Discrete versions for subprojects, all subprojects are calculated with the same version
+
+## Gradle
+
+Since this project is a Gradle plugin we are making a best effort to support current Gradle features.
+One of the big ones here is the Gradle configuration-cache. 
+For the `cv` and `generateVersionFile` tasks, we have updated this plugin to support the configuration-cache.
+The `createAndPushVersionTag` however is a little trickier, since we use a third party library for `Git` functions, and there
+becomes some incompatibility with a `java.time.Instant` not being cacheable in the state. 
+We plan to keep working on this to fully support the configuration-cache, but there is currently no timeline for this.
+
+If you'd like to contribute to this effort, please contribute!
+
+```
+Configuration cache state could not be cached: field '__git__' from type 'com.figure.gradle.semver.CreateAndPushVersionTag': error writing value of type 'org.eclipse.jgit.api.PushCommand'
+> Configuration cache state could not be cached: field 'repo' from type 'org.eclipse.jgit.api.PushCommand': error writing value of type 'org.eclipse.jgit.internal.storage.file.FileRepository'
+   > Configuration cache state could not be cached: field 'objectDatabase' from type 'org.eclipse.jgit.internal.storage.file.FileRepository': error writing value of type 'org.eclipse.jgit.internal.storage.file.ObjectDirectory'
+      > Configuration cache state could not be cached: field 'config' from type 'org.eclipse.jgit.internal.storage.file.ObjectDirectory': error writing value of type 'org.eclipse.jgit.storage.file.FileBasedConfig'
+         > Configuration cache state could not be cached: field 'snapshot' from type 'org.eclipse.jgit.storage.file.FileBasedConfig': error writing value of type 'org.eclipse.jgit.internal.storage.file.FileSnapshot'
+            > Configuration cache state could not be cached: field 'lastModified' from type 'org.eclipse.jgit.internal.storage.file.FileSnapshot': error writing value of type 'java.time.Instant'
+               > Unable to make private java.lang.Object java.time.Instant.writeReplace() accessible: module java.base does not "opens java.time" to unnamed module @3832230
+```

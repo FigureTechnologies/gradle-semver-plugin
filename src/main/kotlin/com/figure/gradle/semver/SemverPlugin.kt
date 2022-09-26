@@ -8,44 +8,59 @@
 package com.figure.gradle.semver
 
 import com.figure.gradle.semver.SemverExtension.Companion.semver
+import org.eclipse.jgit.api.Git
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.register
 import java.io.File
 import java.nio.file.Files
 
 open class SemverPlugin : Plugin<Project> {
-    override fun apply(target: Project) {
-        target.semver() // impure! but needed to create and register the extension with the project so that we can use it in the tasks below
+    override fun apply(project: Project) {
+        project.semver() // impure! but needed to create and register the extension with the project so that we can use it in the tasks below
 
-        if (!target.hasGit) {
-            target.logger.warn("the current directory is not part of a git repo, cannot determine project semantic version number, please initialize a git repo with main & develop branches")
+        // Get the semver extension for properties we need - version and versionTagName
+        val semverExtension = project.extensions[SemverExtension.ExtensionName] as SemverExtension
+
+        if (!project.hasGit) {
+            project.logger.warn("the current directory is not part of a git repo, cannot determine project semantic version number, please initialize a git repo with main & develop branches")
         }
 
-        target.tasks.register("cv", CurrentVersionTask::class.java)
-
-        Files.createDirectory(target.buildDir.toPath())
-
-        target.tasks.register("generateVersionFile", GenerateVersionFileTask::class.java) {
-            it.buildDir = target.buildDir
-            it.targetExtension = target.extensions[SemverExtension.ExtensionName] as SemverExtension
+        project.tasks.register("cv", CurrentVersionTask::class.java) {
+            it.version = semverExtension.version
         }
 
-        target.tasks.register("createAndPushVersionTag", CreateAndPushVersionTag::class.java)
+        project.tasks.register("generateVersionFile", GenerateVersionFileTask::class.java) {
+
+            // Ensure that the buildDir actually exists to avoid some directory not found errors
+            if (!project.buildDir.exists()) {
+                Files.createDirectory(project.buildDir.toPath())
+            }
+
+            it.buildDir = project.buildDir
+            it.version = semverExtension.version
+            it.versionTagName = semverExtension.versionTagName
+        }
+
+        project.tasks.register("createAndPushVersionTag", CreateAndPushVersionTag::class.java) {
+            it.versionTagName = semverExtension.versionTagName
+            it.git = project.git
+        }
     }
 }
 
-open class CurrentVersionTask : DefaultTask() {
+abstract class CurrentVersionTask : DefaultTask() {
+
+    @get:Input
+    abstract var version: String
+
     @TaskAction
     fun currentVersion() {
-        project.logger.lifecycle("version: ${(project.extensions[SemverExtension.ExtensionName] as SemverExtension).version}".purple())
+        logger.lifecycle("version: $version}".purple())
     }
 }
 
@@ -55,31 +70,38 @@ abstract class GenerateVersionFileTask : DefaultTask() {
     abstract var buildDir: File
 
     @get:Input
-    abstract var targetExtension: SemverExtension
+    abstract var version: String
+
+    @get:Input
+    abstract var versionTagName: String
 
     @TaskAction
     fun generateVersionFile() {
-        println("hey hatz $buildDir")
-
         File("${buildDir}/semver/version.txt").apply {
             this.parentFile.mkdirs()
             this.createNewFile()
             this.writeText(
                 """
-                   |${targetExtension.version}
-                   |${targetExtension.versionTagName}
+                   |${version}
+                   |${versionTagName}
                 """.trimMargin()
             )
         }
     }
 }
 
-open class CreateAndPushVersionTag : DefaultTask() {
+abstract class CreateAndPushVersionTag : DefaultTask() {
+
+    @get:Input
+    abstract var versionTagName: String
+
+    @get:Input
+    abstract var git: Git
+
     @TaskAction
     fun createAndPushTag() {
-        val extension = (project.extensions[SemverExtension.ExtensionName] as SemverExtension)
-        project.git.tag().setName(extension.versionTagName).call()
-        project.logger.semver("created version tag: ${extension.versionTagName}, pushing...")
-        project.git.push().setPushTags().call()
+        git.tag().setName(versionTagName).call()
+        logger.semver("created version tag: ${versionTagName}, pushing...")
+        git.push().setPushTags().call()
     }
 }

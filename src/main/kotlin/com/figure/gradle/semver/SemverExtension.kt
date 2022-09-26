@@ -73,10 +73,10 @@ abstract class SemverExtension @Inject constructor(objects: ObjectFactory, priva
 
         return config.overrideVersion.getOrElse {
             ops.currentBranch().fold({
-                logger.error("failed to find current branch, defaulting to 1.1.1. THIS IS NOT WHAT YOU WANT".red())
-
-                return SemVer(1, 1, 1)
-//                throw Exception("failed to find current branch")
+                // Default to some kind of version since we want to test our plugin without git
+                logger.error(("error: failed to find current branch, defaulting to 9.9.999. This means you are running" +
+                    "this plugin outside a git repository, which is not supported. Please git init.").red())
+                return SemVer(9, 9, 999)
             }, { currentBranch ->
                 logger.semver("current branch: $currentBranch")
                 val calculator = getTargetBranchVersionCalculator(ops, config, context, currentBranch)

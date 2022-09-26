@@ -138,6 +138,8 @@ license {
     include("**/*.kt") // Apply license header ONLY to kotlin files
 }
 
-tasks.named("check") {
+// Ensure licenses are updated when the app is assembled
+// This needs to happen early in the gradle lifecycle or else the checkLicenses task fails
+tasks.named("assemble") {
     dependsOn("updateLicenses")
 }
