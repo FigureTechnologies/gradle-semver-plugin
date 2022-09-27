@@ -42,10 +42,14 @@ dependencies {
     api(gradleApi())
     api(gradleKotlinDsl())
     api(kotlin("stdlib-jdk8"))
+    api(libs.swiftzer.semver)
+
     implementation(libs.arrow.core)
     implementation(libs.eclipse.jgit.eclipseJgit)
+
     runtimeOnly(libs.eclipse.jgit.ssh.apache)
-    api(libs.swiftzer.semver)
+
+    // tests
     testImplementation(gradleTestKit())
     testImplementation(libs.bundles.kotest)
 }
@@ -65,7 +69,7 @@ kotlin {
         compilations.all {
             kotlinOptions {
                 freeCompilerArgs =
-                    freeCompilerArgs + listOf("-version", "-Xjsr305=strict", "-Xopt-in=kotlin.RequiresOptIn")
+                    freeCompilerArgs + listOf("-version", "-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
                 jvmTarget = "11"
                 languageVersion = "1.7"
                 apiVersion = "1.7"
@@ -134,6 +138,8 @@ license {
     include("**/*.kt") // Apply license header ONLY to kotlin files
 }
 
-tasks.named("check") {
+// Ensure licenses are updated when the app is assembled
+// This needs to happen early in the gradle lifecycle or else the checkLicenses task fails
+tasks.named("assemble") {
     dependsOn("updateLicenses")
 }

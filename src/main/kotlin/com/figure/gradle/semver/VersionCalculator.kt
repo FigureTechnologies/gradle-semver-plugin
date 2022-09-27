@@ -81,16 +81,17 @@ fun getTargetBranchVersionCalculator(
         return config.branchMatching.firstOrNull {
             it.regex.matches(currentBranch.name)
         }?.let { bmc ->
-            logger.info("using BranchMatchingConfiguration: $bmc for previousVersion() with currentBranch $currentBranch")
+            logger.semver("using BranchMatchingConfiguration: $bmc for previousVersion() with currentBranch $currentBranch")
+
             contextProviderOperations.branchVersion(currentBranch, bmc.targetBranch).map {
-                logger.info("branch version for current $currentBranch and target ${bmc.targetBranch}: $it")
+                logger.semver("branch version for current $currentBranch and target ${bmc.targetBranch}: $it")
                 it.getOrElse {
-                    logger.warn("no version found for target branch ${bmc.targetBranch}, using initial version")
+                    logger.semverWarn("no version found for target branch ${bmc.targetBranch}, using initial version")
                     config.initialVersion
                 }
             }
         } ?: run {
-            logger.warn("no match found for $currentBranch in ${config.branchMatching}, using initial version as previous version")
+            logger.semverWarn("no match found for $currentBranch in ${config.branchMatching}, using initial version as previous version")
             SemverError.MissingBranchMatchingConfiguration(currentBranch).left()
         }
     }

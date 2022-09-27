@@ -35,9 +35,10 @@ jobs:
           build-root-directory: ${{ inputs.source }}
           cache-read-only: ${{ github.ref != 'refs/heads/develop' }} # only update the cache on the default branch https://github.com/gradle/gradle-build-action#optimizing-cache-effectiveness
           arguments: |
-            -Psemver.develop.stage=beta 
+            -Psemver.develop.stage=beta
             clean build
             --stacktrace
+            --scan
         env:
           GITHUB_TOKEN: ${{ github.token }}
 

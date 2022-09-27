@@ -17,9 +17,12 @@ gradle-semver-plugin = "0.6.+"
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 eclipse-jgit-eclipseJgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "jgit" }
 eclipse-jgit-ssh-apache = { module = "org.eclipse.jgit:org.eclipse.jgit.ssh.apache", version.ref = "jgit" }
+
 kotest-junit5-jvm = { module = "io.kotest:kotest-runner-junit5-jvm", version.ref = "kotest" }
+kotest-framework-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
 kotest-assertions-core-jvm = { module = "io.kotest:kotest-assertions-core-jvm", version.ref = "kotest" }
 kotest-assertions-arrow = { module = "io.kotest.extensions:kotest-assertions-arrow", version.ref = "kotest-extensions-arrow" }
+
 swiftzer-semver = { module = "net.swiftzer.semver:semver", version.ref = "swiftzer-semver" }
 logbackClassic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-classic" }
 
@@ -27,7 +30,7 @@ logbackClassic = { module = "ch.qos.logback:logback-classic", version.ref = "log
 gradle-plugin-publish = { module = "com.gradle.plugin-publish:com.gradle.plugin-publish.gradle.plugin", version.ref = "gradle-plugin-publish" }
 
 [bundles]
-kotest = [ "kotest-junit5-jvm", "kotest-assertions-core-jvm", "kotest-assertions-arrow" ]
+kotest = [ "kotest-junit5-jvm", "kotest-assertions-core-jvm", "kotest-assertions-arrow", "kotest-framework-datatest" ]
 
 [plugins]
 github-release = { id = "com.github.breadmoirai.github-release", version.ref = "github-release" }
