@@ -40,7 +40,7 @@ class BuildLogicFunctionalSpec : FunSpec({
         }
         
         semver {
-            overrideVersion("0.0.1")
+            overrideVersion("9.9.9")
         }
         """.trimIndent()
         )
