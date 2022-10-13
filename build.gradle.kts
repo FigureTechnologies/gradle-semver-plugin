@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.github.release)
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.semver)
-    alias(libs.plugins.versions)
 
     id("local.figure.publishing") // maven and gradle publishing info - build-logic/publishing
 

@@ -8,7 +8,6 @@ kotest-extensions-arrow = "1.2.5"
 logback-classic = "1.4.1"
 swiftzer-semver = "1.2.0"
 
-gradle-benmanes-versions = "0.42.0"
 gradle-plugin-publish = "1.0.0"
 github-release = "2.4.+"
 gradle-semver-plugin = "0.6.+"
@@ -37,4 +36,3 @@ github-release = { id = "com.github.breadmoirai.github-release", version.ref = "
 gradle-plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "gradle-plugin-publish" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 semver = { id = "com.figure.gradle.semver-plugin", version.ref = "gradle-semver-plugin" }
-versions = { id = "com.github.ben-manes.versions", version.ref = "gradle-benmanes-versions" }
