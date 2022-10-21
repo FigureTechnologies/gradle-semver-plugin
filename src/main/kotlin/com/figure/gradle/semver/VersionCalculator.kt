@@ -81,10 +81,10 @@ fun getTargetBranchVersionCalculator(
         return config.branchMatching.firstOrNull {
             it.regex.matches(currentBranch.name)
         }?.let { bmc ->
-            logger.semver("using BranchMatchingConfiguration: $bmc for previousVersion() with currentBranch $currentBranch")
+            logger.info("using BranchMatchingConfiguration: $bmc for previousVersion() with currentBranch $currentBranch")
 
             contextProviderOperations.branchVersion(currentBranch, bmc.targetBranch).map {
-                logger.semver("branch version for current $currentBranch and target ${bmc.targetBranch}: $it")
+                logger.info("branch version for current $currentBranch and target ${bmc.targetBranch}: $it")
                 it.getOrElse {
                     logger.semverWarn("no version found for target branch ${bmc.targetBranch}, using initial version")
                     config.initialVersion
