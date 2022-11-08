@@ -5,7 +5,7 @@ arrow = "1.1.2"
 jgit = "6.3.0.202209071007-r"
 kotest = "5.4.2"
 kotest-extensions-arrow = "1.2.5"
-logback-classic = "1.4.1"
+logback-classic = "1.4.4"
 swiftzer-semver = "1.2.0"
 
 gradle-plugin-publish = "1.0.0"
