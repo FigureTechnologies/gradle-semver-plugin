@@ -3,7 +3,7 @@ kotlin = "1.7.10"
 
 arrow = "1.1.2"
 jgit = "6.3.0.202209071007-r"
-kotest = "5.4.2"
+kotest = "5.5.4"
 kotest-extensions-arrow = "1.2.5"
 logback-classic = "1.4.4"
 swiftzer-semver = "1.2.0"
