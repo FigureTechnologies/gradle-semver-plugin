@@ -41,7 +41,6 @@ pluginBundle {
 }
 
 gradlePlugin {
-
     plugins {
         create(project.name) {
             id = "$group.${project.name}"
@@ -62,49 +61,49 @@ publishing {
             }
         }
     }
-    publications {
-        create<MavenPublication>("mavenJava") {
-            pom {
-                // This line is what includes the java{} block, aka javadocs and sources
-                from(components["java"])
+    // publications {
+    //     create<MavenPublication>("mavenJava") {
+    //         pom {
+    //             // This line is what includes the java{} block, aka javadocs and sources
+    //             from(components["java"])
 
-                name.set(info.longName)
-                description.set(info.description)
-                url.set(info.website)
-                licenses {
-                    license {
-                        name.set("The Apache License, Version 2.0")
-                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                    }
-                }
-                developers {
-                    developer {
-                        id.set("ahatzz11")
-                        name.set("Alex Hatzenbuhler")
-                        email.set("ahatzenbuhler@figure.com")
-                    }
-                    developer {
-                        id.set("happyphan")
-                        name.set("Emily Harris")
-                        email.set("eharris@figure.com")
-                    }
-                    developer {
-                        id.set("luinstra")
-                        name.set("Jeremy Luinstra")
-                        email.set("jluinstra@figure.com")
-                    }
-                    developer {
-                        id.set("jonasg13")
-                        name.set("Jonas Gorauskas")
-                        email.set("jgorauskas@figure.com")
-                    }
-                }
-                scm {
-                    connection.set("scm:git:git://github.com/FigureTechnologies/gradle-semver-plugin.git")
-                    developerConnection.set("scm:git:ssh://github.com/FigureTechnologies/gradle-semver-plugin.git")
-                    url.set(info.website)
-                }
-            }
-        }
-    }
+    //             name.set(info.longName)
+    //             description.set(info.description)
+    //             url.set(info.website)
+    //             licenses {
+    //                 license {
+    //                     name.set("The Apache License, Version 2.0")
+    //                     url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+    //                 }
+    //             }
+    //             developers {
+    //                 developer {
+    //                     id.set("ahatzz11")
+    //                     name.set("Alex Hatzenbuhler")
+    //                     email.set("ahatzenbuhler@figure.com")
+    //                 }
+    //                 developer {
+    //                     id.set("happyphan")
+    //                     name.set("Emily Harris")
+    //                     email.set("eharris@figure.com")
+    //                 }
+    //                 developer {
+    //                     id.set("luinstra")
+    //                     name.set("Jeremy Luinstra")
+    //                     email.set("jluinstra@figure.com")
+    //                 }
+    //                 developer {
+    //                     id.set("jonasg13")
+    //                     name.set("Jonas Gorauskas")
+    //                     email.set("jgorauskas@figure.com")
+    //                 }
+    //             }
+    //             scm {
+    //                 connection.set("scm:git:git://github.com/FigureTechnologies/gradle-semver-plugin.git")
+    //                 developerConnection.set("scm:git:ssh://github.com/FigureTechnologies/gradle-semver-plugin.git")
+    //                 url.set(info.website)
+    //             }
+    //         }
+    //     }
+    // }
 }
