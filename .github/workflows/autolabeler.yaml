@@ -10,15 +10,15 @@ jobs:
   autolabel-pr:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Figure Platform shared actions
+      - name: Checkout Figure shared actions
         uses: actions/checkout@v3
         with:
-          repository: FigureTechnologies/platform-shared-actions
-          ref: v4
+          repository: FigureTechnologies/shared-actions
+          ref: v1
           token: ${{ secrets.PAT }}
-          path: platform-shared-actions
+          path: shared-actions
 
       - name: Autolabeler
-        uses: ./platform-shared-actions/autolabeler
+        uses: ./shared-actions/autolabeler
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
