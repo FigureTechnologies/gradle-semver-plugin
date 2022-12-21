@@ -8,7 +8,7 @@ kotest-extensions-arrow = "1.2.5"
 logback-classic = "1.4.4"
 swiftzer-semver = "1.2.0"
 
-gradle-plugin-publish = "1.0.0"
+gradle-plugin-publish = "1.1.0"
 github-release = "2.4.+"
 gradle-semver-plugin = "0.6.+"
 
