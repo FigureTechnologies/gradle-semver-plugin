@@ -233,23 +233,13 @@ internal fun Git.hasCommits(): Boolean {
     }
 }
 
-internal val Project.hasGit: Boolean
-    get() = file("${rootProject.rootDir}/.git").exists()
+internal fun Project.hasGit(gitDir: String): Boolean =
+    file(gitDir).exists()
 
-internal val Project.git: Git
-    get() =
-        Git(
-            FileRepositoryBuilder()
-                .setGitDir(file("${rootProject.rootDir}/.git"))
-                .readEnvironment()
-                .findGitDir()
-                .build()
-        )
-
-internal fun Project.git(gitLocation: String?): Git =
+internal fun Project.git(gitDir: String): Git =
     Git(
         FileRepositoryBuilder()
-            .setGitDir(file("${gitLocation ?: rootProject.rootDir}/.git"))
+            .setGitDir(file(gitDir))
             .readEnvironment()
             .findGitDir()
             .build()

@@ -26,9 +26,11 @@ open class SemverPlugin : Plugin<Project> {
         // Get the semver extension for properties we need - version and versionTagName
         val semverExtension = project.extensions[SemverExtension.ExtensionName] as SemverExtension
 
-        // if (!project.hasGit) {
-        //     project.logger.warn("the current directory is not part of a git repo, cannot determine project semantic version number, please initialize a git repo")
-        // }
+        val gitDir = semverExtension.gitDir.get()
+
+        if (!project.hasGit(gitDir)) {
+            project.logger.warn("The directory $gitDir does not exist. If this should be the location of your git directory, please initialize a git repo")
+        }
 
         project.tasks.register("cv", CurrentVersionTask::class.java) {
             it.version = semverExtension.version
@@ -48,7 +50,7 @@ open class SemverPlugin : Plugin<Project> {
 
         project.tasks.register("createAndPushVersionTag", CreateAndPushVersionTag::class.java) {
             it.versionTagName = semverExtension.versionTagName
-            it.git = project.git(semverExtension.gitLocation.orNull)
+            it.git = project.git(gitDir)
         }
     }
 }

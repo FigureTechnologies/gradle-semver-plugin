@@ -36,5 +36,6 @@ internal fun String.yellow() = this.coloured("\u001B[33m")
 internal fun String.bold() = this.coloured("\u001B[1m")
 
 internal fun Logger.semver(message: String) = this.lifecycle("semver: ".bold() + message.purple())
+internal fun Logger.semverInfo(message: String) = this.info("semver: ".bold() + message.purple())
 internal fun Logger.semverWarn(message: String) = this.lifecycle("semver: ".bold() + message.yellow())
 internal fun Logger.semverError(message: String) = this.lifecycle("semver: ".bold() + message.red())

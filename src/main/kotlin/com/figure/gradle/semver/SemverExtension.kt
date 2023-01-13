@@ -25,7 +25,8 @@ import javax.inject.Inject
 private val logger = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 
 abstract class SemverExtension @Inject constructor(objects: ObjectFactory, private val project: Project) {
-    val gitLocation: Property<String> = objects.property(String::class.java).convention(null)
+    val gitDir: Property<String> = objects.property(String::class.java).convention("${project.rootProject.rootDir.path}/.git")
+
     private val tagPrefix: Property<String> = objects.property(String::class.java).convention(VersionCalculatorConfig.DefaultTagPrefix)
     private val initialVersion: Property<SemVer> = objects.property(SemVer::class.java).convention(VersionCalculatorConfig.DefaultVersion)
     private val overrideVersion: Property<SemVer> = objects.property(SemVer::class.java).convention(null)
@@ -67,9 +68,9 @@ abstract class SemverExtension @Inject constructor(objects: ObjectFactory, priva
 
     // defer version calculation since all our properties are lazy and need to be configured first
     private fun version(): SemVer {
-        logger.semver("Git location: ${gitLocation.orNull}")
+        logger.semverInfo("Git directory: ${gitDir.get()}")
 
-        val git = project.git(gitLocation.orNull)
+        val git = project.git(gitDir.get())
         val config = buildCalculatorConfig(git)
         val ops = getGitContextProviderOperations(git, config)
         val context = GradleSemverContext(project, ops)
