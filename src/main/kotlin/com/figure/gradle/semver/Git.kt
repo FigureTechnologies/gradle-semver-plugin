@@ -135,7 +135,7 @@ internal fun Git.currentVersion(tags: Tags, branchRefName: String): Option<SemVe
         walk.markStart(head)
         (walk.firstOrNull() {
             tagsIDs.contains(it.toObjectId()) &&
-                tags.containsKey(it.toObjectId())
+                    tags.containsKey(it.toObjectId())
         }?.let {
             tags[it.toObjectId()].toOption()
         } ?: None).also {
@@ -245,3 +245,12 @@ internal val Project.git: Git
                 .findGitDir()
                 .build()
         )
+
+internal fun Project.git(gitLocation: String?): Git =
+    Git(
+        FileRepositoryBuilder()
+            .setGitDir(file("${gitLocation ?: rootProject.rootDir}/.git"))
+            .readEnvironment()
+            .findGitDir()
+            .build()
+    )

@@ -25,7 +25,7 @@ import javax.inject.Inject
 private val logger = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 
 abstract class SemverExtension @Inject constructor(objects: ObjectFactory, private val project: Project) {
-    private val message: Property<String> = objects.property(String::class.java).convention("default")
+    val gitLocation: Property<String> = objects.property(String::class.java).convention(null)
     private val tagPrefix: Property<String> = objects.property(String::class.java).convention(VersionCalculatorConfig.DefaultTagPrefix)
     private val initialVersion: Property<SemVer> = objects.property(SemVer::class.java).convention(VersionCalculatorConfig.DefaultVersion)
     private val overrideVersion: Property<SemVer> = objects.property(SemVer::class.java).convention(null)
@@ -33,10 +33,6 @@ abstract class SemverExtension @Inject constructor(objects: ObjectFactory, priva
 
     // TODO?
     private var versionModifier: VersionModifier = { nextPatch() }
-
-    fun message(message: String) {
-        this.message.set(message)
-    }
 
     fun tagPrefix(prefix: String) {
         if (overrideVersion.orNull != null)
@@ -71,9 +67,9 @@ abstract class SemverExtension @Inject constructor(objects: ObjectFactory, priva
 
     // defer version calculation since all our properties are lazy and need to be configured first
     private fun version(): SemVer {
-        logger.semver("Message: ${message.get()}")
+        logger.semver("Git location: ${gitLocation.orNull}")
 
-        val git = project.git
+        val git = project.git(gitLocation.orNull)
         val config = buildCalculatorConfig(git)
         val ops = getGitContextProviderOperations(git, config)
         val context = GradleSemverContext(project, ops)
