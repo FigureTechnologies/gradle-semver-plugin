@@ -26,7 +26,7 @@ open class SemverPlugin : Plugin<Project> {
         // Get the semver extension for properties we need - version and versionTagName
         val semverExtension = project.extensions[SemverExtension.ExtensionName] as SemverExtension
 
-        val gitDir = semverExtension.gitDir.get()
+        val gitDir = semverExtension.getGitDir()
 
         if (!project.hasGit(gitDir)) {
             project.logger.warn("The directory $gitDir does not exist. If this should be the location of your git directory, please initialize a git repo")

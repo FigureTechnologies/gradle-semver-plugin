@@ -11,6 +11,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.datatest.withData
 import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.string.shouldContain
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.gradle.testkit.runner.GradleRunner
 import java.io.File
 
@@ -25,8 +27,9 @@ class BuildLogicFunctionalSpec : FunSpec({
     // withData() is a TestType, not a TestCase, which needs beforeAny{}
     beforeAny {
         directory = tempdir()
-        directory.createNewFile()
-
+        withContext(Dispatchers.IO) {
+            directory.createNewFile()
+        }
 
         // KILL GIT
         File("$directory/.git").deleteRecursively()
