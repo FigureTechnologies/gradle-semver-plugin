@@ -5,7 +5,7 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver
+package com.figure.gradle.semver.v0
 
 import arrow.core.Either
 import arrow.core.None
@@ -17,8 +17,8 @@ import arrow.core.left
 import arrow.core.right
 import arrow.core.some
 import arrow.core.toOption
-import com.figure.gradle.semver.domain.GitRef
-import com.figure.gradle.semver.domain.SemverError
+import com.figure.gradle.semver.v0.domain.GitRef
+import com.figure.gradle.semver.v0.domain.SemverError
 import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ObjectId

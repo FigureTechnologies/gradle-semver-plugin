@@ -5,13 +5,13 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver
+package com.figure.gradle.semver.v0
 
 import arrow.core.getOrElse
 import arrow.core.getOrHandle
 import arrow.core.toOption
-import com.figure.gradle.semver.domain.GitRef
-import com.figure.gradle.semver.domain.toError
+import com.figure.gradle.semver.v0.domain.GitRef
+import com.figure.gradle.semver.v0.domain.toError
 import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.Git
 import org.gradle.api.Project

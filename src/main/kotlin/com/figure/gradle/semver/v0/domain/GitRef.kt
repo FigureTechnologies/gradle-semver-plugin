@@ -5,7 +5,7 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver.domain
+package com.figure.gradle.semver.v0.domain
 
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.ObjectId

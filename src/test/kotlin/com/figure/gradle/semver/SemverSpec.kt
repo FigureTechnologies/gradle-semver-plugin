@@ -7,6 +7,7 @@
 
 package com.figure.gradle.semver
 
+import com.figure.gradle.semver.v0.semverTag
 import io.kotest.assertions.arrow.core.shouldBeNone
 import io.kotest.assertions.arrow.core.shouldBeSome
 import io.kotest.core.spec.style.WordSpec

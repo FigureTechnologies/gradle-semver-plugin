@@ -5,7 +5,7 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver.domain
+package com.figure.gradle.semver.v0.domain
 
 import java.io.PrintWriter
 import java.io.StringWriter

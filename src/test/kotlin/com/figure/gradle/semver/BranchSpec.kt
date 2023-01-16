@@ -7,7 +7,7 @@
 
 package com.figure.gradle.semver
 
-import com.figure.gradle.semver.domain.GitRef
+import com.figure.gradle.semver.v0.domain.GitRef
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 

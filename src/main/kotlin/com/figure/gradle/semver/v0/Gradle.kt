@@ -5,7 +5,7 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver
+package com.figure.gradle.semver.v0
 
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger

@@ -5,7 +5,7 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver
+package com.figure.gradle.semver.v0
 
 import arrow.core.Option
 import arrow.core.toOption
