@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022 Figure Technologies and its affiliates.
+ * Copyright (c) 2023 Figure Technologies and its affiliates.
  *
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE.md file in the root directory of this source tree.
@@ -26,8 +26,10 @@ open class SemverPlugin : Plugin<Project> {
         // Get the semver extension for properties we need - version and versionTagName
         val semverExtension = project.extensions[SemverExtension.ExtensionName] as SemverExtension
 
-        if (!project.hasGit) {
-            project.logger.warn("the current directory is not part of a git repo, cannot determine project semantic version number, please initialize a git repo")
+        val gitDir = semverExtension.getGitDir()
+
+        if (!project.hasGit(gitDir)) {
+            project.logger.warn("The directory $gitDir does not exist. If this should be the location of your git directory, please initialize a git repo")
         }
 
         project.tasks.register("cv", CurrentVersionTask::class.java) {
@@ -48,7 +50,7 @@ open class SemverPlugin : Plugin<Project> {
 
         project.tasks.register("createAndPushVersionTag", CreateAndPushVersionTag::class.java) {
             it.versionTagName = semverExtension.versionTagName
-            it.git = project.git
+            it.git = project.git(gitDir)
         }
     }
 }

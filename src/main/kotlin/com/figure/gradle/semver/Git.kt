@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022 Figure Technologies and its affiliates.
+ * Copyright (c) 2023 Figure Technologies and its affiliates.
  *
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE.md file in the root directory of this source tree.
@@ -135,7 +135,7 @@ internal fun Git.currentVersion(tags: Tags, branchRefName: String): Option<SemVe
         walk.markStart(head)
         (walk.firstOrNull() {
             tagsIDs.contains(it.toObjectId()) &&
-                tags.containsKey(it.toObjectId())
+                    tags.containsKey(it.toObjectId())
         }?.let {
             tags[it.toObjectId()].toOption()
         } ?: None).also {
@@ -233,15 +233,14 @@ internal fun Git.hasCommits(): Boolean {
     }
 }
 
-internal val Project.hasGit: Boolean
-    get() = file("${rootProject.rootDir}/.git").exists()
+internal fun Project.hasGit(gitDir: String): Boolean =
+    file(gitDir).exists()
 
-internal val Project.git: Git
-    get() =
-        Git(
-            FileRepositoryBuilder()
-                .setGitDir(file("${rootProject.rootDir}/.git"))
-                .readEnvironment()
-                .findGitDir()
-                .build()
-        )
+internal fun Project.git(gitDir: String): Git =
+    Git(
+        FileRepositoryBuilder()
+            .setGitDir(file(gitDir))
+            .readEnvironment()
+            .findGitDir()
+            .build()
+    )

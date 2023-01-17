@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022 Figure Technologies and its affiliates.
+ * Copyright (c) 2023 Figure Technologies and its affiliates.
  *
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE.md file in the root directory of this source tree.
@@ -36,5 +36,6 @@ internal fun String.yellow() = this.coloured("\u001B[33m")
 internal fun String.bold() = this.coloured("\u001B[1m")
 
 internal fun Logger.semver(message: String) = this.lifecycle("semver: ".bold() + message.purple())
+internal fun Logger.semverInfo(message: String) = this.info("semver: ".bold() + message.purple())
 internal fun Logger.semverWarn(message: String) = this.lifecycle("semver: ".bold() + message.yellow())
 internal fun Logger.semverError(message: String) = this.lifecycle("semver: ".bold() + message.red())
