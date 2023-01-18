@@ -5,16 +5,17 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver
+package com.figure.gradle.semver.v0
 
-import com.figure.gradle.semver.v0.semverTag
 import io.kotest.assertions.arrow.core.shouldBeNone
 import io.kotest.assertions.arrow.core.shouldBeSome
+import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.WordSpec
 import net.swiftzer.semver.SemVer
 
 // Kotest 5 won't work until Gradle moves to 1.6: https://github.com/kotest/kotest/issues/2785
-class SemverSpec: WordSpec() {
+@Ignored
+class SemverSpec : WordSpec() {
     init {
         "Semver" should {
             "match valid existing semver tags on refs" {

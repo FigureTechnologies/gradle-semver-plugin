@@ -10,7 +10,7 @@ package com.figure.gradle.semver.v0
 import arrow.core.Either
 import arrow.core.None
 import arrow.core.Option
-import arrow.core.computations.either
+import arrow.core.continuations.either
 import arrow.core.flatMap
 import arrow.core.flattenOption
 import arrow.core.left
@@ -57,7 +57,7 @@ fun getGitContextProviderOperations(git: Git, config: VersionCalculatorConfig): 
             currentBranch: GitRef.Branch,
             targetBranch: GitRef.Branch,
         ): Either<SemverError, Int> {
-            return either.eager<SemverError, Int> {
+            return either.eager {
                 val branchPoint = git.headRevInBranch(currentBranch).bind()
                 commitsSinceBranchPoint(git, branchPoint, targetBranch, tags).bind()
             }

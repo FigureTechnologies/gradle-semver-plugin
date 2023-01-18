@@ -15,7 +15,7 @@ description = "Gradle Plugin for Automated Semantic Versioning"
 inner class ProjectInfo {
     val longName = "Gradle Semver Plugin"
     val description = "Gradle Plugin for Automated Semantic Versioning"
-    val pluginImplementationClass = "$group.semver.SemverPlugin"
+    val pluginImplementationClass = "$group.semver.v1.SemverPlugin"
     val tags = listOf("semver", "gradle", "gitflow", "gitubflow")
     val website = "https://github.com/FigureTechnologies/gradle-semver-plugin"
     val vcsURL = "https://github.com/FigureTechnologies/gradle-semver-plugin.git"

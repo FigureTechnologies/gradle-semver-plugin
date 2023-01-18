@@ -1,8 +1,13 @@
+/**
+ * Copyright (c) 2023 Figure Technologies and its affiliates.
+ *
+ * This source code is licensed under the Apache 2.0 license found in the
+ * LICENSE.md file in the root directory of this source tree.
+ */
+
 package com.figure.gradle.semver.v1
 
-import com.figure.gradle.semver.v1.internal.exceptions.GitDirNotFoundException
-import com.figure.gradle.semver.v1.internal.git
-import com.figure.gradle.semver.v1.internal.hasGit
+import com.figure.gradle.semver.v1.internal.git.git
 import com.figure.gradle.semver.v1.tasks.CreateAndPushVersionTag
 import com.figure.gradle.semver.v1.tasks.GenerateVersionFileTask
 import com.figure.gradle.semver.v1.tasks.PrintVersionTask
@@ -15,10 +20,6 @@ import java.nio.file.Files
 class SemverPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val semver = project.extensions.create<SemverExtension>("semver")
-
-        if (!project.hasGit(semver.gitDir.get())) {
-            throw GitDirNotFoundException(semver.gitDir.get())
-        }
 
         project.tasks.register<PrintVersionTask>("printVersion") {
             version.set(semver.version)
@@ -38,12 +39,6 @@ class SemverPlugin : Plugin<Project> {
         project.tasks.register<CreateAndPushVersionTag>("createAndPushVersionTag") {
             versionTagName.set(semver.versionTagName)
             git.set(project.git(semver.gitDir.get()))
-        }
-
-        project.tasks.named("assemble") { task ->
-            task.doFirst {
-                project.logger.lifecycle("Doing something before assembling")
-            }
         }
     }
 }

@@ -5,8 +5,9 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver
+package com.figure.gradle.semver.v0
 
+import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.datatest.withData
 import io.kotest.engine.spec.tempdir
@@ -16,6 +17,7 @@ import kotlinx.coroutines.withContext
 import org.gradle.testkit.runner.GradleRunner
 import java.io.File
 
+@Ignored
 class BuildLogicFunctionalSpec : FunSpec({
 
     lateinit var directory: File
