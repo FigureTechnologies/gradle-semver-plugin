@@ -104,13 +104,13 @@ internal fun Git.calculateBaseBranchVersion(
 internal fun Git.headRevInBranch(branch: GitRef.Branch): Result<RevCommit> {
     return runCatching {
         with(repository) {
-            Result.success(
-                RevWalk(this).use { walk ->
+            RevWalk(this).use { walk ->
+                Result.success(
                     walk.parseCommit(this.findRef(branch.refName).objectId).also {
                         walk.dispose()
                     }
-                }
-            )
+                )
+            }
         }
     }.getOrElse { ex ->
         Result.failure(GitException(ex))

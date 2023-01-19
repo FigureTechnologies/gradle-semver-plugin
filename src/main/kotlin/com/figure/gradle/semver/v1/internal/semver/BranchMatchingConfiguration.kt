@@ -80,7 +80,7 @@ fun flatVersionCalculatorStrategy(versionModifier: VersionModifier): VersionCalc
     ),
     BranchMatchingConfiguration(
         regex = """.*""".toRegex(),
-        targetBranch = GitRef.Branch.DEVELOP,
+        targetBranch = GitRef.Branch.MAIN,
         versionQualifier = {
             preReleaseWithCommitCount(
                 currentBranch = it,
