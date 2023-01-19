@@ -10,6 +10,7 @@ package com.figure.gradle.semver.v1
 import com.figure.gradle.semver.v1.internal.git.GitRef
 import com.figure.gradle.semver.v1.internal.git.git
 import com.figure.gradle.semver.v1.internal.git.hasBranch
+import com.figure.gradle.semver.v1.internal.property
 import com.figure.gradle.semver.v1.internal.semver.BranchMatchingConfiguration
 import com.figure.gradle.semver.v1.internal.semver.GitContextProviderOperations
 import com.figure.gradle.semver.v1.internal.semver.GradleSemverContext
@@ -32,23 +33,28 @@ import javax.inject.Inject
 private val log = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 
 open class SemverExtension @Inject constructor(objects: ObjectFactory, private val project: Project) {
-    internal val gitDir: Property<String> =
+    val tempVar: Property<String> = objects.property {
+        println("Setting a default")
+        set("This is your default")
+    }
+
+    val gitDir: Property<String> =
         objects.property<String>()
             .convention("${project.rootProject.rootDir.path}/.git")
 
-    internal val tagPrefix: Property<String> =
+    val tagPrefix: Property<String> =
         objects.property<String>()
             .convention(VersionCalculatorConfig.DEFAULT_TAG_PREFIX)
 
-    internal val initialVersion: Property<SemVer> =
+    val initialVersion: Property<SemVer> =
         objects.property<SemVer>()
             .convention(VersionCalculatorConfig.DEFAULT_VERSION)
 
-    internal val versionStrategy: ListProperty<BranchMatchingConfiguration> =
+    val versionStrategy: ListProperty<BranchMatchingConfiguration> =
         objects.listProperty<BranchMatchingConfiguration>()
             .convention(null)
 
-    internal val overrideVersion: Property<SemVer> =
+    val overrideVersion: Property<SemVer> =
         objects.property<SemVer>()
             .convention(null)
 
