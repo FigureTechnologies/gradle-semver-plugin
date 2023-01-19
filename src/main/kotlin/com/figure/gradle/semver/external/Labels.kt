@@ -20,5 +20,3 @@ value class BuildMetadataLabel(val value: String) {
         val EMPTY = BuildMetadataLabel("")
     }
 }
-
-

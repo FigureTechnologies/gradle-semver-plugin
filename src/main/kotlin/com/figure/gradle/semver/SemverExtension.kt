@@ -78,7 +78,7 @@ abstract class SemverExtension @Inject constructor(objects: ObjectFactory, priva
         if (overrideVersion.orNull != null) {
             throw IllegalArgumentException(
                 "Cannot set semver tagPrefix after override version has been set. " +
-                        "The override version depends on the tagPrefix. Set the tagPrefix first."
+                    "The override version depends on the tagPrefix. Set the tagPrefix first."
             )
         }
         this.tagPrefix.set(prefix)

@@ -92,7 +92,7 @@ internal class TargetBranchVersionCalculator(
 }
 
 internal fun versionModifierFromString(modifier: String): VersionModifier {
-    return when(val mod = modifier.trim().lowercase()) {
+    return when (val mod = modifier.trim().lowercase()) {
         "major" -> SemVer::nextMajor
         "minor" -> SemVer::nextMinor
         "patch" -> SemVer::nextPatch
@@ -102,5 +102,3 @@ internal fun versionModifierFromString(modifier: String): VersionModifier {
         }
     }
 }
-
-

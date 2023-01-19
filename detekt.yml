@@ -1,0 +1,12 @@
+style:
+  ReturnCount:
+    active: false
+  MagicNumber:
+    active: false
+  ForbiddenComment:
+    active: false
+  ThrowsCount:
+    active: true
+    excludeGuardClauses: true
+  MaxLineLength:
+    excludeCommentStatements: true

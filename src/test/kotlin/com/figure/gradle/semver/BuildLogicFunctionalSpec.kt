@@ -17,7 +17,6 @@ import org.gradle.testkit.runner.GradleRunner
 import java.io.File
 
 class BuildLogicFunctionalSpec : FunSpec({
-
     lateinit var directory: File
     lateinit var buildFile: File
     lateinit var settingsFile: File
@@ -46,13 +45,13 @@ class BuildLogicFunctionalSpec : FunSpec({
         semver {
             overrideVersion("9.9.9")
         }
-        """.trimIndent()
+            """.trimIndent()
         )
 
         settingsFile.writeText(
             """
         rootProject.name = "config-cache-tester"
-        """.trimIndent()
+            """.trimIndent()
         )
 
         runner = GradleRunner.create()

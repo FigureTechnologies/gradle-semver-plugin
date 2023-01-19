@@ -22,8 +22,8 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 import net.swiftzer.semver.SemVer
 
-class CalculateVersionSpec : WordSpec() {
-    private fun calculateBranchVersion(
+class CalculateVersionSpec : WordSpec({
+    fun calculateBranchVersion(
         currentBranch: GitRef.Branch,
         branchVersions: Map<GitRef.Branch, SemVer>,
         config: VersionCalculatorConfig,
@@ -35,226 +35,276 @@ class CalculateVersionSpec : WordSpec() {
         return calculator.calculateVersion()
     }
 
-    init {
-        "Calculate version with FlatDefaultBranchMatching" should {
-            "calculate the next version correctly" {
-                val mainBranchVersion = SemVer(1, 2, 3)
-                val mainBranch = GitRef.Branch.MAIN
-                val developBranchVersion = SemVer(1, 2, 4, "beta")
-                val developBranch = GitRef.Branch.DEVELOP
-                val config = buildPluginConfig(flatVersionCalculatorStrategy { nextPatch() })
-                val branchVersions: Map<GitRef.Branch, SemVer> =
-                    mapOf(mainBranch to mainBranchVersion, developBranch to developBranchVersion)
+    "Calculate version with FlatDefaultBranchMatching" should {
+        "calculate the next version correctly" {
+            val mainBranchVersion = SemVer(1, 2, 3)
+            val mainBranch = GitRef.Branch.MAIN
+            val developBranchVersion = SemVer(1, 2, 4, "beta")
+            val developBranch = GitRef.Branch.DEVELOP
+            val config = buildPluginConfig(flatVersionCalculatorStrategy { nextPatch() })
 
-                // current == MAIN
+            val branchVersions: Map<GitRef.Branch, SemVer> = mapOf(
+                mainBranch to mainBranchVersion,
+                developBranch to developBranchVersion
+            )
+
+            // current == MAIN
+            calculateBranchVersion(
+                currentBranch = mainBranch,
+                branchVersions = branchVersions,
+                config = config
+            ).getOrThrow() shouldBe mainBranchVersion.nextPatch()
+
+            // current != MAIN
+            setOf(
+                GitRef.Branch.DEVELOP,
+                GitRef.Branch("feature/my_weird_feature"),
+                GitRef.Branch("something"),
+                GitRef.Branch("hotfix/fix-1"),
+            ).forEach { currentBranch ->
                 calculateBranchVersion(
-                    mainBranch,
-                    branchVersions,
-                    config
-                ).getOrThrow() shouldBe mainBranchVersion.nextPatch()
-
-                // current != MAIN
-                setOf(
-                    GitRef.Branch.DEVELOP,
-                    GitRef.Branch("feature/my_weird_feature"),
-                    GitRef.Branch("something"),
-                    GitRef.Branch("hotfix/fix-1"),
-                ).forEach { currentBranch ->
-                    calculateBranchVersion(
-                        currentBranch,
-                        branchVersions,
-                        config
-                    ).getOrThrow() shouldBe mainBranchVersion.nextPatch()
+                    currentBranch = currentBranch,
+                    branchVersions = branchVersions,
+                    config = config
+                ).getOrThrow().shouldBe(
+                    mainBranchVersion
+                        .nextPatch()
                         .copy(preRelease = "${currentBranch.sanitizedNameWithoutPrefix()}.2")
-                }
-            }
-        }
-
-        "Calculate version with FlowDefaultBranchMatching" should {
-            "calculate the next version correctly" {
-                val mainBranchVersion = SemVer(1, 2, 3)
-                val mainBranch = GitRef.Branch.MAIN
-                val developBranchVersion = SemVer(1, 2, 4, "beta")
-                val developBranch = GitRef.Branch.DEVELOP
-                val config = buildPluginConfig(flowVersionCalculatorStrategy { nextPatch() })
-                val branchVersions: Map<GitRef.Branch, SemVer> =
-                    mapOf(mainBranch to mainBranchVersion, developBranch to developBranchVersion)
-
-                // current == MAIN
-                calculateBranchVersion(
-                    mainBranch,
-                    branchVersions,
-                    config
-                ).getOrThrow() shouldBe mainBranchVersion.nextPatch()
-
-                calculateBranchVersion(
-                    developBranch,
-                    branchVersions,
-                    config
-                ).getOrThrow() shouldBe mainBranchVersion.nextPatch().copy(preRelease = "beta.2")
-                calculateBranchVersion(
-                    GitRef.Branch("hotfix/something"),
-                    branchVersions,
-                    config
-                ).getOrThrow() shouldBe mainBranchVersion.nextPatch().copy(preRelease = "rc.2")
-
-                calculateBranchVersion(GitRef.Branch("feature/something_something*bla"), branchVersions, config)
-                    .getOrThrow()
-                    .shouldBe(mainBranchVersion.nextPatch().nextPatch().copy(preRelease = "something_something-bla.2"))
-
-                // Assert that any branch name gets matched properly (previously only feature/ was allowed)
-                calculateBranchVersion(GitRef.Branch("something_something*bla"), branchVersions, config)
-                    .getOrThrow()
-                    .shouldBe(mainBranchVersion.nextPatch().nextPatch().copy(preRelease = "something_something-bla.2"))
-
-            }
-
-            "support custom formats such as ShortCut" {
-                val mainBranchVersion = SemVer(1, 2, 3)
-                val mainBranch = GitRef.Branch.MAIN
-                val developBranchVersion = SemVer(1, 2, 4, "beta")
-                val developBranch = GitRef.Branch.DEVELOP
-                val versionModifier: VersionModifier = { nextPatch() }
-                val config = buildPluginConfig(
-                    listOf(
-                        BranchMatchingConfiguration(
-                            """^main$""".toRegex(),
-                            GitRef.Branch.MAIN,
-                            { PreReleaseLabel.EMPTY to BuildMetadataLabel.EMPTY },
-                            versionModifier
-                        ),
-                        BranchMatchingConfiguration(
-                            """^develop$""".toRegex(),
-                            GitRef.Branch.MAIN,
-                            { preReleaseWithCommitCount(it, GitRef.Branch.MAIN, "beta") to BuildMetadataLabel.EMPTY },
-                            versionModifier
-                        ),
-                        BranchMatchingConfiguration(
-                            """^feature/.*""".toRegex(),
-                            GitRef.Branch.DEVELOP,
-                            { current ->
-                                preReleaseWithCommitCount(
-                                    current,
-                                    GitRef.Branch.MAIN,
-                                    current.sanitizedNameWithoutPrefix()
-                                ) to BuildMetadataLabel.EMPTY
-                            },
-                            versionModifier
-                        ),
-                        BranchMatchingConfiguration(
-                            """^.+/sc-\d+/.+""".toRegex(),
-                            GitRef.Branch.DEVELOP,
-                            { current ->
-                                preReleaseWithCommitCount(
-                                    current,
-                                    GitRef.Branch.MAIN,
-                                    current.sanitizedNameWithoutPrefix()
-                                ) to BuildMetadataLabel.EMPTY
-                            },
-                            versionModifier
-                        ),
-                        BranchMatchingConfiguration(
-                            """^.+/\d+/.+""".toRegex(),
-                            GitRef.Branch.DEVELOP,
-                            { current ->
-                                preReleaseWithCommitCount(
-                                    current,
-                                    GitRef.Branch.MAIN,
-                                    current.sanitizedNameWithoutPrefix()
-                                ) to BuildMetadataLabel.EMPTY
-                            },
-                            versionModifier
-                        ),
-                        BranchMatchingConfiguration(
-                            """^.+/no-ticket/.+""".toRegex(),
-                            GitRef.Branch.DEVELOP,
-                            { current ->
-                                preReleaseWithCommitCount(
-                                    current,
-                                    GitRef.Branch.MAIN,
-                                    current.sanitizedNameWithoutPrefix()
-                                ) to BuildMetadataLabel.EMPTY
-                            },
-                            versionModifier
-                        ),
-                        BranchMatchingConfiguration(
-                            """^hotfix/.*""".toRegex(),
-                            GitRef.Branch.MAIN,
-                            { preReleaseWithCommitCount(it, GitRef.Branch.MAIN, "rc") to BuildMetadataLabel.EMPTY },
-                            versionModifier
-                        ),
-                    )
                 )
-                val branchVersions: Map<GitRef.Branch, SemVer> =
-                    mapOf(mainBranch to mainBranchVersion, developBranch to developBranchVersion)
-
-                // current == MAIN
-                calculateBranchVersion(
-                    mainBranch,
-                    branchVersions,
-                    config
-                ).getOrThrow() shouldBe mainBranchVersion.nextPatch()
-
-                calculateBranchVersion(
-                    developBranch,
-                    branchVersions,
-                    config
-                ).getOrThrow() shouldBe mainBranchVersion.nextPatch().copy(preRelease = "beta.2")
-
-                calculateBranchVersion(GitRef.Branch("hotfix/something"), branchVersions, config)
-                    .getOrThrow()
-                    .shouldBe(mainBranchVersion.nextPatch().copy(preRelease = "rc.2"))
-
-                calculateBranchVersion(
-                    GitRef.Branch("feature/something_something*bla"),
-                    branchVersions,
-                    config
-                ).getOrThrow().shouldBe(
-                    mainBranchVersion.nextPatch().nextPatch().copy(preRelease = "something_something-bla.2")
-                )
-
-                calculateBranchVersion(
-                    currentBranch = GitRef.Branch("sroman/sc-145300/standardized-gradle-build"),
-                    branchVersions = branchVersions,
-                    config = config
-                ).getOrThrow().shouldBe(
-                    mainBranchVersion
-                        .nextPatch()
-                        .nextPatch()
-                        .copy(preRelease = "sc-145300-standardized-gradle-build.2")
-                )
-
-                calculateBranchVersion(
-                    currentBranch = GitRef.Branch("sroman/no-ticket/standardized-gradle-build"),
-                    branchVersions = branchVersions,
-                    config = config
-                ).getOrThrow().shouldBe(
-                    mainBranchVersion
-                        .nextPatch()
-                        .nextPatch()
-                        .copy(preRelease = "no-ticket-standardized-gradle-build.2")
-                )
-
-                calculateBranchVersion(
-                    currentBranch = GitRef.Branch("sroman/145300/standardized-gradle-build"),
-                    branchVersions = branchVersions,
-                    config = config
-                ).getOrThrow().shouldBe(
-                    mainBranchVersion
-                        .nextPatch()
-                        .nextPatch()
-                        .copy(preRelease = "145300-standardized-gradle-build.2")
-                )
-
-                calculateBranchVersion(
-                    currentBranch = GitRef.Branch("sroman/abc/standardized-gradle-build"),
-                    branchVersions = branchVersions,
-                    config = config
-                ).isFailure shouldBe true
             }
         }
     }
-}
+
+    "Calculate version with FlowDefaultBranchMatching" should {
+        "calculate the next version correctly" {
+            val mainBranchVersion = SemVer(1, 2, 3)
+            val mainBranch = GitRef.Branch.MAIN
+            val developBranchVersion = SemVer(1, 2, 4, "beta")
+            val developBranch = GitRef.Branch.DEVELOP
+            val config = buildPluginConfig(flowVersionCalculatorStrategy { nextPatch() })
+
+            val branchVersions: Map<GitRef.Branch, SemVer> = mapOf(
+                mainBranch to mainBranchVersion,
+                developBranch to developBranchVersion
+            )
+
+            // current == MAIN
+            calculateBranchVersion(
+                currentBranch = mainBranch,
+                branchVersions = branchVersions,
+                config = config
+            ).getOrThrow().shouldBe(
+                mainBranchVersion.nextPatch()
+            )
+
+            calculateBranchVersion(
+                currentBranch = developBranch,
+                branchVersions = branchVersions,
+                config = config
+            ).getOrThrow().shouldBe(
+                mainBranchVersion
+                    .nextPatch()
+                    .copy(preRelease = "beta.2")
+            )
+
+            calculateBranchVersion(
+                currentBranch = GitRef.Branch("hotfix/something"),
+                branchVersions = branchVersions,
+                config = config
+            ).getOrThrow().shouldBe(
+                mainBranchVersion
+                    .nextPatch()
+                    .copy(preRelease = "rc.2")
+            )
+
+            calculateBranchVersion(
+                currentBranch = GitRef.Branch("feature/something_something*bla"),
+                branchVersions = branchVersions,
+                config = config
+            ).getOrThrow().shouldBe(
+                mainBranchVersion
+                    .nextPatch()
+                    .nextPatch()
+                    .copy(preRelease = "something_something-bla.2")
+            )
+
+            // Assert that any branch name gets matched properly (previously only feature/ was allowed)
+            calculateBranchVersion(
+                currentBranch = GitRef.Branch("something_something*bla"),
+                branchVersions = branchVersions,
+                config = config
+            ).getOrThrow().shouldBe(
+                mainBranchVersion
+                    .nextPatch()
+                    .nextPatch()
+                    .copy(preRelease = "something_something-bla.2")
+            )
+        }
+
+        "support custom formats such as ShortCut" {
+            val mainBranchVersion = SemVer(1, 2, 3)
+            val mainBranch = GitRef.Branch.MAIN
+            val developBranchVersion = SemVer(1, 2, 4, "beta")
+            val developBranch = GitRef.Branch.DEVELOP
+            val versionModifier: VersionModifier = { nextPatch() }
+
+            val config = buildPluginConfig(
+                listOf(
+                    BranchMatchingConfiguration(
+                        """^main$""".toRegex(),
+                        GitRef.Branch.MAIN,
+                        { PreReleaseLabel.EMPTY to BuildMetadataLabel.EMPTY },
+                        versionModifier
+                    ),
+                    BranchMatchingConfiguration(
+                        """^develop$""".toRegex(),
+                        GitRef.Branch.MAIN,
+                        { preReleaseWithCommitCount(it, GitRef.Branch.MAIN, "beta") to BuildMetadataLabel.EMPTY },
+                        versionModifier
+                    ),
+                    BranchMatchingConfiguration(
+                        """^feature/.*""".toRegex(),
+                        GitRef.Branch.DEVELOP,
+                        { current ->
+                            preReleaseWithCommitCount(
+                                currentBranch = current,
+                                targetBranch = GitRef.Branch.MAIN,
+                                label = current.sanitizedNameWithoutPrefix()
+                            ) to BuildMetadataLabel.EMPTY
+                        },
+                        versionModifier
+                    ),
+                    BranchMatchingConfiguration(
+                        """^.+/sc-\d+/.+""".toRegex(),
+                        GitRef.Branch.DEVELOP,
+                        { current ->
+                            preReleaseWithCommitCount(
+                                currentBranch = current,
+                                targetBranch = GitRef.Branch.MAIN,
+                                label = current.sanitizedNameWithoutPrefix()
+                            ) to BuildMetadataLabel.EMPTY
+                        },
+                        versionModifier
+                    ),
+                    BranchMatchingConfiguration(
+                        """^.+/\d+/.+""".toRegex(),
+                        GitRef.Branch.DEVELOP,
+                        { current ->
+                            preReleaseWithCommitCount(
+                                currentBranch = current,
+                                targetBranch = GitRef.Branch.MAIN,
+                                label = current.sanitizedNameWithoutPrefix()
+                            ) to BuildMetadataLabel.EMPTY
+                        },
+                        versionModifier
+                    ),
+                    BranchMatchingConfiguration(
+                        """^.+/no-ticket/.+""".toRegex(),
+                        GitRef.Branch.DEVELOP,
+                        { current ->
+                            preReleaseWithCommitCount(
+                                currentBranch = current,
+                                targetBranch = GitRef.Branch.MAIN,
+                                label = current.sanitizedNameWithoutPrefix()
+                            ) to BuildMetadataLabel.EMPTY
+                        },
+                        versionModifier
+                    ),
+                    BranchMatchingConfiguration(
+                        """^hotfix/.*""".toRegex(),
+                        GitRef.Branch.MAIN,
+                        { preReleaseWithCommitCount(it, GitRef.Branch.MAIN, "rc") to BuildMetadataLabel.EMPTY },
+                        versionModifier
+                    ),
+                )
+            )
+
+            val branchVersions: Map<GitRef.Branch, SemVer> = mapOf(
+                mainBranch to mainBranchVersion,
+                developBranch to developBranchVersion
+            )
+
+            // current == MAIN
+            calculateBranchVersion(
+                currentBranch = mainBranch,
+                branchVersions = branchVersions,
+                config = config
+            ).getOrThrow().shouldBe(
+                mainBranchVersion.nextPatch()
+            )
+
+            calculateBranchVersion(
+                currentBranch = developBranch,
+                branchVersions = branchVersions,
+                config = config
+            ).getOrThrow().shouldBe(
+                mainBranchVersion
+                    .nextPatch()
+                    .copy(preRelease = "beta.2")
+            )
+
+            calculateBranchVersion(
+                currentBranch = GitRef.Branch("hotfix/something"),
+                branchVersions = branchVersions,
+                config = config
+            ).getOrThrow().shouldBe(
+                mainBranchVersion
+                    .nextPatch()
+                    .copy(preRelease = "rc.2")
+            )
+
+            calculateBranchVersion(
+                currentBranch = GitRef.Branch("feature/something_something*bla"),
+                branchVersions = branchVersions,
+                config = config
+            ).getOrThrow().shouldBe(
+                mainBranchVersion
+                    .nextPatch()
+                    .nextPatch()
+                    .copy(preRelease = "something_something-bla.2")
+            )
+
+            calculateBranchVersion(
+                currentBranch = GitRef.Branch("someuser/sc-145300/standardized-gradle-build"),
+                branchVersions = branchVersions,
+                config = config
+            ).getOrThrow().shouldBe(
+                mainBranchVersion
+                    .nextPatch()
+                    .nextPatch()
+                    .copy(preRelease = "sc-145300-standardized-gradle-build.2")
+            )
+
+            calculateBranchVersion(
+                currentBranch = GitRef.Branch("someuser/no-ticket/standardized-gradle-build"),
+                branchVersions = branchVersions,
+                config = config
+            ).getOrThrow().shouldBe(
+                mainBranchVersion
+                    .nextPatch()
+                    .nextPatch()
+                    .copy(preRelease = "no-ticket-standardized-gradle-build.2")
+            )
+
+            calculateBranchVersion(
+                currentBranch = GitRef.Branch("someuser/145300/standardized-gradle-build"),
+                branchVersions = branchVersions,
+                config = config
+            ).getOrThrow().shouldBe(
+                mainBranchVersion
+                    .nextPatch()
+                    .nextPatch()
+                    .copy(preRelease = "145300-standardized-gradle-build.2")
+            )
+
+            calculateBranchVersion(
+                currentBranch = GitRef.Branch("someuser/abc/standardized-gradle-build"),
+                branchVersions = branchVersions,
+                config = config
+            ).isFailure shouldBe true
+        }
+    }
+})
 
 private fun getMockContextProviderOperations(
     currentBranch: GitRef.Branch,
@@ -314,4 +364,3 @@ private fun mockSemVerContext(
         }
     }
 }
-

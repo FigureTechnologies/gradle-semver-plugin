@@ -10,10 +10,10 @@ plugins {
     alias(libs.plugins.dependency.analysis)
 
     id("local.figure.publishing") // maven and gradle publishing info - build-logic/publishing
+    id("local.analysis-conventions")
 
     // https://github.com/CadixDev/licenser
     id("org.cadixdev.licenser") version "0.6.1"
-
 }
 
 semver {
@@ -50,8 +50,6 @@ dependencies {
     // Leak semver library users of this plugin so that they can implement their own versionModifier strategy
     api(libs.swiftzer.semver)
 
-    // runtimeOnly(libs.eclipse.jgit.ssh.apache)
-
     listOf(
         gradleTestKit(),
         libs.bundles.kotest
@@ -84,8 +82,6 @@ kotlin {
         }
     }
 }
-
-
 
 java {
     withSourcesJar()

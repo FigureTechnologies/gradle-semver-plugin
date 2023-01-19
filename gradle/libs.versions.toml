@@ -1,31 +1,42 @@
 [versions]
+
 kotlin = "1.8.0"
 
+# Library versions
+detekt = "1.22.0"
+gradle-plugin-publish = "1.1.0"
 jgit = "6.4.0.202211300538-r"
 kotest = "5.5.4"
+ktlint-gradle = "11.0.0"
 swiftzer-semver = "1.2.0"
 
-gradle-plugin-publish = "1.1.0"
+# Plugin versions
+dependency-analysis = "1.18.0"
 github-release = "2.4.1"
 gradle-semver-plugin = "0.9.1"
-dependency-analysis = "1.18.0"
 
 [libraries]
+
+# Libraries
 eclipse-jgit-eclipseJgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "jgit" }
-
-kotest-junit5-jvm = { module = "io.kotest:kotest-runner-junit5-jvm", version.ref = "kotest" }
-kotest-framework-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
-kotest-assertions-core-jvm = { module = "io.kotest:kotest-assertions-core-jvm", version.ref = "kotest" }
-
 swiftzer-semver = { module = "net.swiftzer.semver:semver", version.ref = "swiftzer-semver" }
 
-# this is the library version of the gradle-plugin-publish so that it can be given to our convention plugin
+# Plugins needed as libraries
 gradle-plugin-publish = { module = "com.gradle.plugin-publish:com.gradle.plugin-publish.gradle.plugin", version.ref = "gradle-plugin-publish" }
+detekt = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
+ktlint = { module = "org.jlleitschuh.gradle.ktlint:org.jlleitschuh.gradle.ktlint.gradle.plugin", version.ref = "ktlint-gradle" }
+
+# Test Libraries
+kotest-assertions-core-jvm = { module = "io.kotest:kotest-assertions-core-jvm", version.ref = "kotest" }
+kotest-framework-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
+kotest-junit5-jvm = { module = "io.kotest:kotest-runner-junit5-jvm", version.ref = "kotest" }
 
 [bundles]
-kotest = [ "kotest-junit5-jvm", "kotest-assertions-core-jvm", "kotest-framework-datatest" ]
+
+kotest = ["kotest-junit5-jvm", "kotest-assertions-core-jvm", "kotest-framework-datatest"]
 
 [plugins]
+
 dependency-analysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependency-analysis" }
 github-release = { id = "com.github.breadmoirai.github-release", version.ref = "github-release" }
 gradle-plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "gradle-plugin-publish" }
