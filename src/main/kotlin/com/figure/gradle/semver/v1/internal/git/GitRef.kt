@@ -8,8 +8,6 @@
 package com.figure.gradle.semver.v1.internal.git
 
 import org.eclipse.jgit.lib.Constants
-import org.eclipse.jgit.lib.ObjectId
-import org.eclipse.jgit.lib.Repository
 
 sealed interface GitRef {
     companion object {
@@ -29,14 +27,7 @@ sealed interface GitRef {
             val MAIN = Branch("main", "$REMOTE_ORIGIN/main")
             val MASTER = Branch("master", "$REMOTE_ORIGIN/master")
             val DEVELOP = Branch("develop", "$REMOTE_ORIGIN/develop")
-
-            fun headCommitId(repo: Repository, refName: String): ObjectId = repo.findRef(refName).objectId
         }
-
-        fun sanitizedName(): String =
-            name.trim()
-                .lowercase()
-                .replace(VALID_CHARACTERS, "-")
 
         fun sanitizedNameWithoutPrefix(): String =
             name.trim()

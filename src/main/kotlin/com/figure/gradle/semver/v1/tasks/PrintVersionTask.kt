@@ -7,6 +7,7 @@
 
 package com.figure.gradle.semver.v1.tasks
 
+import com.figure.gradle.semver.v1.internal.semverLifecycle
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -18,6 +19,6 @@ abstract class PrintVersionTask : DefaultTask() {
 
     @TaskAction
     fun printVersion() {
-        logger.quiet("Semantic version: ${version.get()}")
+        logger.semverLifecycle("Semantic version: ${version.get()}")
     }
 }

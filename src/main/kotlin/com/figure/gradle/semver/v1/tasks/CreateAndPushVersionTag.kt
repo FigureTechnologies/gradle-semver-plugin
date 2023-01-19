@@ -7,6 +7,8 @@
 
 package com.figure.gradle.semver.v1.tasks
 
+import com.figure.gradle.semver.v1.internal.semverInfo
+import com.figure.gradle.semver.v1.internal.semverLifecycle
 import org.eclipse.jgit.api.Git
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
@@ -24,6 +26,6 @@ abstract class CreateAndPushVersionTag : DefaultTask() {
     fun createAndPushTag() {
         git.get().tag().setName(versionTagName.get()).call()
         git.get().push().setPushTags().call()
-        logger.quiet("Created and pushed version tag: ${versionTagName.get()}")
+        logger.semverLifecycle("Created and pushed version tag: ${versionTagName.get()}")
     }
 }

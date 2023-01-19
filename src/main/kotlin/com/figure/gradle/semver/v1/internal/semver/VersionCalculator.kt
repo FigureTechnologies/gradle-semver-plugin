@@ -9,6 +9,9 @@ package com.figure.gradle.semver.v1.internal.semver
 
 import com.figure.gradle.semver.v1.internal.exceptions.MissingBranchMatchingConfigurationException
 import com.figure.gradle.semver.v1.internal.git.GitRef
+import com.figure.gradle.semver.v1.internal.semverError
+import com.figure.gradle.semver.v1.internal.semverInfo
+import com.figure.gradle.semver.v1.internal.semverWarn
 import net.swiftzer.semver.SemVer
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -36,17 +39,17 @@ class TargetBranchVersionCalculator(
         return config.branchMatching
             .firstOrNull { it.regex.matches(currentBranch.name) }
             ?.let { bmc ->
-                log.info("Using BranchMatchingConfiguration: $bmc for previousVersion() with currentBranch: $currentBranch")
+                log.semverInfo("Using BranchMatchingConfiguration: $bmc for previousVersion() with currentBranch: $currentBranch")
                 contextProviderOperations.branchVersion(currentBranch, bmc.targetBranch).map { semver ->
-                    log.info("Branch version for current $currentBranch and target ${bmc.targetBranch}: $semver")
+                    log.semverInfo("Branch version for current $currentBranch and target ${bmc.targetBranch}: $semver")
                     semver ?: run {
-                        log.warn("No version found for target branch ${bmc.targetBranch}, using initial version")
+                        log.semverWarn("No version found for target branch ${bmc.targetBranch}, using initial version")
                         config.initialVersion
                     }
                 }
             }
             ?: run {
-                log.warn("No match found for $currentBranch in ${config.branchMatching}, using initial version as previous version")
+                log.semverWarn("No match found for $currentBranch in ${config.branchMatching}, using initial version as previous version")
                 Result.failure(MissingBranchMatchingConfigurationException(currentBranch))
             }
     }
@@ -55,12 +58,12 @@ class TargetBranchVersionCalculator(
         return config.branchMatching
             .firstOrNull { it.regex.matches(currentBranch.name) }
             ?.let { bmc ->
-                log.info("Using BranchMatchingConfiguration: $bmc for versionModifier() with currentBranch: $currentBranch")
+                log.semverInfo("Using BranchMatchingConfiguration: $bmc for versionModifier() with currentBranch: $currentBranch")
                 val fn = bmc.versionModifier
                 current.fn()
             }
             ?: run {
-                log.warn("No match found for $currentBranch in ${config.branchMatching}, using initial version as modified version")
+                log.semverWarn("No match found for $currentBranch in ${config.branchMatching}, using initial version as modified version")
                 config.initialVersion
             }
     }
@@ -69,7 +72,7 @@ class TargetBranchVersionCalculator(
         return config.branchMatching
             .firstOrNull { it.regex.matches(currentBranch.name) }
             ?.let { bmc ->
-                log.info("Using BranchMatchingConfiguration: $bmc for versionQualifier() with currentBranch $currentBranch")
+                log.semverInfo("Using BranchMatchingConfiguration: $bmc for versionQualifier() with currentBranch $currentBranch")
                 val fn = bmc.versionQualifier
                 context.fn(currentBranch).let {
                     current.copy(
@@ -79,9 +82,21 @@ class TargetBranchVersionCalculator(
                 }
             }
             ?: run {
-                log.warn("No match found for $currentBranch in ${config.branchMatching}")
+                log.semverWarn("No match found for $currentBranch in ${config.branchMatching}")
                 current
             }
+    }
+}
+
+internal fun versionModifierFromString(modifier: String): VersionModifier {
+    return when(val mod = modifier.trim().lowercase()) {
+        "major" -> SemVer::nextMajor
+        "minor" -> SemVer::nextMinor
+        "patch" -> SemVer::nextPatch
+        else -> {
+            log.semverError("Unknown version modifier [$mod]")
+            throw Exception("Unknown version modifier [$modifier]")
+        }
     }
 }
 

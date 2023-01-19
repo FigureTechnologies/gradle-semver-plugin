@@ -12,6 +12,9 @@ import com.figure.gradle.semver.v1.internal.exceptions.UnexpectedException
 import com.figure.gradle.semver.v1.internal.githubActionsBuild
 import com.figure.gradle.semver.v1.internal.pullRequestEvent
 import com.figure.gradle.semver.v1.internal.pullRequestHeadRef
+import com.figure.gradle.semver.v1.internal.semverError
+import com.figure.gradle.semver.v1.internal.semverInfo
+import com.figure.gradle.semver.v1.internal.semverWarn
 import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ObjectId
@@ -22,8 +25,6 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-
-// TODO: Make any of these private that aren't necessary outside of this file
 
 private val log = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 
@@ -123,9 +124,9 @@ private fun Git.findYoungestTagOnBranchOlderThanTarget(
 ): SemVer? {
     val branchRef = repository.exactRef(branch.refName)
     if (branchRef == null) {
-        log.error("Failed to find exact git ref for branch: $branch, aborting...")
+        log.semverError("Failed to find exact git ref for branch: $branch, aborting...")
     } else {
-        log.info("Pulling log for $branch refName, exactRef: $branchRef, target: $target")
+        log.semverInfo("Pulling log for $branch refName, exactRef: $branchRef, target: $target")
     }
 
     return log().add(branchRef.objectId).call()
@@ -150,7 +151,7 @@ internal fun gitCommitsSinceBranchPoint(
         }
 
         newCommits.size != commits.size -> {
-            log.warn(
+            log.semverWarn(
                 buildString {
                     append("Unable to find branch point [${branchPoint.id.name}: ${branchPoint.shortMessage}] ")
                     append("typically this happens when commits were squashed & merged and this branch [$branch] has ")
@@ -160,11 +161,11 @@ internal fun gitCommitsSinceBranchPoint(
 
             git.findYoungestTagCommitOnBranch(branch, tags)
                 ?.let { youngestTag ->
-                    log.info("Youngest tag on this branch is at ${youngestTag.id.name} => ${tags[youngestTag.id]}")
+                    log.semverInfo("Youngest tag on this branch is at ${youngestTag.id.name} => ${tags[youngestTag.id]}")
                     Result.success(commits.takeWhile { it.id != youngestTag.id }.size)
                 }
                 ?: run {
-                    log.warn(
+                    log.semverWarn(
                         buildString {
                             append("Failed to find any semver tags on branch [$branch], does main have ")
                             append("any version tags? Using 0 as commit count since branch point")
@@ -194,9 +195,9 @@ private fun Git.findYoungestTagCommitOnBranch(
 ): RevCommit? {
     val branchRef = repository.exactRef(branch.refName)
     if (branchRef == null) {
-        log.error("Failed to find exact git ref for branch [$branch], aborting...")
+        log.semverError("Failed to find exact git ref for branch [$branch], aborting...")
     } else {
-        log.info("Pulling log for $branch refName, exactRef: $branchRef")
+        log.semverInfo("Pulling log for $branch refName, exactRef: $branchRef")
     }
     return log().add(branchRef.objectId).call()
         .firstOrNull { tags.containsKey(it.toObjectId()) }

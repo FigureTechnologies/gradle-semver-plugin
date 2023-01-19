@@ -8,6 +8,7 @@
 package com.figure.gradle.semver.v1.internal.semver
 
 import com.figure.gradle.semver.v1.internal.git.GitRef
+import com.figure.gradle.semver.v1.internal.semverWarn
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -30,7 +31,7 @@ interface SemverContext {
                 "$label.$it"
             },
             onFailure = {
-                log.warn("Unable to calculate commits since branch point on current $currentBranch")
+                log.semverWarn("Unable to calculate commits since branch point on current $currentBranch")
                 label
             }
         )

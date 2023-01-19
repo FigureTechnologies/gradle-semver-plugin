@@ -7,6 +7,7 @@
 
 package com.figure.gradle.semver.v1.tasks
 
+import com.figure.gradle.semver.v1.internal.semverDebug
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -27,7 +28,7 @@ abstract class GenerateVersionFileTask : DefaultTask() {
     @TaskAction
     fun generateVersionFile() {
         val filePath = "${buildDir.get()}/semver/version.txt"
-        logger.quiet("Generating version file at $filePath")
+        logger.semverDebug("Generating version file at $filePath")
         File(filePath).apply {
             parentFile.mkdirs()
             createNewFile()
