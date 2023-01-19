@@ -38,13 +38,25 @@ repositories {
 }
 
 dependencies {
-    api(gradleApi())
-    api(gradleKotlinDsl())
-    api(kotlin("stdlib-jdk8"))
-    api(libs.swiftzer.semver)
+    listOf(
+        gradleApi(),
+        gradleKotlinDsl(),
 
-    implementation(libs.arrow.core)
-    implementation(libs.eclipse.jgit.eclipseJgit)
+        libs.swiftzer.semver,
+        libs.eclipse.jgit.eclipseJgit,
+
+        // TODO: Remove
+        libs.arrow.core
+    ).forEach {
+        implementation(it)
+    }
+
+    // api(gradleApi())
+    // api(gradleKotlinDsl())
+    // api(libs.swiftzer.semver)
+    //
+    // implementation(libs.arrow.core)
+    // implementation(libs.eclipse.jgit.eclipseJgit)
 
     runtimeOnly(libs.eclipse.jgit.ssh.apache)
 
