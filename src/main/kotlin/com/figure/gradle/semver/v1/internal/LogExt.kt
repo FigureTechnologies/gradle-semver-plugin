@@ -12,7 +12,7 @@ import org.gradle.api.logging.Logger
 private const val LOG_ERROR_PREFIX = "[gradle-semver-plugin] ERROR "
 private const val LOG_QUIET_PREFIX = "[gradle-semver-plugin] QUIET "
 private const val LOG_WARN_PREFIX = "[gradle-semver-plugin] WARN "
-private const val LOG_LIFECYCLE_PREFIX = "Semver > "
+private const val LOG_LIFECYCLE_PREFIX = "> Semver: "
 private const val LOG_INFO_PREFIX = "[gradle-semver-plugin] INFO "
 private const val LOG_DEBUG_PREFIX = "[gradle-semver-plugin] DEBUG "
 

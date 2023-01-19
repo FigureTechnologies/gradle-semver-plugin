@@ -151,7 +151,7 @@ internal fun gitCommitsSinceBranchPoint(
         }
 
         newCommits.size != commits.size -> {
-            log.semverWarn(
+            log.semverInfo(
                 buildString {
                     append("Unable to find branch point [${branchPoint.id.name}: ${branchPoint.shortMessage}] ")
                     append("typically this happens when commits were squashed & merged and this branch [$branch] has ")
