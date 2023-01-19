@@ -56,7 +56,7 @@ dependencies {
         gradleTestKit(),
         libs.bundles.kotest
     ).forEach {
-        implementation(it)
+        testImplementation(it)
     }
 }
 

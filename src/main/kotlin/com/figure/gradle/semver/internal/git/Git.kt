@@ -50,7 +50,7 @@ private fun Ref?.semverTag(prefix: String): SemVer? {
     return this?.name?.semverTag(prefix)
 }
 
-private fun String?.semverTag(prefix: String): SemVer? =
+internal fun String?.semverTag(prefix: String): SemVer? =
     this?.substringAfterLast("/$prefix")?.let { semver ->
         if (semver.isNotBlank() && semver.count { letter -> letter == '.' } == 2) {
             runCatching { SemVer.parse(semver) }.getOrNull()
