@@ -145,3 +145,7 @@ license {
 tasks.named("assemble") {
     dependsOn("updateLicenses")
 }
+
+tasks.wrapper {
+    distributionType = Wrapper.DistributionType.ALL
+}
