@@ -5,24 +5,24 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver.v1
+package com.figure.gradle.semver
 
-import com.figure.gradle.semver.v1.internal.git.GitRef
-import com.figure.gradle.semver.v1.internal.git.git
-import com.figure.gradle.semver.v1.internal.git.hasBranch
-import com.figure.gradle.semver.v1.internal.semver.BranchMatchingConfiguration
-import com.figure.gradle.semver.v1.internal.semver.GitContextProviderOperations
-import com.figure.gradle.semver.v1.internal.semver.GradleSemverContext
-import com.figure.gradle.semver.v1.internal.semver.TargetBranchVersionCalculator
-import com.figure.gradle.semver.v1.internal.semver.VersionCalculatorConfig
-import com.figure.gradle.semver.v1.internal.semver.VersionCalculatorStrategy
-import com.figure.gradle.semver.v1.internal.semver.VersionModifier
-import com.figure.gradle.semver.v1.internal.semver.flatVersionCalculatorStrategy
-import com.figure.gradle.semver.v1.internal.semver.flowVersionCalculatorStrategy
-import com.figure.gradle.semver.v1.internal.semver.versionModifierFromString
-import com.figure.gradle.semver.v1.internal.semverError
-import com.figure.gradle.semver.v1.internal.semverInfo
-import com.figure.gradle.semver.v1.internal.semverLifecycle
+import com.figure.gradle.semver.external.BranchMatchingConfiguration
+import com.figure.gradle.semver.external.VersionCalculatorStrategy
+import com.figure.gradle.semver.external.VersionModifier
+import com.figure.gradle.semver.external.flatVersionCalculatorStrategy
+import com.figure.gradle.semver.external.flowVersionCalculatorStrategy
+import com.figure.gradle.semver.internal.git.GitRef
+import com.figure.gradle.semver.internal.git.git
+import com.figure.gradle.semver.internal.git.hasBranch
+import com.figure.gradle.semver.internal.semver.GitContextProviderOperations
+import com.figure.gradle.semver.internal.semver.GradleSemverContext
+import com.figure.gradle.semver.internal.semver.TargetBranchVersionCalculator
+import com.figure.gradle.semver.internal.semver.VersionCalculatorConfig
+import com.figure.gradle.semver.internal.semver.versionModifierFromString
+import com.figure.gradle.semver.internal.semverError
+import com.figure.gradle.semver.internal.semverInfo
+import com.figure.gradle.semver.internal.semverLifecycle
 import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.Git
 import org.gradle.api.Project
@@ -42,9 +42,9 @@ abstract class SemverExtension @Inject constructor(objects: ObjectFactory, priva
      * This version invocation takes place at project build time of the project that is utilizing this plugin
      * The version is not calculated until a build happens that requires `semver.version`
      */
-    val version by lazy { calculateVersion().toString() }
+    val version: String by lazy { calculateVersion().toString() }
 
-    val versionTagName by lazy { calculateVersionTagName() }
+    val versionTagName: String by lazy { calculateVersionTagName() }
 
     internal val gitDir: Property<String> =
         objects.property<String>()

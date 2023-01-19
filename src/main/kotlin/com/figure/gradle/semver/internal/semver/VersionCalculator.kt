@@ -5,24 +5,27 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver.v1.internal.semver
+package com.figure.gradle.semver.internal.semver
 
-import com.figure.gradle.semver.v1.internal.exceptions.MissingBranchMatchingConfigurationException
-import com.figure.gradle.semver.v1.internal.git.GitRef
-import com.figure.gradle.semver.v1.internal.semverError
-import com.figure.gradle.semver.v1.internal.semverInfo
-import com.figure.gradle.semver.v1.internal.semverWarn
+import com.figure.gradle.semver.external.ContextProviderOperations
+import com.figure.gradle.semver.external.SemverContext
+import com.figure.gradle.semver.external.VersionModifier
+import com.figure.gradle.semver.internal.exceptions.MissingBranchMatchingConfigurationException
+import com.figure.gradle.semver.internal.git.GitRef
+import com.figure.gradle.semver.internal.semverError
+import com.figure.gradle.semver.internal.semverInfo
+import com.figure.gradle.semver.internal.semverWarn
 import net.swiftzer.semver.SemVer
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
 private val log = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 
-interface VersionCalculator {
+internal interface VersionCalculator {
     fun calculateVersion(): Result<SemVer>
 }
 
-class TargetBranchVersionCalculator(
+internal class TargetBranchVersionCalculator(
     private val contextProviderOperations: ContextProviderOperations,
     private val config: VersionCalculatorConfig,
     private val context: SemverContext,

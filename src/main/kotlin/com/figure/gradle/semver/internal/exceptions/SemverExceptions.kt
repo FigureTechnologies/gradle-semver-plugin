@@ -5,15 +5,15 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver.v1.internal.exceptions
+package com.figure.gradle.semver.internal.exceptions
 
-import com.figure.gradle.semver.v1.internal.git.GitRef
+import com.figure.gradle.semver.internal.git.GitRef
 
-class GitException(t: Throwable) :
+internal class GitException(t: Throwable) :
     Exception(t)
 
-class UnexpectedException(message: String) :
+internal class UnexpectedException(message: String) :
     Exception("Something unexpected occurred: $message")
 
-class MissingBranchMatchingConfigurationException(currentBranch: GitRef.Branch) :
+internal class MissingBranchMatchingConfigurationException(currentBranch: GitRef.Branch) :
     Exception("Missing branch matching configuration for current branch: ${currentBranch.name}")

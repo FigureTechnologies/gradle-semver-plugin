@@ -5,7 +5,7 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver.v1.internal.git
+package com.figure.gradle.semver.internal.git
 
 import org.eclipse.jgit.lib.Constants
 

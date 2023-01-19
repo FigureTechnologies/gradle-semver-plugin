@@ -5,12 +5,12 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver.v1
+package com.figure.gradle.semver
 
-import com.figure.gradle.semver.v1.internal.git.git
-import com.figure.gradle.semver.v1.tasks.CreateAndPushVersionTag
-import com.figure.gradle.semver.v1.tasks.GenerateVersionFileTask
-import com.figure.gradle.semver.v1.tasks.PrintVersionTask
+import com.figure.gradle.semver.internal.git.git
+import com.figure.gradle.semver.internal.tasks.CreateAndPushVersionTag
+import com.figure.gradle.semver.internal.tasks.GenerateVersionFileTask
+import com.figure.gradle.semver.internal.tasks.PrintVersionTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create

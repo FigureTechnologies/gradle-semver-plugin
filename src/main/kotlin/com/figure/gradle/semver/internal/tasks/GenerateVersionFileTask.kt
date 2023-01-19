@@ -5,9 +5,9 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver.v1.tasks
+package com.figure.gradle.semver.internal.tasks
 
-import com.figure.gradle.semver.v1.internal.semverDebug
+import com.figure.gradle.semver.internal.semverDebug
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -15,18 +15,18 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
-abstract class GenerateVersionFileTask : DefaultTask() {
+internal abstract class GenerateVersionFileTask : DefaultTask() {
     @get:InputDirectory
-    abstract val buildDir: Property<File>
+    internal abstract val buildDir: Property<File>
 
     @get:Input
-    abstract val version: Property<String>
+    internal abstract val version: Property<String>
 
     @get:Input
-    abstract val versionTagName: Property<String>
+    internal abstract val versionTagName: Property<String>
 
     @TaskAction
-    fun generateVersionFile() {
+    internal fun generateVersionFile() {
         val filePath = "${buildDir.get()}/semver/version.txt"
         logger.semverDebug("Generating version file at $filePath")
         File(filePath).apply {

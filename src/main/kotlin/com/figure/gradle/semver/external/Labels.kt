@@ -5,7 +5,7 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver.v1.internal.semver
+package com.figure.gradle.semver.external
 
 @JvmInline
 value class PreReleaseLabel(val value: String) {

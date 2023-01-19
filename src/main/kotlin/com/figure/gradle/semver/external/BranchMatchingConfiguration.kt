@@ -5,9 +5,9 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver.v1.internal.semver
+package com.figure.gradle.semver.external
 
-import com.figure.gradle.semver.v1.internal.git.GitRef
+import com.figure.gradle.semver.internal.git.GitRef
 import net.swiftzer.semver.SemVer
 
 typealias VersionCalculatorStrategy = List<BranchMatchingConfiguration>

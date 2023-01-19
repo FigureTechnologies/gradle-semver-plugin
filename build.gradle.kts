@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.github.release)
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.semver)
+    alias(libs.plugins.dependency.analysis)
 
     id("local.figure.publishing") // maven and gradle publishing info - build-logic/publishing
 
@@ -41,28 +42,22 @@ dependencies {
     listOf(
         gradleApi(),
         gradleKotlinDsl(),
-
-        libs.swiftzer.semver,
         libs.eclipse.jgit.eclipseJgit,
-
-        // TODO: Remove
-        libs.arrow.core
     ).forEach {
         implementation(it)
     }
 
-    // api(gradleApi())
-    // api(gradleKotlinDsl())
-    // api(libs.swiftzer.semver)
-    //
-    // implementation(libs.arrow.core)
-    // implementation(libs.eclipse.jgit.eclipseJgit)
+    // Leak semver library users of this plugin so that they can implement their own versionModifier strategy
+    api(libs.swiftzer.semver)
 
-    runtimeOnly(libs.eclipse.jgit.ssh.apache)
+    // runtimeOnly(libs.eclipse.jgit.ssh.apache)
 
-    // tests
-    testImplementation(gradleTestKit())
-    testImplementation(libs.bundles.kotest)
+    listOf(
+        gradleTestKit(),
+        libs.bundles.kotest
+    ).forEach {
+        implementation(it)
+    }
 }
 
 // Enforce Kotlin version coherence

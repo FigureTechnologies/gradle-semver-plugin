@@ -5,11 +5,10 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver.v1.internal.semver
+package com.figure.gradle.semver.external
 
-import com.figure.gradle.semver.v1.internal.git.GitRef
-import com.figure.gradle.semver.v1.internal.semverWarn
-import org.gradle.api.Project
+import com.figure.gradle.semver.internal.git.GitRef
+import com.figure.gradle.semver.internal.semverWarn
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
@@ -36,15 +35,4 @@ interface SemverContext {
             }
         )
     )
-}
-
-class GradleSemverContext(
-    private val project: Project,
-    override val ops: ContextProviderOperations,
-) : SemverContext {
-    override fun property(name: String): Any? =
-        project.findProperty(name)
-
-    override fun env(name: String): String? =
-        System.getenv(name)
 }

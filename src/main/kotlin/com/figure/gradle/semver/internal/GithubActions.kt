@@ -5,7 +5,7 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver.v1.internal
+package com.figure.gradle.semver.internal
 
 internal fun githubActionsBuild(): Boolean =
     System.getenv("GITHUB_ACTIONS")

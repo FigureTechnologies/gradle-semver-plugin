@@ -5,11 +5,13 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver.v1.internal.semver
+package com.figure.gradle.semver.internal.semver
 
+import com.figure.gradle.semver.external.VersionCalculatorStrategy
+import com.figure.gradle.semver.external.flowVersionCalculatorStrategy
 import net.swiftzer.semver.SemVer
 
-data class VersionCalculatorConfig(
+internal data class VersionCalculatorConfig(
     val tagPrefix: String,
     val initialVersion: SemVer = SemVer(0, 0, 1),
     val overrideVersion: SemVer? = null,

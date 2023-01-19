@@ -5,7 +5,7 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver.v1.internal
+package com.figure.gradle.semver.internal
 
 import org.gradle.api.logging.Logger
 
@@ -17,6 +17,7 @@ private const val LOG_INFO_PREFIX = "[gradle-semver-plugin] INFO "
 private const val LOG_DEBUG_PREFIX = "[gradle-semver-plugin] DEBUG "
 
 private fun String.colored(c: String) = "$c$this\u001B[0m"
+
 internal fun String.darkgray() = this.colored("\u001B[30m")
 internal fun String.red() = this.colored("\u001B[31m")
 internal fun String.green() = this.colored("\u001B[32m")

@@ -5,16 +5,16 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver.v1.internal.git
+package com.figure.gradle.semver.internal.git
 
-import com.figure.gradle.semver.v1.internal.exceptions.GitException
-import com.figure.gradle.semver.v1.internal.exceptions.UnexpectedException
-import com.figure.gradle.semver.v1.internal.githubActionsBuild
-import com.figure.gradle.semver.v1.internal.pullRequestEvent
-import com.figure.gradle.semver.v1.internal.pullRequestHeadRef
-import com.figure.gradle.semver.v1.internal.semverError
-import com.figure.gradle.semver.v1.internal.semverInfo
-import com.figure.gradle.semver.v1.internal.semverWarn
+import com.figure.gradle.semver.internal.exceptions.GitException
+import com.figure.gradle.semver.internal.exceptions.UnexpectedException
+import com.figure.gradle.semver.internal.githubActionsBuild
+import com.figure.gradle.semver.internal.pullRequestEvent
+import com.figure.gradle.semver.internal.pullRequestHeadRef
+import com.figure.gradle.semver.internal.semverError
+import com.figure.gradle.semver.internal.semverInfo
+import com.figure.gradle.semver.internal.semverWarn
 import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ObjectId

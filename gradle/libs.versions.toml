@@ -11,6 +11,7 @@ swiftzer-semver = "1.2.0"
 gradle-plugin-publish = "1.1.0"
 github-release = "2.4.+"
 gradle-semver-plugin = "0.6.+"
+dependency-analysis = "1.18.0"
 
 [libraries]
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
@@ -36,3 +37,5 @@ github-release = { id = "com.github.breadmoirai.github-release", version.ref = "
 gradle-plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "gradle-plugin-publish" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 semver = { id = "com.figure.gradle.semver-plugin", version.ref = "gradle-semver-plugin" }
+
+dependency-analysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependency-analysis" }

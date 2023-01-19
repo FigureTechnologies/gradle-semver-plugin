@@ -5,25 +5,24 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver.v1.tasks
+package com.figure.gradle.semver.internal.tasks
 
-import com.figure.gradle.semver.v1.internal.semverInfo
-import com.figure.gradle.semver.v1.internal.semverLifecycle
+import com.figure.gradle.semver.internal.semverLifecycle
 import org.eclipse.jgit.api.Git
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
-abstract class CreateAndPushVersionTag : DefaultTask() {
+internal abstract class CreateAndPushVersionTag : DefaultTask() {
     @get:Input
-    abstract val versionTagName: Property<String>
+    internal abstract val versionTagName: Property<String>
 
     @get:Input
-    abstract val git: Property<Git>
+    internal abstract val git: Property<Git>
 
     @TaskAction
-    fun createAndPushTag() {
+    internal fun createAndPushTag() {
         git.get().tag().setName(versionTagName.get()).call()
         git.get().push().setPushTags().call()
         logger.semverLifecycle("Created and pushed version tag: ${versionTagName.get()}")

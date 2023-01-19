@@ -5,20 +5,20 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver.v1.tasks
+package com.figure.gradle.semver.internal.tasks
 
-import com.figure.gradle.semver.v1.internal.semverLifecycle
+import com.figure.gradle.semver.internal.semverLifecycle
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
-abstract class PrintVersionTask : DefaultTask() {
+internal abstract class PrintVersionTask : DefaultTask() {
     @get:Input
-    abstract val version: Property<String>
+    internal abstract val version: Property<String>
 
     @TaskAction
-    fun printVersion() {
+    internal fun printVersion() {
         logger.semverLifecycle("Semantic version: ${version.get()}")
     }
 }
