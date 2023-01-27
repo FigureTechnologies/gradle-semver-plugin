@@ -17,7 +17,6 @@ import org.gradle.testkit.runner.GradleRunner
 import java.io.File
 
 class BuildLogicFunctionalSpec : FunSpec({
-
     lateinit var directory: File
     lateinit var buildFile: File
     lateinit var settingsFile: File
@@ -37,20 +36,22 @@ class BuildLogicFunctionalSpec : FunSpec({
         buildFile = File("$directory", "build.gradle.kts")
         settingsFile = File("$directory", "settings.gradle.kts")
 
-        buildFile.writeText("""
+        buildFile.writeText(
+            """
         plugins {
             id("com.figure.gradle.semver-plugin")
         }
-        
+
         semver {
             overrideVersion("9.9.9")
         }
-        """.trimIndent()
+            """.trimIndent()
         )
 
-        settingsFile.writeText("""
+        settingsFile.writeText(
+            """
         rootProject.name = "config-cache-tester"
-        """.trimIndent()
+            """.trimIndent()
         )
 
         runner = GradleRunner.create()
@@ -60,7 +61,7 @@ class BuildLogicFunctionalSpec : FunSpec({
 
     context("configuration-cache") {
         withData(
-            "cv",
+            "printVersion",
             "generateVersionFile",
             // sadly, by using the Git class in this task we can't support the configuration-cache, see bottom of class
 //            "createAndPushVersionTag"

@@ -7,103 +7,38 @@
 
 package com.figure.gradle.semver
 
-import com.figure.gradle.semver.SemverExtension.Companion.semver
-import org.eclipse.jgit.api.Git
-import org.gradle.api.DefaultTask
+import com.figure.gradle.semver.internal.git.git
+import com.figure.gradle.semver.internal.tasks.CreateAndPushVersionTag
+import com.figure.gradle.semver.internal.tasks.GenerateVersionFileTask
+import com.figure.gradle.semver.internal.tasks.PrintVersionTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.TaskAction
-import org.gradle.kotlin.dsl.get
-import java.io.File
+import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.register
 import java.nio.file.Files
 
-open class SemverPlugin : Plugin<Project> {
+class SemverPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-        project.semver() // impure! but needed to create and register the extension with the project so that we can use it in the tasks below
+        val semver = project.extensions.create<SemverExtension>("semver")
 
-        // Get the semver extension for properties we need - version and versionTagName
-        val semverExtension = project.extensions[SemverExtension.ExtensionName] as SemverExtension
-
-        val gitDir = semverExtension.getGitDir()
-
-        if (!project.hasGit(gitDir)) {
-            project.logger.warn("The directory $gitDir does not exist. If this should be the location of your git directory, please initialize a git repo")
+        project.tasks.register<PrintVersionTask>("printVersion") {
+            version.set(semver.version)
         }
 
-        project.tasks.register("cv", CurrentVersionTask::class.java) {
-            it.version = semverExtension.version
-        }
-
-        project.tasks.register("generateVersionFile", GenerateVersionFileTask::class.java) {
-
-            // Ensure that the buildDir actually exists to avoid some directory not found errors
+        project.tasks.register<GenerateVersionFileTask>("generateVersionFile") {
+            // Ensure the build directory exists first
             if (!project.buildDir.exists()) {
                 Files.createDirectory(project.buildDir.toPath())
             }
 
-            it.buildDir = project.buildDir
-            it.version = semverExtension.version
-            it.versionTagName = semverExtension.versionTagName
+            buildDir.set(project.buildDir)
+            version.set(semver.version)
+            versionTagName.set(semver.versionTagName)
         }
 
-        project.tasks.register("createAndPushVersionTag", CreateAndPushVersionTag::class.java) {
-            it.versionTagName = semverExtension.versionTagName
-            it.git = project.git(gitDir)
+        project.tasks.register<CreateAndPushVersionTag>("createAndPushVersionTag") {
+            versionTagName.set(semver.versionTagName)
+            git.set(project.git(semver.gitDir.get()))
         }
-    }
-}
-
-abstract class CurrentVersionTask : DefaultTask() {
-
-    @get:Input
-    abstract var version: String
-
-    @TaskAction
-    fun currentVersion() {
-        logger.lifecycle("version: $version}".purple())
-    }
-}
-
-abstract class GenerateVersionFileTask : DefaultTask() {
-
-    @get:InputDirectory
-    abstract var buildDir: File
-
-    @get:Input
-    abstract var version: String
-
-    @get:Input
-    abstract var versionTagName: String
-
-    @TaskAction
-    fun generateVersionFile() {
-        File("${buildDir}/semver/version.txt").apply {
-            this.parentFile.mkdirs()
-            this.createNewFile()
-            this.writeText(
-                """
-                   |${version}
-                   |${versionTagName}
-                """.trimMargin()
-            )
-        }
-    }
-}
-
-abstract class CreateAndPushVersionTag : DefaultTask() {
-
-    @get:Input
-    abstract var versionTagName: String
-
-    @get:Input
-    abstract var git: Git
-
-    @TaskAction
-    fun createAndPushTag() {
-        git.tag().setName(versionTagName).call()
-        logger.semver("created version tag: ${versionTagName}, pushing...")
-        git.push().setPushTags().call()
     }
 }

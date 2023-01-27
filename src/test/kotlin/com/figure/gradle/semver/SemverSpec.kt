@@ -7,24 +7,23 @@
 
 package com.figure.gradle.semver
 
-import io.kotest.assertions.arrow.core.shouldBeNone
-import io.kotest.assertions.arrow.core.shouldBeSome
+import com.figure.gradle.semver.internal.git.semverTag
 import io.kotest.core.spec.style.WordSpec
+import io.kotest.matchers.nulls.beNull
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
 import net.swiftzer.semver.SemVer
 
-// Kotest 5 won't work until Gradle moves to 1.6: https://github.com/kotest/kotest/issues/2785
-class SemverSpec: WordSpec() {
-    init {
-        "Semver" should {
-            "match valid existing semver tags on refs" {
-                "refs/tags/v123".semverTag("v").shouldBeNone()
-                "refs/tags/v1.2.3".semverTag("v").shouldBeSome(SemVer(1, 2, 3))
-                "refs/tags/v0.1.2-main".semverTag("v").shouldBeSome(SemVer(0, 1, 2, "main"))
+class SemverSpec : WordSpec({
+    "Semver" should {
+        "match valid existing semver tags on refs" {
+            "refs/tags/v123".semverTag("v") should beNull()
+            "refs/tags/v1.2.3".semverTag("v") shouldBe SemVer(1, 2, 3)
+            "refs/tags/v0.1.2-main".semverTag("v") shouldBe SemVer(0, 1, 2, "main")
 
-                // Semver lib can't understand qualified labels apparently
-//                "refs/tags/v0.1.2-main.2".semverTag("v").shouldBeSome(SemVer(0, 1, 2, "main.2"))
-//                SemVer.parse("v0.1.2-main.2") shouldBe SemVer(0, 1, 2, "main.2")
-            }
+            // Semver lib can't understand qualified labels apparently
+            // "refs/tags/v0.1.2-main.2".semverTag("v") shouldBe SemVer(0, 1, 2, "main.2")
+            // SemVer.parse("v0.1.2-main.2") shouldBe SemVer(0, 1, 2, "main.2")
         }
     }
-}
+})

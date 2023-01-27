@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import java.util.Calendar
 import org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION as KOTLIN_VERSION
 
@@ -7,12 +9,13 @@ plugins {
     alias(libs.plugins.github.release)
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.semver)
+    alias(libs.plugins.dependency.analysis)
 
     id("local.figure.publishing") // maven and gradle publishing info - build-logic/publishing
+    id("local.analysis-conventions")
 
     // https://github.com/CadixDev/licenser
     id("org.cadixdev.licenser") version "0.6.1"
-
 }
 
 semver {
@@ -38,19 +41,23 @@ repositories {
 }
 
 dependencies {
-    api(gradleApi())
-    api(gradleKotlinDsl())
-    api(kotlin("stdlib-jdk8"))
+    listOf(
+        gradleApi(),
+        gradleKotlinDsl(),
+        libs.eclipse.jgit.eclipseJgit,
+    ).forEach {
+        implementation(it)
+    }
+
+    // Leak semver library users of this plugin so that they can implement their own versionModifier strategy
     api(libs.swiftzer.semver)
 
-    implementation(libs.arrow.core)
-    implementation(libs.eclipse.jgit.eclipseJgit)
-
-    runtimeOnly(libs.eclipse.jgit.ssh.apache)
-
-    // tests
-    testImplementation(gradleTestKit())
-    testImplementation(libs.bundles.kotest)
+    listOf(
+        gradleTestKit(),
+        libs.bundles.kotest
+    ).forEach {
+        testImplementation(it)
+    }
 }
 
 // Enforce Kotlin version coherence
@@ -70,15 +77,13 @@ kotlin {
                 freeCompilerArgs =
                     freeCompilerArgs + listOf("-version", "-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
                 jvmTarget = "11"
-                languageVersion = "1.7"
-                apiVersion = "1.7"
+                languageVersion = "1.8"
+                apiVersion = "1.8"
                 verbose = true
             }
         }
     }
 }
-
-
 
 java {
     withSourcesJar()
@@ -96,8 +101,8 @@ tasks.withType<Test>().configureEach {
         showStandardStreams = true
         showCauses = true
         showStackTraces = true
-        events(*org.gradle.api.tasks.testing.logging.TestLogEvent.values())
-        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        events(*TestLogEvent.values())
+        exceptionFormat = TestExceptionFormat.FULL
     }
 }
 
@@ -141,4 +146,8 @@ license {
 // This needs to happen early in the gradle lifecycle or else the checkLicenses task fails
 tasks.named("assemble") {
     dependsOn("updateLicenses")
+}
+
+tasks.wrapper {
+    distributionType = Wrapper.DistributionType.ALL
 }
