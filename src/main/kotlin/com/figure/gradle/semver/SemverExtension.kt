@@ -151,12 +151,12 @@ abstract class SemverExtension @Inject constructor(objects: ObjectFactory, priva
 
             git.hasBranch(GitRef.Branch.DEVELOP.name).isNotEmpty() -> {
                 log.semverInfo("Enabling Git Flow mode")
-                initialConfig.withBranchMatchingConfig(flowVersionCalculatorStrategy { nextPatch() })
+                initialConfig.withBranchMatchingConfig(flowVersionCalculatorStrategy(versionModifier.get()))
             }
 
             else -> {
                 log.semverInfo("Enabling Flat mode")
-                initialConfig.withBranchMatchingConfig(flatVersionCalculatorStrategy { nextPatch() })
+                initialConfig.withBranchMatchingConfig(flatVersionCalculatorStrategy(versionModifier.get()))
             }
         }
     }
