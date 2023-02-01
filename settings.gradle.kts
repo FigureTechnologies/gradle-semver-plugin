@@ -32,7 +32,7 @@ pluginManagement {
     repositories {
         mavenLocal()
         maven {
-            url = uri("https://nexus.figure.com/repository/mirror")
+            url = uri("https://nexus.figure.com/repository/gradle-plugins")
             credentials {
                 username = System.getenv("NEXUS_USER")
                 password = System.getenv("NEXUS_PASS")
