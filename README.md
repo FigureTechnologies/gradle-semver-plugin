@@ -37,7 +37,7 @@ This calculation is done using:
 - The current branch
 - The branch matching strategy
 
-This calculated semantic version is then available as an output with the extension properties `version` and `versionTagName`.
+This calculated semantic version is then available as an output with the extension properties `semver.version` and `semver.versionTagName`.
 
 ### Glossary
 
@@ -51,10 +51,21 @@ This calculated semantic version is then available as an output with the extensi
 
 ### Plugin Extension Properties
 
+These variables come from the plugin extension, and are only available after the `semver {}` extension is configured.
+
 | Variable                 | Description                                                                                  |
 |--------------------------|----------------------------------------------------------------------------------------------|
 | `version: String`        | The current version, e.g. `1.0.1`                                                            |
 | `versionTagName: String` | The tag name for the current calculated version, i.e. `tagPrefix` + `version`, e.g. `v1.0.1` |
+
+Example:
+```kotlin
+semver {
+    ...
+}
+version = semver.version
+
+```
 
 ### Plugin Tasks
 
