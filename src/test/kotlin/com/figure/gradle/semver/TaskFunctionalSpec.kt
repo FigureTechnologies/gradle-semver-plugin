@@ -8,7 +8,6 @@
 package com.figure.gradle.semver
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.datatest.withData
 import io.kotest.engine.spec.tempdir
 import io.kotest.matchers.string.shouldContain
 import kotlinx.coroutines.Dispatchers
