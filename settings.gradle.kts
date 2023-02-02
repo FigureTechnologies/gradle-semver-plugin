@@ -11,7 +11,7 @@ dependencyResolutionManagement {
 
 pluginManagement {
     repositories {
-//        mavenLocal()
+        mavenLocal()
         gradlePluginPortal()
         maven {
             url = uri("https://nexus.figure.com/repository/figure")
