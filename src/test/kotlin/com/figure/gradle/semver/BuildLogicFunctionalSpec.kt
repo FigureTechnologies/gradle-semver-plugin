@@ -61,7 +61,7 @@ class BuildLogicFunctionalSpec : FunSpec({
 
     context("configuration-cache") {
         withData(
-            "printVersion",
+            "currentSemver",
             "generateVersionFile",
             // sadly, by using the Git class in this task we can't support the configuration-cache, see bottom of class
 //            "createAndPushVersionTag"
@@ -70,6 +70,8 @@ class BuildLogicFunctionalSpec : FunSpec({
             val firstRun = runner
                 .withArguments(task, "--configuration-cache", "--scan")
                 .build()
+
+            print(firstRun.output)
 
             // second one uses the cache
             val secondRun = runner
