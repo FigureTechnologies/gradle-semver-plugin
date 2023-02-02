@@ -9,8 +9,8 @@ package com.figure.gradle.semver
 
 import com.figure.gradle.semver.internal.git.git
 import com.figure.gradle.semver.internal.tasks.CreateAndPushVersionTag
+import com.figure.gradle.semver.internal.tasks.CurrentSemverTask
 import com.figure.gradle.semver.internal.tasks.GenerateVersionFileTask
-import com.figure.gradle.semver.internal.tasks.PrintVersionTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
@@ -21,8 +21,9 @@ class SemverPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val semver = project.extensions.create<SemverExtension>("semver")
 
-        project.tasks.register<PrintVersionTask>("printVersion") {
+        project.tasks.register<CurrentSemverTask>("currentSemver") {
             version.set(semver.version)
+            versionTagName.set(semver.versionTagName)
         }
 
         project.tasks.register<GenerateVersionFileTask>("generateVersionFile") {

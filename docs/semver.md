@@ -1,4 +1,4 @@
-This file is a copy/paste from the old `platform-portal` repo for posterity. It should eventually be reviwed/
+This file is a copy/paste from the old `platform-portal` repo for posterity. It should eventually be reviewed/
 
 ---
 

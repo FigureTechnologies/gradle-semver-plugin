@@ -13,12 +13,16 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
-internal abstract class PrintVersionTask : DefaultTask() {
+internal abstract class CurrentSemverTask : DefaultTask() {
     @get:Input
     internal abstract val version: Property<String>
 
+    @get:Input
+    internal abstract val versionTagName: Property<String>
+
     @TaskAction
-    internal fun printVersion() {
-        logger.semverLifecycle("Semantic version: ${version.get()}")
+    internal fun currentSemver() {
+        logger.semverLifecycle("version: ${version.get()}")
+        logger.semverLifecycle("versionTagName: ${versionTagName.get()}")
     }
 }
