@@ -41,22 +41,22 @@ This calculated semantic version is then available as an output with the extensi
 
 ### Glossary
 
-| Item                           | Definition                                                                             |
-|--------------------------------|----------------------------------------------------------------------------------------|
-| _current branch_               | The branch you are working on.                                                         |
-| _target branch_                | The branch that the current branch targets, often the default branch.                  |
-| _latest version_               | The latest published git tag on the target branch.                                     |
-| _current / calculated version_ | The version that is calculated when it runs. This will be ahead of the latest version. |
+| Item                           | Definition                                                                             | Example            | 
+|--------------------------------|----------------------------------------------------------------------------------------|--------------------|
+| _current branch_               | The branch you are working on.                                                         | `cool-new-feature` |
+| _target branch_                | The branch that the current branch targets, often the default branch.                  | `main`             |
+| _latest version_               | The latest published git tag on the target branch.                                     | `1.0.2`            |
+| _current / calculated version_ | The version that is calculated when it runs. This will be ahead of the latest version. | `1.0.3`            |
 
 
 ### Plugin Extension Properties
 
 These variables come from the plugin extension, and are only available after the `semver {}` extension is configured.
 
-| Variable                 | Description                                                                                  |
-|--------------------------|----------------------------------------------------------------------------------------------|
-| `version: String`        | The current version, e.g. `1.0.1`                                                            |
-| `versionTagName: String` | The tag name for the current calculated version, i.e. `tagPrefix` + `version`, e.g. `v1.0.1` |
+| Variable         | Type     | Description                                                                                  |
+|------------------|----------|----------------------------------------------------------------------------------------------|
+| `version`        | `String` | The current version, e.g. `1.0.1`                                                            |
+| `versionTagName` | `String` | The tag name for the current calculated version, i.e. `tagPrefix` + `version`, e.g. `v1.0.1` |
 
 Example:
 ```kotlin
