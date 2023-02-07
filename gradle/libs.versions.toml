@@ -11,7 +11,7 @@ ktlint-gradle = "11.1.0"
 swiftzer-semver = "1.2.0"
 
 # Plugin versions
-dependency-analysis = "1.18.0"
+dependency-analysis = "1.19.0"
 github-release = "2.4.1"
 gradle-semver-plugin = "1.0.1"
 
