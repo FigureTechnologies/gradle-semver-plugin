@@ -8,6 +8,7 @@ plugins {
 //    signing
     alias(libs.plugins.github.release)
     alias(libs.plugins.kotlin.jvm)
+    // alias(libs.plugins.semver)
     alias(libs.plugins.dependency.analysis)
 
     id("local.figure.publishing") // maven and gradle publishing info - build-logic/publishing
