@@ -41,7 +41,6 @@ jobs:
         run: |
           if [ "$SKIP_PUBLISH" = "true" ]; then
             echo 'SKIPPING publish'
-            run: echo "publishCommand=" >> $GITHUB_OUTPUT
           else
             echo 'publishing!'
             run: echo "publishCommand=publish" >> $GITHUB_OUTPUT
@@ -49,7 +48,6 @@ jobs:
 
           if [ ${{ github.ref }} != 'refs/heads/main' ]; then
             echo 'SKIPPING github release since this is a branch release'
-            run: echo "githubReleaseCommand=" >> $GITHUB_OUTPUT
           else
             echo 'not skipping github release'
             run: echo "githubReleaseCommand=githubRelease" >> $GITHUB_OUTPUT
