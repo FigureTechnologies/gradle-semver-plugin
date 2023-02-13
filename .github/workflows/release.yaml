@@ -19,10 +19,6 @@ on:
         type: boolean
         default: 'false'
 
-env:
-  NEXUS_USER: ${{ secrets.NEXUS_USER }}
-  NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
-
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
@@ -45,18 +41,18 @@ jobs:
         run: |
           if [ "$SKIP_PUBLISH" = "true" ]; then
             echo 'SKIPPING publish'
-            echo '::set-output name=publishCommand::'
+            run: echo "publishCommand=" >> $GITHUB_OUTPUT
           else
-            echo 'not skipping publish'
-            echo '::set-output name=publishCommand::publish'
+            echo 'publishing!'
+            run: echo "publishCommand=publish" >> $GITHUB_OUTPUT
           fi
 
           if [ ${{ github.ref }} != 'refs/heads/main' ]; then
             echo 'SKIPPING github release since this is a branch release'
-            echo '::set-output name=githubReleaseCommand::'
+            run: echo "githubReleaseCommand=" >> $GITHUB_OUTPUT
           else
             echo 'not skipping github release'
-            echo '::set-output name=githubReleaseCommand::githubRelease'
+            run: echo "githubReleaseCommand=githubRelease" >> $GITHUB_OUTPUT
           fi
         env:
           SKIP_PUBLISH: ${{ github.event.inputs.skipPublishing }}
@@ -71,6 +67,4 @@ jobs:
             ${{ steps.build_parameters.outputs.githubReleaseCommand }}
             --stacktrace
         env:
-          NEXUS_PASS: '${{ secrets.NEXUS_PASS }}'
-          NEXUS_USER: '${{ secrets.NEXUS_USER }}'
           GITHUB_TOKEN: '${{ secrets.PAT }}'
