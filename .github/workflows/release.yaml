@@ -25,7 +25,7 @@ env:
 
 jobs:
   build-and-publish:
-    runs-on: [linux, self-hosted]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Set up JDK 11
@@ -48,9 +48,9 @@ jobs:
             echo '::set-output name=publishCommand::'
           else
             echo 'not skipping publish'
-            echo '::set-output name=publishCommand::publish'            
+            echo '::set-output name=publishCommand::publish'
           fi
-          
+
           if [ ${{ github.ref }} != 'refs/heads/main' ]; then
             echo 'SKIPPING github release since this is a branch release'
             echo '::set-output name=githubReleaseCommand::'
