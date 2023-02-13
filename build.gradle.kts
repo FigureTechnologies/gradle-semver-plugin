@@ -71,14 +71,13 @@ configurations.all {
 }
 
 kotlin {
+    // Configures Java toolchain both for Kotlin JVM and Java tasks
+    jvmToolchain(11)
     target {
         compilations.all {
             kotlinOptions {
                 freeCompilerArgs =
                     freeCompilerArgs + listOf("-version", "-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
-                jvmTarget = "11"
-                languageVersion = "1.8"
-                apiVersion = "1.8"
                 verbose = true
             }
         }
@@ -88,11 +87,6 @@ kotlin {
 java {
     withSourcesJar()
     withJavadocJar()
-}
-
-tasks.withType<JavaCompile>().configureEach {
-    sourceCompatibility = JavaVersion.VERSION_11.toString()
-    targetCompatibility = sourceCompatibility
 }
 
 tasks.withType<Test>().configureEach {
@@ -153,3 +147,6 @@ tasks.named("assemble") {
 tasks.wrapper {
     distributionType = Wrapper.DistributionType.ALL
 }
+
+logger.lifecycle("JDK toolchain version: ${java.toolchain.languageVersion.get()}")
+logger.lifecycle("Kotlin version: ${extensions.findByType<org.jetbrains.kotlin.gradle.dsl.KotlinTopLevelExtension>()?.coreLibrariesVersion}")
