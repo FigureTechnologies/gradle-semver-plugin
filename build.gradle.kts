@@ -78,8 +78,6 @@ kotlin {
             kotlinOptions {
                 freeCompilerArgs =
                     freeCompilerArgs + listOf("-version", "-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
-                // languageVersion = "1.8"
-                // apiVersion = "1.8"
                 verbose = true
             }
         }
