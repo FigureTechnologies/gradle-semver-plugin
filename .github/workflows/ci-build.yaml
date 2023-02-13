@@ -9,10 +9,6 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  NEXUS_USER: ${{ secrets.NEXUS_USER }}
-  NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
-
 jobs:
   build:
     runs-on: ubuntu-latest
