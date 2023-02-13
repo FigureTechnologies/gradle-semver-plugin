@@ -107,7 +107,7 @@ tasks.withType<Test>().configureEach {
 }
 
 // project version, also used for publishing
-version = 1.1.0
+version = "1.1.0"
 // version = semver.version
 
 val githubTokenValue = findProperty("githubToken")?.toString() ?: System.getenv("GITHUB_TOKEN")
@@ -116,7 +116,8 @@ githubRelease {
     token(githubTokenValue)
     owner("FigureTechnologies")
     repo("gradle-semver-plugin")
-    tagName(semver.versionTagName)
+    // tagName(semver.versionTagName)
+    tagName("v1.1.0")
     targetCommitish("main")
     body("")
     generateReleaseNotes(true)
