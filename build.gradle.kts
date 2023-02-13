@@ -70,7 +70,6 @@ configurations.all {
     }
 }
 
-
 kotlin {
     // Configures Java toolchain both for Kotlin JVM and Java tasks
     jvmToolchain(17)
