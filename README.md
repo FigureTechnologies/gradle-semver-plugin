@@ -48,7 +48,6 @@ This calculated semantic version is then available as an output with the extensi
 | _latest version_               | The latest published git tag on the target branch.                                     | `1.0.2`   |
 | _current / calculated version_ | The version that is calculated when it runs. This will be ahead of the latest version. | `1.0.3`   |
 
-
 ### Plugin Extension Properties
 
 These variables come from the plugin extension, and are only available after the `semver {}` extension is configured.
