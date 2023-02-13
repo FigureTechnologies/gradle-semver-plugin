@@ -8,7 +8,7 @@ plugins {
 //    signing
     alias(libs.plugins.github.release)
     alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.semver)
+    // alias(libs.plugins.semver)
     alias(libs.plugins.dependency.analysis)
 
     id("local.figure.publishing") // maven and gradle publishing info - build-logic/publishing
@@ -18,13 +18,13 @@ plugins {
     id("org.cadixdev.licenser") version "0.6.1"
 }
 
-semver {
-    tagPrefix("v")
-    initialVersion("0.0.1")
-    findProperty("semver.overrideVersion")?.toString()?.let { overrideVersion(it) }
-    findProperty("semver.modifier")?.toString()
-        ?.let { versionModifier(buildVersionModifier(it)) } // this is only used for non user defined strategies, ie predefined Flow or Flat
-}
+// semver {
+//     tagPrefix("v")
+//     initialVersion("0.0.1")
+//     findProperty("semver.overrideVersion")?.toString()?.let { overrideVersion(it) }
+//     findProperty("semver.modifier")?.toString()
+//         ?.let { versionModifier(buildVersionModifier(it)) } // this is only used for non user defined strategies, ie predefined Flow or Flat
+// }
 
 configurations.all {
     resolutionStrategy {
@@ -107,7 +107,8 @@ tasks.withType<Test>().configureEach {
 }
 
 // project version, also used for publishing
-version = semver.version
+version = 1.1.0
+// version = semver.version
 
 val githubTokenValue = findProperty("githubToken")?.toString() ?: System.getenv("GITHUB_TOKEN")
 
