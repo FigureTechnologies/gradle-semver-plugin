@@ -15,7 +15,7 @@ env:
 
 jobs:
   build:
-    runs-on: [linux, self-hosted]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Set up JDK 11
