@@ -44,7 +44,7 @@ dependencies {
     listOf(
         gradleApi(),
         gradleKotlinDsl(),
-        libs.eclipse.jgit.eclipseJgit,
+        libs.eclipse.jgit.eclipseJgit
     ).forEach {
         implementation(it)
     }
