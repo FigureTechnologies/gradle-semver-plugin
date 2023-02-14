@@ -55,6 +55,13 @@ jobs:
         env:
           SKIP_PUBLISH: ${{ github.event.inputs.skipPublishing }}
 
+      - name: Install gpg secret key
+        run: |
+          export GPG_TTY=$(tty)
+          echo -n "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | base64 --decode | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+          echo -n "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | base64 --decode > $GITHUB_WORKSPACE/release.gpg
+
       - name: Build and Release Main
         uses: gradle/gradle-build-action@v2
         with:
@@ -65,9 +72,9 @@ jobs:
             ${{ steps.build_parameters.outputs.githubReleaseCommand }}
             -Psigning.keyId="${{ secrets.OSSRH_GPG_SECRET_KEY_ID }}"
             -Psigning.password="${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}"
-            -Psigning.secretKeyRingFile="${{ secrets.OSSRH_GPG_SECRET_KEY }}"
+            -Psigning.secretKeyRingFile="$GITHUB_WORKSPACE/release.gpg"
             -Pgradle.publish.key="${{ secrets.OSS_GRADLE_PUBLISH_KEY }}"
-            -Pgradle.publish.secret="${{ secrets.OSS_GRADLE_PUBLISH_KEY }}"
+            -Pgradle.publish.secret="${{ secrets.OSS_GRADLE_PUBLISH_SECRET }}"
             --stacktrace
         env:
           GITHUB_TOKEN: '${{ secrets.PAT }}'
