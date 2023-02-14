@@ -44,7 +44,7 @@ dependencies {
     listOf(
         gradleApi(),
         gradleKotlinDsl(),
-        libs.eclipse.jgit.eclipseJgit
+        libs.eclipse.jgit.eclipseJgit,
     ).forEach {
         implementation(it)
     }
@@ -121,6 +121,10 @@ githubRelease {
     dryRun(false)
     apiEndpoint("https://api.github.com")
     client
+}
+
+ktlint {
+    disabledRules.set(setOf("trailing-comma-on-declaration-site", "trailing-comma-on-call-site"))
 }
 
 license {
