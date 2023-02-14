@@ -22,7 +22,7 @@ import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
 import net.swiftzer.semver.SemVer
 
-class CalculateVersionSpec : WordSpec({
+class VersionCalculatorSpec : WordSpec({
     fun calculateBranchVersion(
         currentBranch: GitRef.Branch,
         branchVersions: Map<GitRef.Branch, SemVer>,

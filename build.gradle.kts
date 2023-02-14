@@ -123,6 +123,10 @@ githubRelease {
     client
 }
 
+ktlint {
+    disabledRules.set(setOf("trailing-comma-on-declaration-site", "trailing-comma-on-call-site"))
+}
+
 license {
     header(project.file("HEADER.txt"))
 
