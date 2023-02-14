@@ -63,6 +63,11 @@ jobs:
             -Psemver.modifier=${{ github.event.inputs.versionModifier }}
             clean build ${{ steps.build_parameters.outputs.publishCommand }}
             ${{ steps.build_parameters.outputs.githubReleaseCommand }}
+            -Psigning.keyId="${{ secrets.OSSRH_GPG_SECRET_KEY_ID }}"
+            -Psigning.password="${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}"
+            -Psigning.secretKeyRingFile="${{ secrets.OSSRH_GPG_SECRET_KEY }}"
+            -Pgradle.publish.key="${{ secrets.OSS_GRADLE_PUBLISH_KEY }}"
+            -Pgradle.publish.secret="${{ secrets.OSS_GRADLE_PUBLISH_KEY }}"
             --stacktrace
         env:
           GITHUB_TOKEN: '${{ secrets.PAT }}'
