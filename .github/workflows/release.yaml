@@ -43,7 +43,7 @@ jobs:
             echo 'SKIPPING publish'
           else
             echo 'publishing!'
-            echo "publishCommand=publish" >> $GITHUB_OUTPUT
+            echo "publishCommand=publishPlugins" >> $GITHUB_OUTPUT
           fi
 
           if [ ${{ github.ref }} != 'refs/heads/main' ]; then
