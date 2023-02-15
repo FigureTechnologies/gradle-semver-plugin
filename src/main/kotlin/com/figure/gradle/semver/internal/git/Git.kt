@@ -124,7 +124,7 @@ private fun Git.findYoungestTagOnBranchOlderThanTarget(
 ): SemVer? {
     val branchRef = repository.exactRef(branch.refName)
     if (branchRef == null) {
-        log.semverError("Failed to find exact git ref for branch: $branch, aborting...")
+        log.semverError("Failed to find exact git ref for branch: $branch, aborting build. Check that the full git history is available.")
     } else {
         log.semverInfo("Pulling log for $branch refName, exactRef: $branchRef, target: $target")
     }
@@ -195,7 +195,7 @@ private fun Git.findYoungestTagCommitOnBranch(
 ): RevCommit? {
     val branchRef = repository.exactRef(branch.refName)
     if (branchRef == null) {
-        log.semverError("Failed to find exact git ref for branch [$branch], aborting...")
+        log.semverError("Failed to find exact git ref for branch: $branch, aborting build. Check that the full git history is available.")
     } else {
         log.semverInfo("Pulling log for $branch refName, exactRef: $branchRef")
     }
