@@ -18,6 +18,7 @@ inner class ProjectInfo {
     val tags = listOf("semver", "git semver", "versioning")
     val website = "https://github.com/FigureTechnologies/gradle-semver-plugin"
     val vcsUrl = "https://github.com/FigureTechnologies/gradle-semver-plugin.git"
+    val scmUrl = "scm:git:git://github.com/FigureTechnologies/gradle-semver-plugin.git"
 }
 val info = ProjectInfo()
 
@@ -72,8 +73,8 @@ afterEvaluate {
                     }
                 }
                 scm {
-                    connection.set("scm:git:git://github.com/FigureTechnologies/gradle-semver-plugin.git")
-                    developerConnection.set("scm:git:ssh://github.com/FigureTechnologies/gradle-semver-plugin.git")
+                    connection.set(info.scmUrl)
+                    developerConnection.set(info.scmUrl)
                     url.set(info.website)
                 }
             }
