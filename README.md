@@ -12,14 +12,14 @@ It supports multi-module gradle projects, running in CI, and multiple types of g
 
 ## Usage
 
-```kotlin build.gradle.kts
+```kotlin
 plugins {
     id("com.figure.gradle.semver-plugin") version "<latest version>"
 }
 
 // The semver extension must be declared before invoking semver.version
 semver {
-    // All properties are optional, but it's a good idea to declare those that you would want  
+    // All properties are optional, but it's a good idea to declare those that you would want
     // to override with Gradle properties or environment variables, e.g. "overrideVersion" below
     tagPrefix("v")
     initialVersion("0.0.1")
@@ -30,8 +30,23 @@ semver {
 version = semver.version
 ```
 
+If you're using a Gradle Version Catalog, feel free to use these entries:
+
+```
+[versions]
+figure-gradle-semver = "<latest version>"
+
+[plugins]
+gradle-semver = { id = "com.figure.gradle.semver-plugin", version.ref = "figure-gradle-semver" }
+
+plugins {
+    alias(libs.plugins.gradle.semver)
+}
+
+```
+
 ## Overview
-Whenever a gradle task is ran, such as `./gradlew clean build`, the semver plugin will calculate the current semantic version based on git history. 
+Whenever a gradle task is ran, such as `./gradlew clean build`, the semver plugin will calculate the current semantic version based on git history.
 This calculation is done using:
 - The version of the target branch
 - The current branch
@@ -41,7 +56,7 @@ This calculated semantic version is then available as an output with the extensi
 
 ### Glossary
 
-| Item                           | Definition                                                                             | Example   | 
+| Item                           | Definition                                                                             | Example   |
 |--------------------------------|----------------------------------------------------------------------------------------|-----------|
 | _current branch_               | The branch you are working on.                                                         | `fix-bug` |
 | _target branch_                | The branch that the current branch targets, often the default branch.                  | `main`    |
@@ -100,7 +115,7 @@ By default, the `Flow` strategy is selected if a `develop` branch is present, ot
 used.
 
 - `Flat` - Ideal for projects using a single branch strategy with `main`.
-  
+
 | branch | pre release label | target branch | example      |
 |--------|-------------------|---------------|--------------|
 | `main` |                   | main          | 1.2.3        |
@@ -153,7 +168,7 @@ plugins {
 
 // The semver extension must be declared before invoking semver.version
 semver {
-    // All properties are optional, but it's a good idea to declare those that you would want  
+    // All properties are optional, but it's a good idea to declare those that you would want
     // to override with Gradle properties or environment variables, e.g. "overrideVersion" below
     tagPrefix("v")
     initialVersion("0.0.3")
@@ -165,7 +180,7 @@ semver {
 
     // Manually specifying the gitDir location is typically not necessary. However, in cases where you have a composite
     // gradle build, it will become necessary to define where your .git directory is in correlation to your composite
-    // build. In the following example, you may have a build at `parent/child`. `child` specifies that the parent 
+    // build. In the following example, you may have a build at `parent/child`. `child` specifies that the parent
     // directory to its projectDir should contain the `.git` directory.
     gitDir("${rootProject.projectDir.parent}/.git")
 }
@@ -177,7 +192,7 @@ Using a custom Strategy:
 
 ```kotlin
 semver {
-    // All properties are optional, but it's a good idea to declare those that you would want  
+    // All properties are optional, but it's a good idea to declare those that you would want
     // to override with Gradle properties or environment variables, e.g. "overrideVersion" below
     tagPrefix("v")
     initialVersion("0.0.3")
