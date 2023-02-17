@@ -32,13 +32,15 @@ version = semver.version
 
 If you're using a Gradle Version Catalog, feel free to use these entries:
 
-```
+```toml
 [versions]
 figure-gradle-semver = "<latest version>"
 
 [plugins]
 gradle-semver = { id = "com.figure.gradle.semver-plugin", version.ref = "figure-gradle-semver" }
+```
 
+```kotlin
 plugins {
     alias(libs.plugins.gradle.semver)
 }
