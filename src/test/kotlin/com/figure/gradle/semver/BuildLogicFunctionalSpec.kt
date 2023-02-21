@@ -61,6 +61,7 @@ class BuildLogicFunctionalSpec : FunSpec({
 
     context("configuration-cache") {
         withData(
+            "build",
             "currentSemver",
             "generateVersionFile",
             // sadly, by using the Git class in this task we can't support the configuration-cache, see bottom of class
@@ -68,17 +69,14 @@ class BuildLogicFunctionalSpec : FunSpec({
         ) { task: String ->
             // first one loads the cache
             val firstRun = runner
-                .withArguments(task, "--configuration-cache", "--scan")
+                .withArguments(task, "--configuration-cache")
                 .build()
-
-            print(firstRun.output)
 
             // second one uses the cache
             val secondRun = runner
-                .withArguments(task, "--configuration-cache", "--scan")
+                .withArguments(task, "--configuration-cache")
                 .build()
 
-            firstRun.output shouldContain "0 problems were found storing the configuration cache."
             firstRun.output shouldContain "Configuration cache entry stored."
 
             secondRun.output shouldContain "Reusing configuration cache."

@@ -7,23 +7,19 @@
 
 package com.figure.gradle.semver.internal.tasks
 
-import com.figure.gradle.semver.internal.semverDebug
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.PathSensitive
-import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import org.gradle.work.DisableCachingByDefault
-import java.io.File
 
-@DisableCachingByDefault(because = "Not worth caching")
+@CacheableTask
 internal abstract class GenerateVersionFileTask : DefaultTask() {
 
-    @get:InputDirectory
-    @get:PathSensitive(PathSensitivity.ABSOLUTE)
-    internal abstract val buildDir: Property<File>
+    @get:OutputFile
+    abstract val destination: RegularFileProperty
 
     @get:Input
     internal abstract val version: Property<String>
@@ -33,9 +29,9 @@ internal abstract class GenerateVersionFileTask : DefaultTask() {
 
     @TaskAction
     internal fun generateVersionFile() {
-        val filePath = "${buildDir.get()}/semver/version.txt"
-        logger.semverDebug("Generating version file at $filePath")
-        File(filePath).apply {
+        val file = destination.get().asFile
+
+        file.apply {
             parentFile.mkdirs()
             createNewFile()
             writeText(
