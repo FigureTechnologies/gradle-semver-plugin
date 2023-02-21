@@ -2,11 +2,11 @@
 
 plugins {
     id("com.gradle.plugin-publish") // java-gradle-plugin and maven-publish included
-    signing
+    // signing
 }
 
 tasks.withType<Sign>().configureEach {
-    notCompatibleWithConfigurationCache("Currently incompatible")
+    notCompatibleWithConfigurationCache("https://github.com/gradle/gradle/issues/13470")
 }
 
 /*

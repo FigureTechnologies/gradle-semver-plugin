@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.semver)
     alias(libs.plugins.dependency.analysis)
 
-    id("local.figure.publishing") // maven and gradle publishing info - build-logic/publishing
+    id("local.publishing") // maven and gradle publishing info - build-logic/publishing
     id("local.analysis-conventions")
 
     // https://github.com/CadixDev/licenser

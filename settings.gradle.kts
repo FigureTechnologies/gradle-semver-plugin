@@ -1,6 +1,10 @@
+import org.gradle.api.internal.FeaturePreviews.Feature.STABLE_CONFIGURATION_CACHE
+import org.gradle.api.internal.FeaturePreviews.Feature.TYPESAFE_PROJECT_ACCESSORS
+
 rootProject.name = "semver-plugin"
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+enableFeaturePreview(STABLE_CONFIGURATION_CACHE.name)
+enableFeaturePreview(TYPESAFE_PROJECT_ACCESSORS.name)
 
 dependencyResolutionManagement {
     repositories {
