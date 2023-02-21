@@ -1,7 +1,5 @@
-import org.cadixdev.gradle.licenser.tasks.LicenseUpdate
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
-import java.util.Calendar
 import org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION as KOTLIN_VERSION
 
 @Suppress("DSL_SCOPE_VIOLATION")
@@ -13,9 +11,7 @@ plugins {
 
     id("local.publishing") // maven and gradle publishing info - build-logic/publishing
     id("local.analysis-conventions")
-
-    // https://github.com/CadixDev/licenser
-    id("org.cadixdev.licenser") version "0.6.1"
+     id("local.licenser")
 }
 
 semver {
@@ -125,33 +121,8 @@ ktlint {
     disabledRules.set(setOf("trailing-comma-on-declaration-site", "trailing-comma-on-call-site"))
 }
 
-license {
-    header(project.file("HEADER.txt"))
-
-    // use /** for kotlin files
-    style.put("kt", "JAVADOC")
-
-    // This is kinda weird in kotlin but the plugin is groovy so it works
-    properties {
-        this.set("year", Calendar.getInstance().get(Calendar.YEAR))
-        this.set("company", "Figure Technologies")
-    }
-
-    include("**/*.kt") // Apply license header ONLY to kotlin files
-}
-
-// Ensure licenses are updated when the app is assembled
-// This needs to happen early in the gradle lifecycle or else the checkLicenses task fails
-tasks.named("assemble") {
-    dependsOn("updateLicenses")
-}
-
 tasks.wrapper {
     distributionType = Wrapper.DistributionType.ALL
-}
-
-tasks.withType<LicenseUpdate>().configureEach {
-    notCompatibleWithConfigurationCache("Does not work")
 }
 
 logger.lifecycle("JDK toolchain version: ${java.toolchain.languageVersion.get()}")

@@ -11,6 +11,7 @@ dependencies {
         libs.gradle.plugin.publish,
         libs.ktlint,
         libs.detekt,
+        libs.licenser,
     ).forEach {
         implementation(it)
     }
