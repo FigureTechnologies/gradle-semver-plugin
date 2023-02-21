@@ -1,8 +1,10 @@
-//import org.gradle.kotlin.dsl.`java-gradle-plugin`
-
 plugins {
     id("com.gradle.plugin-publish") // java-gradle-plugin and maven-publish included
     // signing
+}
+
+tasks.withType<Sign>().configureEach {
+    notCompatibleWithConfigurationCache("https://github.com/gradle/gradle/issues/13470")
 }
 
 tasks.withType<Sign>().configureEach {
