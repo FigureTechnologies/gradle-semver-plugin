@@ -1,6 +1,5 @@
-import java.util.Calendar
 import org.cadixdev.gradle.licenser.tasks.LicenseUpdate
-
+import java.util.Calendar
 
 plugins {
     // https://github.com/CadixDev/licenser
