@@ -10,11 +10,13 @@ package com.figure.gradle.semver.internal.tasks
 import com.figure.gradle.semver.internal.semverDebug
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.TaskAction
 import java.io.File
 
+@CacheableTask
 internal abstract class GenerateVersionFileTask : DefaultTask() {
     @get:InputDirectory
     internal abstract val buildDir: Property<File>
