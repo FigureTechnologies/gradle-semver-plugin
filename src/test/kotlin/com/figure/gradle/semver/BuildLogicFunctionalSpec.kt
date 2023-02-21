@@ -61,6 +61,7 @@ class BuildLogicFunctionalSpec : FunSpec({
 
     context("configuration-cache") {
         withData(
+            "build",
             "currentSemver",
             "generateVersionFile",
             // sadly, by using the Git class in this task we can't support the configuration-cache, see bottom of class
