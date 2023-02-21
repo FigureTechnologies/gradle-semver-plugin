@@ -5,6 +5,10 @@ plugins {
     signing
 }
 
+tasks.withType<Sign>().configureEach {
+    notCompatibleWithConfigurationCache("Currently incompatible")
+}
+
 /*
  * Project information
  */

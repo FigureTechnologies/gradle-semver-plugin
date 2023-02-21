@@ -1,3 +1,4 @@
+import org.cadixdev.gradle.licenser.tasks.LicenseUpdate
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import java.util.Calendar
@@ -147,6 +148,10 @@ tasks.named("assemble") {
 
 tasks.wrapper {
     distributionType = Wrapper.DistributionType.ALL
+}
+
+tasks.withType<LicenseUpdate>().configureEach {
+    notCompatibleWithConfigurationCache("Does not work")
 }
 
 logger.lifecycle("JDK toolchain version: ${java.toolchain.languageVersion.get()}")
