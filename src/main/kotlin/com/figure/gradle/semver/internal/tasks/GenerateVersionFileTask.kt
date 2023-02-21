@@ -20,6 +20,7 @@ import java.io.File
 
 @DisableCachingByDefault(because = "Not worth caching")
 internal abstract class GenerateVersionFileTask : DefaultTask() {
+
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.ABSOLUTE)
     internal abstract val buildDir: Property<File>
