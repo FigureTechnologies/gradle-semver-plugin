@@ -12,7 +12,9 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 
+@DisableCachingByDefault(because = "Not worth caching")
 internal abstract class CurrentSemverTask : DefaultTask() {
     @get:Input
     internal abstract val version: Property<String>
