@@ -15,6 +15,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.register
+import java.io.File
 import java.nio.file.Files
 
 class SemverPlugin : Plugin<Project> {
@@ -32,7 +33,9 @@ class SemverPlugin : Plugin<Project> {
                 Files.createDirectory(project.buildDir.toPath())
             }
 
-            buildDir.set(project.buildDir)
+            val versionFile = File("${project.buildDir}/semver/version.txt")
+
+            destination.fileValue(versionFile)
             version.set(semver.version)
             versionTagName.set(semver.versionTagName)
         }

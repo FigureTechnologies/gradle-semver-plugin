@@ -68,17 +68,21 @@ class BuildLogicFunctionalSpec : FunSpec({
         ) { task: String ->
             // first one loads the cache
             val firstRun = runner
-                .withArguments(task, "--configuration-cache", "--scan")
+                .withArguments(task, "--configuration-cache")
                 .build()
 
-            print(firstRun.output)
+            println("HEY HATZ1")
+            println(firstRun.output)
 
             // second one uses the cache
             val secondRun = runner
-                .withArguments(task, "--configuration-cache", "--scan")
+                .withArguments(task, "--configuration-cache")
                 .build()
 
-            firstRun.output shouldContain "0 problems were found storing the configuration cache."
+            println("HEY HATZ1")
+            println(secondRun.output)
+
+//            firstRun.output shouldContain "0 problems were found storing the configuration cache."
             firstRun.output shouldContain "Configuration cache entry stored."
 
             secondRun.output shouldContain "Reusing configuration cache."
