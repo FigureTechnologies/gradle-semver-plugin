@@ -11,7 +11,7 @@ plugins {
 
     id("local.publishing") // maven and gradle publishing info - build-logic/publishing
     id("local.analysis-conventions")
-     id("local.licenser")
+    id("local.licenser")
 }
 
 semver {
