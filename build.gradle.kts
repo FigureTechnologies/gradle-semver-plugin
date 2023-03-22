@@ -73,12 +73,6 @@ kotlin {
 }
 
 tasks.withType<KotlinCompile>().configureEach {
-    kotlinDaemonJvmArguments.addAll(
-        "--add-opens=java.base/sun.nio.fs=ALL-UNNAMED",
-        "--add-opens=java.base/java.time=ALL-UNNAMED",
-        "--add-opens=java.base/java.util.concurrent.locks=ALL-UNNAMED",
-    )
-
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_11)
         freeCompilerArgs.addAll(

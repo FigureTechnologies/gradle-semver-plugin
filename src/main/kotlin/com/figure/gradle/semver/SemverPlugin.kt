@@ -41,6 +41,8 @@ class SemverPlugin : Plugin<Project> {
             versionTagName.set(semver.versionTagName)
         }
 
+        // Just run this task. This avoids a whole headache with configuration caching.
+        // This task should never be cached so there is no reason to involve caching mechanisms
         project.tasks.register<DefaultTask>("createAndPushVersionTag") {
             val git = project.git(semver.gitDir.get())
             git.tag().setName(semver.versionTagName).call()
