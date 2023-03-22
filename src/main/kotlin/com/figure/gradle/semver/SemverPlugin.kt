@@ -8,6 +8,7 @@
 package com.figure.gradle.semver
 
 import com.figure.gradle.semver.internal.git.git
+import com.figure.gradle.semver.internal.semverLifecycle
 import com.figure.gradle.semver.internal.tasks.CreateAndPushVersionTag
 import com.figure.gradle.semver.internal.tasks.CurrentSemverTask
 import com.figure.gradle.semver.internal.tasks.GenerateVersionFileTask
@@ -40,8 +41,14 @@ class SemverPlugin : Plugin<Project> {
             versionTagName.set(semver.versionTagName)
         }
 
+        project.tasks.register("cpv") {
+            val git = project.git(semver.gitDir.get())
+            git.tag().setName(semver.versionTagName).call()
+            git.push().setPushTags().call()
+//            logger.semverLifecycle("Created and pushed version tag: ${versionTagName.get()}")
+        }
+
         project.tasks.register<CreateAndPushVersionTag>("createAndPushVersionTag") {
-            jvmArgs("--add-opens", "java.base/sun.nio.fs=ALL-UNNAMED")
             outputs.cacheIf { false }
             versionTagName.set(semver.versionTagName)
             git.set(project.git(semver.gitDir.get()))
