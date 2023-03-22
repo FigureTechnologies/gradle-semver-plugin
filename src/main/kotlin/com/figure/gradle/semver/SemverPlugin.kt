@@ -8,9 +8,10 @@
 package com.figure.gradle.semver
 
 import com.figure.gradle.semver.internal.git.git
-import com.figure.gradle.semver.internal.tasks.CreateAndPushVersionTag
+import com.figure.gradle.semver.internal.semverLifecycle
 import com.figure.gradle.semver.internal.tasks.CurrentSemverTask
 import com.figure.gradle.semver.internal.tasks.GenerateVersionFileTask
+import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
@@ -40,17 +41,11 @@ class SemverPlugin : Plugin<Project> {
             versionTagName.set(semver.versionTagName)
         }
 
-        project.tasks.register("cpv") {
+        project.tasks.register<DefaultTask>("createAndPushVersionTag") {
             val git = project.git(semver.gitDir.get())
             git.tag().setName(semver.versionTagName).call()
             git.push().setPushTags().call()
-//            logger.semverLifecycle("Created and pushed version tag: ${versionTagName.get()}")
-        }
-
-        project.tasks.register<CreateAndPushVersionTag>("createAndPushVersionTag") {
-            outputs.cacheIf { false }
-            versionTagName.set(semver.versionTagName)
-            git.set(project.git(semver.gitDir.get()))
+            logger.semverLifecycle("Created and pushed version tag: ${semver.versionTagName}")
         }
     }
 }
