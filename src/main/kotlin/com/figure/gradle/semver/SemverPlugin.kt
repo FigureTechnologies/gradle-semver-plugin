@@ -8,7 +8,6 @@
 package com.figure.gradle.semver
 
 import com.figure.gradle.semver.internal.git.git
-import com.figure.gradle.semver.internal.semverLifecycle
 import com.figure.gradle.semver.internal.tasks.CreateAndPushVersionTag
 import com.figure.gradle.semver.internal.tasks.CurrentSemverTask
 import com.figure.gradle.semver.internal.tasks.GenerateVersionFileTask
