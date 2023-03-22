@@ -9,14 +9,14 @@ package com.figure.gradle.semver.internal.tasks
 
 import com.figure.gradle.semver.internal.semverLifecycle
 import org.eclipse.jgit.api.Git
-import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 @DisableCachingByDefault(because = "Not worth caching, and Git library is incompatible")
-internal abstract class CreateAndPushVersionTag : DefaultTask() {
+internal abstract class CreateAndPushVersionTag : JavaExec() {
     @get:Input
     internal abstract val versionTagName: Property<String>
 

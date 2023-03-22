@@ -41,6 +41,7 @@ class SemverPlugin : Plugin<Project> {
         }
 
         project.tasks.register<CreateAndPushVersionTag>("createAndPushVersionTag") {
+            jvmArgs("--add-opens", "java.base/sun.nio.fs=ALL-UNNAMED")
             outputs.cacheIf { false }
             versionTagName.set(semver.versionTagName)
             git.set(project.git(semver.gitDir.get()))
