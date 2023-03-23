@@ -1,5 +1,7 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.config.KotlinCompilerVersion.VERSION as KOTLIN_VERSION
 
 @Suppress("DSL_SCOPE_VIOLATION")
@@ -67,16 +69,18 @@ configurations.all {
 }
 
 kotlin {
-    // Configures Java toolchain both for Kotlin JVM and Java tasks
     jvmToolchain(11)
-    target {
-        compilations.all {
-            kotlinOptions {
-                freeCompilerArgs =
-                    freeCompilerArgs + listOf("-version", "-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
-                verbose = true
-            }
-        }
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_11)
+        freeCompilerArgs.addAll(
+            "-version",
+            "-Xjsr305=strict",
+            "-opt-in=kotlin.RequiresOptIn"
+        )
+        verbose.set(true)
     }
 }
 
