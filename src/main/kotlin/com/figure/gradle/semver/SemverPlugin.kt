@@ -11,12 +11,12 @@ import com.figure.gradle.semver.internal.git.git
 import com.figure.gradle.semver.internal.tasks.CreateAndPushVersionTagTask
 import com.figure.gradle.semver.internal.tasks.CurrentSemverTask
 import com.figure.gradle.semver.internal.tasks.GenerateVersionFileTask
-import java.io.File
-import java.nio.file.Files
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.register
+import java.io.File
+import java.nio.file.Files
 
 class SemverPlugin : Plugin<Project> {
     override fun apply(project: Project) {
