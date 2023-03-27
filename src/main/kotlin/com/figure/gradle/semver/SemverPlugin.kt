@@ -43,24 +43,5 @@ class SemverPlugin : Plugin<Project> {
             this.versionTagName.set(semver.versionTagName)
             this.gitDir.set(project.file(semver.gitDir.get()))
         }
-
-        // project.tasks.create()
-        //
-        // project.tasks.named<CreateAndPushVersionTagTask>("createAndPushVersionTag") {
-        // }
-
-        // project.tasks.register<DefaultTask>("createAndPushVersionTag") {
-        //     notCompatibleWithConfigurationCache("No reason to cache")
-        //     doNotTrackState("No reason to cache")
-        //     outputs.upToDateWhen { false }
-        //     doLast {
-        //         val git = project.git(semver.gitDir.get())
-        //         val versionTagName = semver.versionTagName
-        //
-        //         git.tag().setName(versionTagName).call()
-        //         git.push().setPushTags().call()
-        //         logger.semverLifecycle("Created and pushed version tag: $versionTagName")
-        //     }
-        // }
     }
 }
