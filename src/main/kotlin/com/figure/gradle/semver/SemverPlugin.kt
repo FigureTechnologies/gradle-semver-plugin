@@ -8,10 +8,9 @@
 package com.figure.gradle.semver
 
 import com.figure.gradle.semver.internal.git.git
-import com.figure.gradle.semver.internal.semverLifecycle
+import com.figure.gradle.semver.internal.tasks.CreateAndPushVersionTagTask
 import com.figure.gradle.semver.internal.tasks.CurrentSemverTask
 import com.figure.gradle.semver.internal.tasks.GenerateVersionFileTask
-import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
@@ -41,24 +40,27 @@ class SemverPlugin : Plugin<Project> {
             versionTagName.set(semver.versionTagName)
         }
 
-        // project.tasks.register<CreateAndPushVersionTagTask>(
-        //     "createAndPushVersionTag",
-        //     semver.versionTagName,
-        //     project.git(semver.gitDir.get()),
-        // )
-
-        project.tasks.register<DefaultTask>("createAndPushVersionTag") {
+        project.tasks.register<CreateAndPushVersionTagTask>("createAndPushVersionTag") {
             notCompatibleWithConfigurationCache("No reason to cache")
             doNotTrackState("No reason to cache")
-            outputs.upToDateWhen { false }
-            doLast {
-                val git = project.git(semver.gitDir.get())
-                val versionTagName = semver.versionTagName
+            outputs.upToDateWhen { false } // don't cache anything
 
-                git.tag().setName(versionTagName).call()
-                git.push().setPushTags().call()
-                logger.semverLifecycle("Created and pushed version tag: $versionTagName")
-            }
+            this.versionTagName.set(semver.versionTagName)
+            this.git.set(project.git(semver.gitDir.get()))
         }
+
+        // project.tasks.register<DefaultTask>("createAndPushVersionTag") {
+        //     notCompatibleWithConfigurationCache("No reason to cache")
+        //     doNotTrackState("No reason to cache")
+        //     outputs.upToDateWhen { false }
+        //     doLast {
+        //         val git = project.git(semver.gitDir.get())
+        //         val versionTagName = semver.versionTagName
+        //
+        //         git.tag().setName(versionTagName).call()
+        //         git.push().setPushTags().call()
+        //         logger.semverLifecycle("Created and pushed version tag: $versionTagName")
+        //     }
+        // }
     }
 }
