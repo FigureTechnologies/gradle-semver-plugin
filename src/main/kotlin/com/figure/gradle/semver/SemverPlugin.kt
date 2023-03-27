@@ -9,12 +9,12 @@ package com.figure.gradle.semver
 
 import com.figure.gradle.semver.internal.git.git
 import com.figure.gradle.semver.internal.tasks.CreateAndPushVersionTagTask
+import com.figure.gradle.semver.internal.tasks.CreateAndPushVersionTagTaskV2
 import com.figure.gradle.semver.internal.tasks.CurrentSemverTask
 import com.figure.gradle.semver.internal.tasks.GenerateVersionFileTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
-import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
 import java.io.File
 import java.nio.file.Files
@@ -44,12 +44,19 @@ class SemverPlugin : Plugin<Project> {
         project.tasks.register<CreateAndPushVersionTagTask>("createAndPushVersionTag") {
             this.versionTagName.set(semver.versionTagName)
             this.git.set(project.git(semver.gitDir.get()))
+            notCompatibleWithConfigurationCache("Just don't do it")
         }
 
-        project.tasks.named<CreateAndPushVersionTagTask>("createAndPushVersionTag") {
-            doNotTrackState("No reason to cache")
-            outputs.upToDateWhen { false } // don't cache anything
+        project.tasks.register<CreateAndPushVersionTagTaskV2>("cpv2") {
+            this.versionTagName.set(semver.versionTagName)
+            this.gitDir.set(project.file(semver.gitDir.get()))
+            notCompatibleWithConfigurationCache("Just don't do it")
         }
+
+        // project.tasks.create()
+        //
+        // project.tasks.named<CreateAndPushVersionTagTask>("createAndPushVersionTag") {
+        // }
 
         // project.tasks.register<DefaultTask>("createAndPushVersionTag") {
         //     notCompatibleWithConfigurationCache("No reason to cache")
