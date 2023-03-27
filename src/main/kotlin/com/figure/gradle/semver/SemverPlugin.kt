@@ -8,16 +8,15 @@
 package com.figure.gradle.semver
 
 import com.figure.gradle.semver.internal.git.git
-import com.figure.gradle.semver.internal.semverLifecycle
+import com.figure.gradle.semver.internal.tasks.CreateAndPushVersionTagTask
 import com.figure.gradle.semver.internal.tasks.CurrentSemverTask
 import com.figure.gradle.semver.internal.tasks.GenerateVersionFileTask
-import org.gradle.api.DefaultTask
+import java.io.File
+import java.nio.file.Files
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.register
-import java.io.File
-import java.nio.file.Files
 
 class SemverPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -41,13 +40,9 @@ class SemverPlugin : Plugin<Project> {
             versionTagName.set(semver.versionTagName)
         }
 
-        // Just run this task. This avoids a whole headache with configuration caching.
-        // This task should never be cached so there is no reason to involve caching mechanisms
-        project.tasks.register<DefaultTask>("createAndPushVersionTag") {
-            val git = project.git(semver.gitDir.get())
-            git.tag().setName(semver.versionTagName).call()
-            git.push().setPushTags().call()
-            logger.semverLifecycle("Created and pushed version tag: ${semver.versionTagName}")
+        project.tasks.register<CreateAndPushVersionTagTask>("createAndPushVersionTag") {
+            versionTagName.set(semver.versionTagName)
+            git.set(project.git(semver.gitDir.get()))
         }
     }
 }
