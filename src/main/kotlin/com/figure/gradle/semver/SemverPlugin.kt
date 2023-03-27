@@ -48,6 +48,8 @@ class SemverPlugin : Plugin<Project> {
         // )
 
         project.tasks.register<DefaultTask>("createAndPushVersionTag") {
+            doNotTrackState("No reason to cache")
+            outputs.upToDateWhen { false }
             doLast {
                 val git = project.git(semver.gitDir.get())
                 val versionTagName = semver.versionTagName
