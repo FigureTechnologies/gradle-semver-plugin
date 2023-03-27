@@ -50,7 +50,6 @@ class SemverPlugin : Plugin<Project> {
         project.tasks.register<CreateAndPushVersionTagTaskV2>("cpv2") {
             this.versionTagName.set(semver.versionTagName)
             this.gitDir.set(project.file(semver.gitDir.get()))
-            notCompatibleWithConfigurationCache("Just don't do it")
         }
 
         // project.tasks.create()

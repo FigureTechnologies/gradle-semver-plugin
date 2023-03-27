@@ -12,20 +12,13 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.UntrackedTask
-import org.gradle.work.DisableCachingByDefault
 import java.io.File
 
-/**
- * UntrackedTask - TL;DR - will make sure that the task always runs and is always out of date
- */
-@UntrackedTask(
-    because = "Git already takes care of keeping the state. There are issues with using Gradle caching and this task."
-)
-@DisableCachingByDefault
+@CacheableTask
 abstract class CreateAndPushVersionTagTaskV2 : DefaultTask() {
     @get:Input
     abstract val versionTagName: Property<String>
