@@ -15,15 +15,15 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
 @CacheableTask
-internal abstract class CurrentSemverTask : DefaultTask() {
+abstract class CurrentSemverTask : DefaultTask() {
     @get:Input
-    internal abstract val version: Property<String>
+    abstract val version: Property<String>
 
     @get:Input
-    internal abstract val versionTagName: Property<String>
+    abstract val versionTagName: Property<String>
 
     @TaskAction
-    internal fun currentSemver() {
+    fun currentSemver() {
         logger.semverLifecycle("version: ${version.get()}")
         logger.semverLifecycle("versionTagName: ${versionTagName.get()}")
     }

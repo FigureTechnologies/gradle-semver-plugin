@@ -16,19 +16,19 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 @CacheableTask
-internal abstract class GenerateVersionFileTask : DefaultTask() {
+abstract class GenerateVersionFileTask : DefaultTask() {
 
     @get:OutputFile
     abstract val destination: RegularFileProperty
 
     @get:Input
-    internal abstract val version: Property<String>
+    abstract val version: Property<String>
 
     @get:Input
-    internal abstract val versionTagName: Property<String>
+    abstract val versionTagName: Property<String>
 
     @TaskAction
-    internal fun generateVersionFile() {
+    fun generateVersionFile() {
         val file = destination.get().asFile
 
         file.apply {
