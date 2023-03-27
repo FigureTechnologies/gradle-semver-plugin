@@ -48,6 +48,7 @@ class SemverPlugin : Plugin<Project> {
         // )
 
         project.tasks.register<DefaultTask>("createAndPushVersionTag") {
+            notCompatibleWithConfigurationCache("No reason to cache")
             doNotTrackState("No reason to cache")
             outputs.upToDateWhen { false }
             doLast {
