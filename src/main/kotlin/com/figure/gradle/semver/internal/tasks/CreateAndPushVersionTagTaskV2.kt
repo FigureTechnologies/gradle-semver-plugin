@@ -13,7 +13,7 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.UntrackedTask
 import org.gradle.work.DisableCachingByDefault
@@ -30,7 +30,7 @@ abstract class CreateAndPushVersionTagTaskV2 : DefaultTask() {
     @get:Input
     abstract val versionTagName: Property<String>
 
-    @get:InputFile
+    @get:InputDirectory
     abstract val gitDir: Property<File>
 
     @TaskAction
