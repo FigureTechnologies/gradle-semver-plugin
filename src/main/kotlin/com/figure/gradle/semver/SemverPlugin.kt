@@ -14,6 +14,7 @@ import com.figure.gradle.semver.internal.tasks.GenerateVersionFileTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
 import java.io.File
 import java.nio.file.Files
@@ -41,12 +42,14 @@ class SemverPlugin : Plugin<Project> {
         }
 
         project.tasks.register<CreateAndPushVersionTagTask>("createAndPushVersionTag") {
+            this.versionTagName.set(semver.versionTagName)
+            this.git.set(project.git(semver.gitDir.get()))
+        }
+
+        project.tasks.named<CreateAndPushVersionTagTask>("createAndPushVersionTag") {
             notCompatibleWithConfigurationCache("No reason to cache")
             doNotTrackState("No reason to cache")
             outputs.upToDateWhen { false } // don't cache anything
-
-            this.versionTagName.set(semver.versionTagName)
-            this.git.set(project.git(semver.gitDir.get()))
         }
 
         // project.tasks.register<DefaultTask>("createAndPushVersionTag") {
