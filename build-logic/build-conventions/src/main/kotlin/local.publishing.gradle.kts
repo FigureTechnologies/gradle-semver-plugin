@@ -1,6 +1,8 @@
 plugins {
     id("com.gradle.plugin-publish") // java-gradle-plugin and maven-publish included
-    // signing
+    if ("CI" in System.getenv()) {
+        signing
+    }
 }
 
 tasks.withType<Sign>().configureEach {
