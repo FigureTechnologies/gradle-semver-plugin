@@ -40,9 +40,10 @@ class SemverPlugin : Plugin<Project> {
             versionTagName.set(semver.versionTagName)
         }
 
-        project.tasks.register<CreateAndPushVersionTagTask>("createAndPushVersionTag") {
-            versionTagName.set(semver.versionTagName)
-            git.set(project.git(semver.gitDir.get()))
-        }
+        project.tasks.register<CreateAndPushVersionTagTask>(
+            "createAndPushVersionTag",
+            semver.versionTagName,
+            project.git(semver.gitDir.get()),
+        )
     }
 }
