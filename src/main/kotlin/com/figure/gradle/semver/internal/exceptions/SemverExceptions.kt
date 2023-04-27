@@ -20,7 +20,8 @@ internal class MissingBranchMatchingConfigurationException(currentBranch: GitRef
 
 internal class TagAlreadyExistsException(tag: String) :
     Exception(
-        """Tag $tag already exists on remote! Either skip publishing the artifact on the next run or delete 
-        |the existing tag before running again.
-        """.trimMargin()
+        """
+        |Tag $tag already exists on remote! Either skip publishing the artifact on the next run or delete
+        | the existing tag before running again.
+        """.trimMargin().replace("\n", "")
     )

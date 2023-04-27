@@ -30,7 +30,6 @@ class GradleIntegrationTestKitExtension(
     lateinit var localBuildCacheDirectory: File
 
     override suspend fun beforeAny(testCase: TestCase) {
-        // Create new temp project directory
         tempDirectory = createTempDirectory(javaClass.name).toFile()
 
         val updatedBuildFile = buildFile.readText().replace("@kotlin-version@", kotlinVersion.toString())

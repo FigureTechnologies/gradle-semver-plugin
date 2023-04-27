@@ -80,9 +80,9 @@ abstract class SemverExtension @Inject constructor(
         if (overrideVersion.orNull != null) {
             throw IllegalArgumentException(
                 """
-                |Cannot set semver tagPrefix after override version has been set. 
-                |The override version depends on the tagPrefix. Set the tagPrefix first.
-                """.trimMargin()
+                |Cannot set semver tagPrefix after override version has been set.
+                | The override version depends on the tagPrefix. Set the tagPrefix first.
+                """.trimMargin().replace("\n", "")
             )
         }
         this.tagPrefix.set(prefix)

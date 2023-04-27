@@ -34,6 +34,10 @@ import org.gradle.api.provider.ValueSourceParameters
 
 private val log = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 
+/**
+ * In order to utilize the ValueSource, it needs to be wrapped in a Provider so that the value can be fetched
+ * from it later.
+ */
 internal fun ProviderFactory.gitCalculateSemverProvider(
     gitDir: Property<String>,
     tagPrefix: Property<String>,
@@ -54,6 +58,20 @@ internal fun ProviderFactory.gitCalculateSemverProvider(
     }
 }
 
+/**
+ * The logic to calculate the next semantic version needs to be wrapped in a ValueSource since JGit makes external
+ * system calls to the git command line.
+ *
+ * In short, a ValueSource represents an external source of information used by a Gradle build. As of Gradle 8.1,
+ * this semver plugin would not work without this due to the requirements of the configuration cache to not allow
+ * external calls at configuration time.
+ *
+ * The following discussion on the Gradle forums goes into more details about the problem:
+ * https://discuss.gradle.org/t/using-jgit-with-gradle-configuration-cache/45410/1
+ *
+ * For more information on ValueSource, see the documentation about "Running external processes" with configuration
+ * cache enable: https://docs.gradle.org/current/userguide/configuration_cache.html#config_cache:requirements:external_processes
+ */
 internal abstract class GitCalculateSemverValueSource : ValueSource<String, GitCalculateSemverValueSource.Params> {
     interface Params : ValueSourceParameters {
         val gitDir: Property<String>

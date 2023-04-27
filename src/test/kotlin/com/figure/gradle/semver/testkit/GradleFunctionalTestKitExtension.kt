@@ -28,7 +28,6 @@ class GradleFunctionalTestKitExtension(
     lateinit var localBuildCacheDirectory: File
 
     override suspend fun beforeAny(testCase: TestCase) {
-        // Create new temp project directory
         tempDirectory = createTempDirectory(javaClass.name).toFile()
 
         buildFile.copyToDir(tempDirectory, "build.gradle.kts")
