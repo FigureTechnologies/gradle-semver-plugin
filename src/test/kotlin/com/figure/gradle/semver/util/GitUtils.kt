@@ -8,7 +8,9 @@
 package com.figure.gradle.semver.util
 
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.PersonIdent
+import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.transport.URIish
 import java.io.File
 import kotlin.io.path.createTempDirectory
@@ -26,20 +28,24 @@ fun Git.initializeWithCommitsAndTags(directory: File) {
         val author = PersonIdent("Author $i", "author$i@example.com")
         val committer = PersonIdent("Committer $i", "committer$i@example.com")
 
-        val commit = commit().apply {
+        val commit: RevCommit = commit().apply {
             this.author = author
             this.committer = committer
             this.message = "Commit $i"
         }.call()
 
-        val tag = tag().apply {
+        tag().apply {
             this.name = tagName
             this.tagger = tagger
             this.message = tagMessage
             this.objectId = commit
         }.call()
 
-        println("Created tag: ${tag.name}")
+        if (i == 3) {
+            val refUpdate = repository.updateRef(Constants.HEAD)
+            refUpdate.setNewObjectId(commit.id)
+            refUpdate.forceUpdate()
+        }
     }
 
     // create a temporary Git repository to use as the remote repository
