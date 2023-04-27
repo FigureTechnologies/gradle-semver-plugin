@@ -113,6 +113,7 @@ internal fun Git.headRevInBranch(branch: GitRef.Branch): Result<RevCommit> {
             }
         }
     }.getOrElse { ex ->
+        log.semverError("Something failed", ex)
         Result.failure(GitException(ex))
     }
 }
