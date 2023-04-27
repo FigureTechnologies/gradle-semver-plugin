@@ -5,3 +5,5 @@ plugins {
 semver {
     overrideVersion("9.9.9")
 }
+
+version = semver.version
