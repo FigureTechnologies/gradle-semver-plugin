@@ -42,7 +42,7 @@ internal fun ProviderFactory.gitCalculateSemverProvider(
     gitDir: Property<String>,
     tagPrefix: Property<String>,
     initialVersion: String,
-    overrideVersion: String,
+    overrideVersion: String?,
     versionStrategy: ListProperty<BranchMatchingConfiguration>,
     versionModifier: Property<VersionModifier>,
 ): Provider<String> {

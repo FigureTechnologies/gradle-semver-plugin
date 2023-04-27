@@ -21,8 +21,8 @@ import kotlin.io.path.createTempDirectory
 
 class GradleFunctionalTestKitExtension(
     private val runner: GradleRunner,
-    private val buildFile: File = resourceFromPath("functional-test-project/build.gradle.kts"),
-    private val settingsFile: File = resourceFromPath("functional-test-project/settings.gradle.kts"),
+    private val buildFile: File = resourceFromPath("functional/basic-project/build.gradle.kts"),
+    private val settingsFile: File = resourceFromPath("functional/basic-project/settings.gradle.kts"),
 ) : TestListener {
     lateinit var tempDirectory: File
     lateinit var localBuildCacheDirectory: File
