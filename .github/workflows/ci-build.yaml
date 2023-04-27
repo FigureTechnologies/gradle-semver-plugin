@@ -1,4 +1,4 @@
-name: CI Build
+name: Gradle Build
 
 on:
   pull_request:
@@ -6,8 +6,11 @@ on:
       - '**.md'
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: gradle-build-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  GITHUB_TOKEN: ${{ github.token }}
 
 jobs:
   build:
@@ -28,15 +31,14 @@ jobs:
       - name: Build
         uses: gradle/gradle-build-action@v2
         with:
-          build-root-directory: ${{ inputs.source }}
-          cache-read-only: ${{ github.ref != 'refs/heads/develop' }} # only update the cache on the default branch https://github.com/gradle/gradle-build-action#optimizing-cache-effectiveness
-          arguments: |
-            -Psemver.develop.stage=beta
-            clean build
-            --stacktrace
-            --scan
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+          arguments: clean build --parallel --build-cache --stacktrace
+          gradle-home-cache-cleanup: true
+          gradle-home-cache-includes: |
+            caches
+            notifications
+            jdks
+            wrapper
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
