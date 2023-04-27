@@ -14,6 +14,10 @@ typealias VersionCalculatorStrategy = List<BranchMatchingConfiguration>
 typealias VersionModifier = SemVer.() -> SemVer // TODO: Does this need to be a method?
 typealias VersionQualifier = SemverContext.(current: GitRef.Branch) -> Pair<PreReleaseLabel, BuildMetadataLabel>
 
+// TODO: Clean this up for v2.
+//  - The end user shouldn't have to know about the SemVer object.
+//  - VersionQualifier is probably more complicated than necessary.
+//  - Support RC versions properly. Should this be a VersionModifier?
 data class BranchMatchingConfiguration(
     val regex: Regex,
     val targetBranch: GitRef.Branch,

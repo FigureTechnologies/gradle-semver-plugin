@@ -17,3 +17,10 @@ internal class UnexpectedException(message: String) :
 
 internal class MissingBranchMatchingConfigurationException(currentBranch: GitRef.Branch) :
     Exception("Missing branch matching configuration for current branch: ${currentBranch.name}")
+
+internal class TagAlreadyExistsException(tag: String) :
+    Exception(
+        """Tag $tag already exists on remote! Either skip publishing the artifact on the next run or delete 
+        |the existing tag before running again.
+        """.trimMargin()
+    )

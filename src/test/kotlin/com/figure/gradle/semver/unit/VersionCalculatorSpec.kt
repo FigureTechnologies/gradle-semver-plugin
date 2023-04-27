@@ -5,7 +5,7 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver
+package com.figure.gradle.semver.unit
 
 import com.figure.gradle.semver.external.BranchMatchingConfiguration
 import com.figure.gradle.semver.external.BuildMetadataLabel
@@ -317,7 +317,7 @@ private fun getMockContextProviderOperations(
 
     override fun branchVersion(
         currentBranch: GitRef.Branch,
-        targetBranch: GitRef.Branch
+        targetBranch: GitRef.Branch,
     ): Result<SemVer?> {
         return Result.success(
             branchVersion
@@ -330,7 +330,7 @@ private fun getMockContextProviderOperations(
 
     override fun commitsSinceBranchPoint(
         currentBranch: GitRef.Branch,
-        targetBranch: GitRef.Branch
+        targetBranch: GitRef.Branch,
     ): Result<Int> {
         return Result.success(commitsSinceBranchPoint)
     }
@@ -348,19 +348,9 @@ private fun buildPluginConfig(
 
 private fun mockSemVerContext(
     ops: ContextProviderOperations,
-    props: Map<String, Any?> = emptyMap(),
-    env: Map<String, String?> = emptyMap(),
 ): SemverContext {
     return object : SemverContext {
         override val ops: ContextProviderOperations
             get() = ops
-
-        override fun property(name: String): Any? {
-            return props[name]
-        }
-
-        override fun env(name: String): String? {
-            return env[name]
-        }
     }
 }

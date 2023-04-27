@@ -17,13 +17,10 @@ private val log = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 interface SemverContext {
     val ops: ContextProviderOperations
 
-    fun property(name: String): Any?
-    fun env(name: String): String?
-
     fun preReleaseWithCommitCount(
         currentBranch: GitRef.Branch,
         targetBranch: GitRef.Branch,
-        label: String
+        label: String,
     ) = PreReleaseLabel(
         value = ops.commitsSinceBranchPoint(currentBranch, targetBranch).fold(
             onSuccess = {
