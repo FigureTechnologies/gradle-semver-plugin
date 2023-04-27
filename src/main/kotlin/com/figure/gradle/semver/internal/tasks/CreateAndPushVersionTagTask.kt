@@ -7,6 +7,7 @@
 
 package com.figure.gradle.semver.internal.tasks
 
+import com.figure.gradle.semver.internal.exceptions.TagAlreadyExistsException
 import com.figure.gradle.semver.internal.semverLifecycle
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
@@ -38,6 +39,11 @@ abstract class CreateAndPushVersionTagTask : DefaultTask() {
                 .findGitDir()
                 .build()
         )
+
+        val tags = git.tagList().call()
+        val tagAlreadyExists = versionTagName.get() in tags.map { it.name.replace("refs/tags/", "") }
+
+        if (tagAlreadyExists) throw TagAlreadyExistsException(versionTagName.get())
 
         git.tag().setName(versionTagName.get()).call()
         git.push().setPushTags().call()

@@ -48,7 +48,12 @@ dependencies {
     }
 
     // Leak semver library users of this plugin so that they can implement their own versionModifier strategy
-    api(libs.swiftzer.semver)
+    // TODO: For v2, remove need for semver jar for consumers. They shouldn't need to know about this detail
+    listOf(
+        libs.swiftzer.semver
+    ).forEach {
+        api(it)
+    }
 
     listOf(
         gradleTestKit(),
@@ -95,7 +100,7 @@ tasks.withType<Test>().configureEach {
         showStandardStreams = true
         showCauses = true
         showStackTraces = true
-        events(*TestLogEvent.values())
+        events = TestLogEvent.values().toSet()
         exceptionFormat = TestExceptionFormat.FULL
     }
 }

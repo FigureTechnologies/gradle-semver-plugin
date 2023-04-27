@@ -5,7 +5,7 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver
+package com.figure.gradle.semver.unit
 
 import com.figure.gradle.semver.internal.git.GitRef
 import io.kotest.core.spec.style.WordSpec
