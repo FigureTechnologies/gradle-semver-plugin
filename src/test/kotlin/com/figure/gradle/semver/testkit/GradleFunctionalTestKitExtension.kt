@@ -27,6 +27,7 @@ class GradleFunctionalTestKitExtension(
     lateinit var tempRepoDir: File
     lateinit var tempRemoteRepoDir: File
     lateinit var localBuildCacheDirectory: File
+    lateinit var git: Git
 
     override suspend fun beforeAny(testCase: TestCase) {
         tempRepoDir = createTempDirectory("tempRepoDir").toFile()
@@ -48,7 +49,7 @@ class GradleFunctionalTestKitExtension(
         updatedSettingsFile.copyToDir(tempRepoDir, "settings.gradle.kts")
 
         // Initialize temp directory as a "repo"
-        val git = Git.init().setDirectory(tempRepoDir).setInitialBranch("main").call()
+        git = Git.init().setDirectory(tempRepoDir).setInitialBranch("main").call()
         git.initializeWithCommitsAndTags(tempRepoDir, tempRemoteRepoDir)
 
         runner.forwardOutput()
