@@ -12,14 +12,10 @@ import com.figure.gradle.semver.internal.tasks.CurrentSemverTask
 import com.figure.gradle.semver.internal.tasks.GenerateVersionFileTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.register
 import java.io.File
 import java.nio.file.Files
-
-private val log = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 
 class SemverPlugin : Plugin<Project> {
     override fun apply(project: Project) {
