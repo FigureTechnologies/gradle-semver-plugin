@@ -52,8 +52,13 @@ class GradleFunctionalTestKitExtension(
         git = Git.init().setDirectory(tempRepoDir).setInitialBranch("main").call()
         git.initializeWithCommitsAndTags(tempRepoDir, tempRemoteRepoDir)
 
+        println("Currently on branch: ${git.repository.branch}")
+        println("Switching to main branch...")
+        git.checkout().setName("main").call()
+        println("Now on branch: ${git.repository.branch}")
+
         runner.forwardOutput()
-            .withProjectDir(File(tempRepoDir.path.toString()))
+            .withProjectDir(tempRepoDir)
             .withPluginClasspath()
     }
 
