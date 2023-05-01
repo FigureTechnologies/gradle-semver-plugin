@@ -13,7 +13,6 @@ import com.figure.gradle.semver.util.NEXT_PATCH_VERSION
 import com.figure.gradle.semver.util.resourceFromPath
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.string.shouldContain
-import org.eclipse.jgit.api.Git
 import org.gradle.testkit.runner.GradleRunner
 
 class ComputeNextVersionFunctionalSpec : FunSpec({
@@ -30,10 +29,12 @@ class ComputeNextVersionFunctionalSpec : FunSpec({
 
     test("should compute next version") {
         // Given
-        val git = Git.open(gradleFunctionalTestKitExtension.tempRepoDir)
+        val git = gradleFunctionalTestKitExtension.git
 
         git.commit().setMessage("Empty commit").setAllowEmpty(true).call()
         git.push().call()
+
+        println("Using project dir: ${runner.projectDir}")
 
         // When
         val buildResult = runner
@@ -46,11 +47,12 @@ class ComputeNextVersionFunctionalSpec : FunSpec({
 
     test("should compute next version with additional params") {
         // Given
-        val git = Git.open(gradleFunctionalTestKitExtension.tempRepoDir)
+        val git = gradleFunctionalTestKitExtension.git
 
-        // git.pull().call()
         git.commit().setMessage("Empty commit").setAllowEmpty(true).call()
         git.push().call()
+
+        println("Using project dir: ${runner.projectDir}")
 
         // When
         val buildResult = runner

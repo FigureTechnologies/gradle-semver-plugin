@@ -13,7 +13,6 @@ import com.figure.gradle.semver.util.NEXT_PATCH_VERSION
 import com.figure.gradle.semver.util.resourceFromPath
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.string.shouldContain
-import org.eclipse.jgit.api.Git
 import org.gradle.testkit.runner.GradleRunner
 
 class ComputeNextVersionIntegrationSpec : FunSpec({
@@ -46,7 +45,7 @@ class ComputeNextVersionIntegrationSpec : FunSpec({
 
     test("should compute next version with additional params") {
         // Given
-        val git = Git.open(gradleIntegrationTestKitExtension.tempRepoDir)
+        val git = gradleIntegrationTestKitExtension.git
 
         git.commit().setMessage("Empty commit").setAllowEmpty(true).call()
         git.push().call()
