@@ -30,7 +30,7 @@ class ComputeNextVersionIntegrationSpec : FunSpec({
 
     test("should compute next version") {
         // Given
-        val git = Git.open(gradleIntegrationTestKitExtension.tempRepoDir)
+        val git = gradleIntegrationTestKitExtension.git
 
         git.commit().setMessage("Empty commit").setAllowEmpty(true).call()
         git.push().call()
@@ -48,7 +48,6 @@ class ComputeNextVersionIntegrationSpec : FunSpec({
         // Given
         val git = Git.open(gradleIntegrationTestKitExtension.tempRepoDir)
 
-        // git.pull().call()
         git.commit().setMessage("Empty commit").setAllowEmpty(true).call()
         git.push().call()
 

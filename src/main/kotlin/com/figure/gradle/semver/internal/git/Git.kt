@@ -14,6 +14,7 @@ import com.figure.gradle.semver.internal.pullRequestEvent
 import com.figure.gradle.semver.internal.pullRequestHeadRef
 import com.figure.gradle.semver.internal.semverError
 import com.figure.gradle.semver.internal.semverInfo
+import com.figure.gradle.semver.internal.semverLifecycle
 import com.figure.gradle.semver.internal.semverWarn
 import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.Git
@@ -104,10 +105,21 @@ internal fun Git.calculateBaseBranchVersion(
 internal fun Git.latestCommitOnBranch(branch: GitRef.Branch): Result<RevCommit> =
     runCatching {
         val walk = RevWalk(repository)
-        val latestCommit = walk.parseCommit(repository.findRef(branch.refName).objectId)
+
+        log.semverLifecycle("Trying to find ${branch.refName}")
+        log.semverLifecycle("Found ${repository.refDatabase.refs.size} refs")
+        repository.refDatabase.refs.forEach {
+            log.semverLifecycle(it.name)
+        }
+
+        val branchRef = repository.findRef(branch.refName)
+        val latestCommit = walk.parseCommit(branchRef.objectId)
+        log.semverLifecycle("Found latest commit: ${latestCommit.name}")
+
         walk.dispose()
         Result.success(latestCommit)
     }.getOrElse { t ->
+        log.semverError("Failed to get latest branch!", t)
         Result.failure(GitException(t))
     }
 
