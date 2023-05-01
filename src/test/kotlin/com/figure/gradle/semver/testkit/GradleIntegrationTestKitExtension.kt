@@ -31,14 +31,7 @@ class GradleIntegrationTestKitExtension(
     lateinit var localBuildCacheDirectory: File
     lateinit var git: Git
 
-    private var startedFromGithubActions: Boolean = false
-
     override suspend fun beforeAny(testCase: TestCase) {
-        if (System.getenv("GITHUB_ACTIONS") != null) {
-            startedFromGithubActions = true
-            System.clearProperty("GITHUB_ACTIONS")
-        }
-
         tempRepoDir = createTempDirectory("tempRepoDir").toFile()
         tempRemoteRepoDir = createTempDirectory("tempRemoteRepoDir").toFile()
 
@@ -70,10 +63,6 @@ class GradleIntegrationTestKitExtension(
     }
 
     override suspend fun afterAny(testCase: TestCase, result: TestResult) {
-        if (startedFromGithubActions) {
-            System.setProperty("GITHUB_ACTIONS", "true")
-        }
-
         tempRepoDir.deleteRecursively()
         tempRemoteRepoDir.deleteRecursively()
         localBuildCacheDirectory.deleteRecursively()

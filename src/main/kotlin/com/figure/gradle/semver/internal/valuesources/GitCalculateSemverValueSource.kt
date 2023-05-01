@@ -19,6 +19,7 @@ import com.figure.gradle.semver.internal.semver.GradleSemverContext
 import com.figure.gradle.semver.internal.semver.TargetBranchVersionCalculator
 import com.figure.gradle.semver.internal.semver.VersionCalculatorConfig
 import com.figure.gradle.semver.internal.semverError
+import com.figure.gradle.semver.internal.semverInfo
 import com.figure.gradle.semver.internal.semverLifecycle
 import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.Git
@@ -86,7 +87,7 @@ internal abstract class GitCalculateSemverValueSource : ValueSource<String, GitC
     private fun calculateVersion(): SemVer {
         val gitDir = parameters.gitDir.get()
 
-        log.semverLifecycle("Using git directory: $gitDir")
+        log.semverInfo("Using git directory: $gitDir")
 
         val git = openGitDir(gitDir)
         val config = buildCalculatorConfig(git)
@@ -95,8 +96,8 @@ internal abstract class GitCalculateSemverValueSource : ValueSource<String, GitC
 
         return config.overrideVersion ?: run {
             ops.currentBranch()?.let { currentBranch ->
-                log.semverLifecycle("Current branch: $currentBranch")
-                log.semverLifecycle("Semver configuration while calculating version: $config")
+                log.semverInfo("Current branch: $currentBranch")
+                log.semverInfo("Semver configuration while calculating version: $config")
 
                 val calculator = TargetBranchVersionCalculator(ops, config, context, currentBranch)
                 calculator.calculateVersion().getOrElse {
@@ -123,17 +124,17 @@ internal abstract class GitCalculateSemverValueSource : ValueSource<String, GitC
         val versionModifier = parameters.versionModifier
         return when {
             versionStrategy.isPresent -> {
-                log.semverLifecycle("Enabling extension configured strategy")
+                log.semverInfo("Enabling extension configured strategy")
                 initialConfig.withBranchMatchingConfig(versionStrategy.get())
             }
 
             git.hasBranch(GitRef.Branch.DEVELOP.name).isNotEmpty() -> {
-                log.semverLifecycle("Enabling Git Flow mode")
+                log.semverInfo("Enabling Git Flow mode")
                 initialConfig.withBranchMatchingConfig(flowVersionCalculatorStrategy(versionModifier.get()))
             }
 
             else -> {
-                log.semverLifecycle("Enabling Flat mode")
+                log.semverInfo("Enabling Flat mode")
                 initialConfig.withBranchMatchingConfig(flatVersionCalculatorStrategy(versionModifier.get()))
             }
         }

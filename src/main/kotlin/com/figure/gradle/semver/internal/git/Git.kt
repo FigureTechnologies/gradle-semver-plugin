@@ -14,7 +14,6 @@ import com.figure.gradle.semver.internal.pullRequestEvent
 import com.figure.gradle.semver.internal.pullRequestHeadRef
 import com.figure.gradle.semver.internal.semverError
 import com.figure.gradle.semver.internal.semverInfo
-import com.figure.gradle.semver.internal.semverLifecycle
 import com.figure.gradle.semver.internal.semverWarn
 import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.Git
@@ -70,39 +69,12 @@ internal fun String?.semverTag(prefix: String): SemVer? =
         }
     }
 
-private fun isInTest(): Boolean {
-    println("-------------------- Checking stack trace --------------------")
-    Thread.currentThread().stackTrace.forEach {
-        println(it.className)
-    }
-    println("-------------------- Checking stack trace --------------------")
-    return Thread.currentThread().stackTrace.any { it.className.contains("kotest") }
-}
-
-fun Git.getCurrentBranch(): String? {
-    val githubRef = System.getenv("GITHUB_REF")
-    return if (githubRef != null && githubRef.startsWith("refs/heads/")) {
-        println("Resolving via githubRef")
-        githubRef.substringAfter("refs/heads/")
+internal fun Git.currentBranchRef(): String? =
+    if (githubActionsBuild() && pullRequestEvent()) {
+        pullRequestHeadRef()?.let { ref -> "${GitRef.REMOTE_ORIGIN}/$ref" }
     } else {
-        println("Resolving via repository.fullBranch")
         repository.fullBranch
     }
-}
-
-internal fun Git.currentBranchRef(): String? {
-    println("Current branch by ChatGPT: ${getCurrentBranch()}")
-
-    return when {
-        githubActionsBuild() && pullRequestEvent() -> {
-            pullRequestHeadRef()?.let { ref -> "${GitRef.REMOTE_ORIGIN}/$ref" }
-        }
-
-        else -> {
-            repository.fullBranch
-        }
-    }
-}
 
 internal fun String?.shortName(): Result<String> {
     return this?.let {
@@ -141,21 +113,11 @@ internal fun Git.calculateBaseBranchVersion(
 internal fun Git.latestCommitOnBranch(branch: GitRef.Branch): Result<RevCommit> =
     runCatching {
         val walk = RevWalk(repository)
-
-        log.semverLifecycle("Trying to find ${branch.refName}")
-        log.semverLifecycle("Found ${repository.refDatabase.refs.size} refs")
-        repository.refDatabase.refs.forEach {
-            log.semverLifecycle(it.name)
-        }
-
         val branchRef = repository.findRef(branch.refName)
         val latestCommit = walk.parseCommit(branchRef.objectId)
-        log.semverLifecycle("Found latest commit: ${latestCommit.name}")
-
         walk.dispose()
         Result.success(latestCommit)
     }.getOrElse { t ->
-        log.semverError("Failed to get latest branch!", t)
         Result.failure(GitException(t))
     }
 

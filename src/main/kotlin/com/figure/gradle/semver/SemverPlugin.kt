@@ -7,7 +7,6 @@
 
 package com.figure.gradle.semver
 
-import com.figure.gradle.semver.internal.semverLifecycle
 import com.figure.gradle.semver.internal.tasks.CreateAndPushVersionTagTask
 import com.figure.gradle.semver.internal.tasks.CurrentSemverTask
 import com.figure.gradle.semver.internal.tasks.GenerateVersionFileTask
@@ -25,8 +24,6 @@ private val log = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 class SemverPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val semver = project.extensions.create<SemverExtension>("semver")
-
-        log.semverLifecycle("Found root project at: ${project.rootDir.path}")
 
         project.tasks.register<CurrentSemverTask>("currentSemver") {
             version.set(semver.version)
