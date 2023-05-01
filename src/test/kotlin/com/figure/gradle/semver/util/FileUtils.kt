@@ -21,7 +21,7 @@ fun String.toFile(path: String): File {
     return newFile
 }
 
-fun File.copyToDir(dest: File, fileName: String) {
+fun File.copyToDir(dest: File, fileName: String = this.name) {
     if (dest.isDirectory) {
         val newFile = File("${dest.path}/$fileName")
         this.copyTo(newFile)

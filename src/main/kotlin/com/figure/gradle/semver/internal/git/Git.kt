@@ -94,34 +94,27 @@ internal fun String?.shortName(): Result<String> {
 internal fun Git.calculateBaseBranchVersion(
     targetBranch: GitRef.Branch,
     currentBranch: GitRef.Branch,
-    tags: Map<ObjectId, SemVer>
+    tags: Map<ObjectId, SemVer>,
 ): Result<SemVer?> {
-    return headRevInBranch(currentBranch).map { head ->
+    return latestCommitOnBranch(currentBranch).map { head ->
         findYoungestTagOnBranchOlderThanTarget(targetBranch, head, tags)
     }
 }
 
-internal fun Git.headRevInBranch(branch: GitRef.Branch): Result<RevCommit> {
-    return runCatching {
-        with(repository) {
-            RevWalk(this).use { walk ->
-                Result.success(
-                    walk.parseCommit(this.findRef(branch.refName).objectId).also {
-                        walk.dispose()
-                    }
-                )
-            }
-        }
-    }.getOrElse { ex ->
-        log.semverError("Something failed", ex)
-        Result.failure(GitException(ex))
+internal fun Git.latestCommitOnBranch(branch: GitRef.Branch): Result<RevCommit> =
+    runCatching {
+        val walk = RevWalk(repository)
+        val latestCommit = walk.parseCommit(repository.findRef(branch.refName).objectId)
+        walk.dispose()
+        Result.success(latestCommit)
+    }.getOrElse { t ->
+        Result.failure(GitException(t))
     }
-}
 
 private fun Git.findYoungestTagOnBranchOlderThanTarget(
     branch: GitRef.Branch,
     target: RevCommit,
-    tags: Map<ObjectId, SemVer>
+    tags: Map<ObjectId, SemVer>,
 ): SemVer? {
     val branchRef = repository.exactRef(branch.refName)
     if (branchRef == null) {
@@ -139,7 +132,7 @@ internal fun gitCommitsSinceBranchPoint(
     git: Git,
     branchPoint: RevCommit,
     branch: GitRef.Branch,
-    tags: Map<ObjectId, SemVer>
+    tags: Map<ObjectId, SemVer>,
 ): Result<Int> {
     val commits = git.log().call().toList()
     val newCommits = commits.takeWhile {

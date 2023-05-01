@@ -9,6 +9,7 @@ package com.figure.gradle.semver.integration
 
 import com.figure.gradle.semver.testkit.GradleIntegrationTestKitExtension
 import com.figure.gradle.semver.util.GradleArgs
+import com.figure.gradle.semver.util.NEXT_PATCH_VERSION
 import com.figure.gradle.semver.util.resourceFromPath
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.string.shouldContain
@@ -29,7 +30,7 @@ class ComputeNextVersionIntegrationSpec : FunSpec({
 
     test("should compute next version") {
         // Given
-        val git = Git.open(gradleIntegrationTestKitExtension.tempDirectory)
+        val git = Git.open(gradleIntegrationTestKitExtension.tempRepoDir)
 
         git.commit().setMessage("Empty commit").setAllowEmpty(true).call()
         git.push().call()
@@ -40,12 +41,12 @@ class ComputeNextVersionIntegrationSpec : FunSpec({
             .build()
 
         // Then
-        buildResult.output shouldContain "1.0.3"
+        buildResult.output shouldContain NEXT_PATCH_VERSION
     }
 
     test("should compute next version with additional params") {
         // Given
-        val git = Git.open(gradleIntegrationTestKitExtension.tempDirectory)
+        val git = Git.open(gradleIntegrationTestKitExtension.tempRepoDir)
 
         // git.pull().call()
         git.commit().setMessage("Empty commit").setAllowEmpty(true).call()
@@ -62,6 +63,6 @@ class ComputeNextVersionIntegrationSpec : FunSpec({
             .build()
 
         // Then
-        buildResult.output shouldContain "1.0.3"
+        buildResult.output shouldContain NEXT_PATCH_VERSION
     }
 })

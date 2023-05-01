@@ -24,15 +24,17 @@ class GradleFunctionalTestKitExtension(
     private val buildFile: File = resourceFromPath("functional/basic-project/build.gradle.kts"),
     private val settingsFile: File = resourceFromPath("functional/basic-project/settings.gradle.kts"),
 ) : TestListener {
-    lateinit var tempDirectory: File
+    lateinit var tempRepoDir: File
+    lateinit var tempRemoteRepoDir: File
     lateinit var localBuildCacheDirectory: File
 
     override suspend fun beforeAny(testCase: TestCase) {
-        tempDirectory = createTempDirectory(javaClass.name).toFile()
+        tempRepoDir = createTempDirectory("tempRepoDir").toFile()
+        tempRemoteRepoDir = createTempDirectory("tempRemoteRepoDir").toFile()
 
-        buildFile.copyToDir(tempDirectory, "build.gradle.kts")
+        buildFile.copyToDir(tempRepoDir, "build.gradle.kts")
 
-        localBuildCacheDirectory = File(tempDirectory, "local-cache")
+        localBuildCacheDirectory = File(tempRepoDir, "local-cache")
         val updatedSettingsFile = settingsFile.appendFileContents(
             """
             buildCache {
@@ -43,19 +45,20 @@ class GradleFunctionalTestKitExtension(
             """.trimMargin()
         )
 
-        updatedSettingsFile.copyToDir(tempDirectory, "settings.gradle.kts")
+        updatedSettingsFile.copyToDir(tempRepoDir, "settings.gradle.kts")
 
         // Initialize temp directory as a "repo"
-        val git = Git.init().setDirectory(tempDirectory).setInitialBranch("main").call()
-        git.initializeWithCommitsAndTags(tempDirectory)
+        val git = Git.init().setDirectory(tempRepoDir).setInitialBranch("main").call()
+        git.initializeWithCommitsAndTags(tempRepoDir, tempRemoteRepoDir)
 
         runner.forwardOutput()
-            .withProjectDir(File(tempDirectory.path.toString()))
+            .withProjectDir(File(tempRepoDir.path.toString()))
             .withPluginClasspath()
     }
 
     override suspend fun afterAny(testCase: TestCase, result: TestResult) {
-        tempDirectory.deleteRecursively()
+        tempRepoDir.deleteRecursively()
+        tempRemoteRepoDir.deleteRecursively()
         localBuildCacheDirectory.deleteRecursively()
     }
 }
