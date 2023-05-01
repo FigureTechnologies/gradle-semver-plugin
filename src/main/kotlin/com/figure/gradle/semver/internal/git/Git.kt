@@ -73,12 +73,9 @@ internal fun String?.semverTag(prefix: String): SemVer? =
 private fun isKotestTest(): Boolean =
     Thread.currentThread().stackTrace.any { it.className.startsWith("io.kotest") }
 
-private fun isRunningTests(): Boolean =
-    System.getenv("KOTEST_TEST") == "true"
-
 internal fun Git.currentBranchRef(): String? =
     when {
-        githubActionsBuild() && pullRequestEvent() && !isRunningTests() -> {
+        githubActionsBuild() && pullRequestEvent() && !isKotestTest() -> {
             pullRequestHeadRef()?.let { ref -> "${GitRef.REMOTE_ORIGIN}/$ref" }
         }
 
