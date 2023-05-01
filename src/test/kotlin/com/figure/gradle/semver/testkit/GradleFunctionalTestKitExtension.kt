@@ -29,7 +29,14 @@ class GradleFunctionalTestKitExtension(
     lateinit var localBuildCacheDirectory: File
     lateinit var git: Git
 
+    private var startedFromGithubActions: Boolean = false
+
     override suspend fun beforeAny(testCase: TestCase) {
+        if (System.getenv("GITHUB_ACTIONS") != null) {
+            startedFromGithubActions = true
+            System.clearProperty("GITHUB_ACTIONS")
+        }
+
         tempRepoDir = createTempDirectory("tempRepoDir").toFile()
         tempRemoteRepoDir = createTempDirectory("tempRemoteRepoDir").toFile()
 
@@ -52,17 +59,16 @@ class GradleFunctionalTestKitExtension(
         git = Git.init().setDirectory(tempRepoDir).setInitialBranch("main").call()
         git.initializeWithCommitsAndTags(tempRepoDir, tempRemoteRepoDir)
 
-        println("Currently on branch: ${git.repository.branch}")
-        println("Switching to main branch...")
-        git.checkout().setName("main").call()
-        println("Now on branch: ${git.repository.branch}")
-
         runner.forwardOutput()
             .withProjectDir(tempRepoDir)
             .withPluginClasspath()
     }
 
     override suspend fun afterAny(testCase: TestCase, result: TestResult) {
+        if (startedFromGithubActions) {
+            System.setProperty("GITHUB_ACTIONS", "true")
+        }
+
         tempRepoDir.deleteRecursively()
         tempRemoteRepoDir.deleteRecursively()
         localBuildCacheDirectory.deleteRecursively()
