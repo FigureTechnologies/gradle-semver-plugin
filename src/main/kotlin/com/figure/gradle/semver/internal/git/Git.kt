@@ -76,10 +76,14 @@ private fun isKotestTest(): Boolean =
 internal fun Git.currentBranchRef(): String? =
     when {
         githubActionsBuild() && pullRequestEvent() && !isKotestTest() -> {
+            log.semverLifecycle("Resolving current branch ref based on github pull request head ref")
             pullRequestHeadRef()?.let { ref -> "${GitRef.REMOTE_ORIGIN}/$ref" }
         }
 
-        else -> repository.fullBranch
+        else -> {
+            log.semverLifecycle("Resolving current branch ref based on repository fullBranch name")
+            repository.fullBranch
+        }
     }
 
 internal fun String?.shortName(): Result<String> {
