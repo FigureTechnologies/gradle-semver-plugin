@@ -21,6 +21,8 @@ class SemverPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val semver = project.extensions.create<SemverExtension>("semver")
 
+        println("Found configuration for tests: ${semver.isConfigurationForTests}")
+
         project.tasks.register<CurrentSemverTask>("currentSemver") {
             version.set(semver.version)
             versionTagName.set(semver.versionTagName)

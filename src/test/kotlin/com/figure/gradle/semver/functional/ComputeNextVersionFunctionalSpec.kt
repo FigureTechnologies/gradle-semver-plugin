@@ -41,7 +41,7 @@ class ComputeNextVersionFunctionalSpec : FunSpec({
 
     listener(gradleFunctionalTestKitExtension)
 
-    xtest("should compute next version") {
+    test("should compute next version") {
         // Given
         val git = gradleFunctionalTestKitExtension.git
 

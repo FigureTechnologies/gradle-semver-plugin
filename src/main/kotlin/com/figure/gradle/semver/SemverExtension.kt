@@ -52,6 +52,10 @@ abstract class SemverExtension @Inject constructor(
         objects.property<String>()
             .convention("${project.rootProject.rootDir.path}/.git")
 
+    val isConfigurationForTests: Property<Boolean> =
+        objects.property<Boolean>()
+            .convention(false)
+
     private val tagPrefix: Property<String> =
         objects.property<String>()
             .convention(VersionCalculatorConfig.DEFAULT_TAG_PREFIX)

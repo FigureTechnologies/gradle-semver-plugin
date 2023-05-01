@@ -14,6 +14,8 @@ semver {
         ?: { nextPatch() }
 
     versionModifier(semVerModifier)
+
+    isConfigurationForTests.set(true)
 }
 
 version = semver.version
