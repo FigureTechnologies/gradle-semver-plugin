@@ -12,9 +12,12 @@ import com.figure.gradle.semver.external.VersionCalculatorStrategy
 import com.figure.gradle.semver.external.VersionModifier
 import com.figure.gradle.semver.internal.semver.VersionCalculatorConfig
 import com.figure.gradle.semver.internal.semver.versionModifierFromString
+import com.figure.gradle.semver.internal.semverInfo
 import com.figure.gradle.semver.internal.valuesources.gitCalculateSemverProvider
 import net.swiftzer.semver.SemVer
 import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -22,6 +25,8 @@ import org.gradle.api.provider.ProviderFactory
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
+
+private val log = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 
 abstract class SemverExtension @Inject constructor(
     objects: ObjectFactory,
@@ -51,6 +56,7 @@ abstract class SemverExtension @Inject constructor(
     internal val gitDir: Property<String> =
         objects.property<String>()
             .convention("${project.rootProject.rootDir.path}/.git")
+            .also { log.semverInfo("Current project root from extension: ${project.rootProject.rootDir.path}") }
 
     private val tagPrefix: Property<String> =
         objects.property<String>()

@@ -87,7 +87,7 @@ internal abstract class GitCalculateSemverValueSource : ValueSource<String, GitC
     private fun calculateVersion(): SemVer {
         val gitDir = parameters.gitDir.get()
 
-        log.semverInfo("Using git directory: $gitDir")
+        log.semverLifecycle("Using git directory: $gitDir")
 
         val git = MemoizedGit.open(gitDir)
         val config = buildCalculatorConfig(git)
