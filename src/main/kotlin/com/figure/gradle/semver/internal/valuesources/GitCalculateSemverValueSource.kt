@@ -19,7 +19,6 @@ import com.figure.gradle.semver.internal.semver.GradleSemverContext
 import com.figure.gradle.semver.internal.semver.TargetBranchVersionCalculator
 import com.figure.gradle.semver.internal.semver.VersionCalculatorConfig
 import com.figure.gradle.semver.internal.semverError
-import com.figure.gradle.semver.internal.semverInfo
 import com.figure.gradle.semver.internal.semverLifecycle
 import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.Git
@@ -124,17 +123,17 @@ internal abstract class GitCalculateSemverValueSource : ValueSource<String, GitC
         val versionModifier = parameters.versionModifier
         return when {
             versionStrategy.isPresent -> {
-                log.semverInfo("Enabling extension configured strategy")
+                log.semverLifecycle("Enabling extension configured strategy")
                 initialConfig.withBranchMatchingConfig(versionStrategy.get())
             }
 
             git.hasBranch(GitRef.Branch.DEVELOP.name).isNotEmpty() -> {
-                log.semverInfo("Enabling Git Flow mode")
+                log.semverLifecycle("Enabling Git Flow mode")
                 initialConfig.withBranchMatchingConfig(flowVersionCalculatorStrategy(versionModifier.get()))
             }
 
             else -> {
-                log.semverInfo("Enabling Flat mode")
+                log.semverLifecycle("Enabling Flat mode")
                 initialConfig.withBranchMatchingConfig(flatVersionCalculatorStrategy(versionModifier.get()))
             }
         }
