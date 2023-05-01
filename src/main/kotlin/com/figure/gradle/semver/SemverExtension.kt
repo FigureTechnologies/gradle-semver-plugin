@@ -36,8 +36,8 @@ abstract class SemverExtension @Inject constructor(
         providerFactory.gitCalculateSemverProvider(
             gitDir = gitDir,
             tagPrefix = tagPrefix,
-            initialVersion = initialVersion.orNull.toString(),
-            overrideVersion = overrideVersion.orNull.toString(),
+            initialVersion = initialVersion.get().toString(),
+            overrideVersion = overrideVersion.orNull?.toString(),
             versionStrategy = versionStrategy,
             versionModifier = versionModifier,
         ).get()

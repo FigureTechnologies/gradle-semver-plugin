@@ -29,7 +29,7 @@ class GenerateVersionFileTaskFunctionalSpec : FunSpec({
     val defaultArguments = listOf("build", task, GradleArgs.Stacktrace)
 
     fun validateVersionFile() {
-        val versionFile = gradleIntegrationTestKitExtension.tempDirectory.resolve("build/semver/version.txt")
+        val versionFile = gradleIntegrationTestKitExtension.tempRepoDir.resolve("build/semver/version.txt")
 
         versionFile should exist()
         versionFile.readText() shouldContain "9.9.9"

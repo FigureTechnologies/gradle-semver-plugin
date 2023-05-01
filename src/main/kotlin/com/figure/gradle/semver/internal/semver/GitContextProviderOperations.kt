@@ -12,7 +12,7 @@ import com.figure.gradle.semver.internal.git.GitRef
 import com.figure.gradle.semver.internal.git.calculateBaseBranchVersion
 import com.figure.gradle.semver.internal.git.currentBranchRef
 import com.figure.gradle.semver.internal.git.gitCommitsSinceBranchPoint
-import com.figure.gradle.semver.internal.git.headRevInBranch
+import com.figure.gradle.semver.internal.git.latestCommitOnBranch
 import com.figure.gradle.semver.internal.git.shortName
 import com.figure.gradle.semver.internal.git.tagMap
 import net.swiftzer.semver.SemVer
@@ -37,7 +37,7 @@ internal class GitContextProviderOperations(
     }
 
     override fun commitsSinceBranchPoint(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch): Result<Int?> {
-        return git.headRevInBranch(currentBranch).map { branchPoint ->
+        return git.latestCommitOnBranch(currentBranch).map { branchPoint ->
             gitCommitsSinceBranchPoint(git, branchPoint, targetBranch, tags).getOrThrow()
         }
     }
