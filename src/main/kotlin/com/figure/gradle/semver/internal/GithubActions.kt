@@ -17,9 +17,3 @@ internal fun pullRequestEvent(): Boolean =
 
 internal fun pullRequestHeadRef(): String? =
     System.getenv("GITHUB_HEAD_REF")
-
-internal fun isKotestTest(): Boolean =
-    System.getenv().filterKeys { it.contains("JAVA_MAIN_CLASS") }
-        .values
-        .first()
-        .contains("io.kotest")

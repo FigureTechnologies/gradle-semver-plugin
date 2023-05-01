@@ -10,7 +10,6 @@ package com.figure.gradle.semver.internal.git
 import com.figure.gradle.semver.internal.exceptions.GitException
 import com.figure.gradle.semver.internal.exceptions.UnexpectedException
 import com.figure.gradle.semver.internal.githubActionsBuild
-import com.figure.gradle.semver.internal.isKotestTest
 import com.figure.gradle.semver.internal.pullRequestEvent
 import com.figure.gradle.semver.internal.pullRequestHeadRef
 import com.figure.gradle.semver.internal.semverError
@@ -71,9 +70,15 @@ internal fun String?.semverTag(prefix: String): SemVer? =
         }
     }
 
+private fun isKotestTest(): Boolean =
+    Thread.currentThread().stackTrace.any { it.className.startsWith("io.kotest") }
+
+private fun isRunningTests(): Boolean =
+    System.getenv("KOTEST_TEST") == "true"
+
 internal fun Git.currentBranchRef(): String? =
     when {
-        githubActionsBuild() && pullRequestEvent() && !isKotestTest() -> {
+        githubActionsBuild() && pullRequestEvent() && !isRunningTests() -> {
             pullRequestHeadRef()?.let { ref -> "${GitRef.REMOTE_ORIGIN}/$ref" }
         }
 
