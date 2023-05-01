@@ -82,23 +82,16 @@ private fun isInTest(): Boolean {
 fun Git.getCurrentBranch(): String? {
     val githubRef = System.getenv("GITHUB_REF")
     return if (githubRef != null && githubRef.startsWith("refs/heads/")) {
+        println("Resolving via githubRef")
         githubRef.substringAfter("refs/heads/")
     } else {
-        repository.branch
+        println("Resolving via repository.fullBranch")
+        repository.fullBranch
     }
 }
 
 internal fun Git.currentBranchRef(): String? {
-    println("Branches found:")
-    println("------------------------")
-    branchList().call().forEach {
-        println(it.name)
-    }
-    println("------------------------")
-    println("repository.branch: ${repository.branch}")
-    println("repository.fullBranch: ${repository.fullBranch}")
     println("Current branch by ChatGPT: ${getCurrentBranch()}")
-    println("------------------------")
 
     return when {
         githubActionsBuild() && pullRequestEvent() -> {
