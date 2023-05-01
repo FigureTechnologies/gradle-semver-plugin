@@ -96,8 +96,8 @@ internal abstract class GitCalculateSemverValueSource : ValueSource<String, GitC
 
         return config.overrideVersion ?: run {
             ops.currentBranch()?.let { currentBranch ->
-                log.semverInfo("Current branch: $currentBranch")
-                log.semverInfo("Semver configuration while calculating version: $config")
+                log.semverLifecycle("Current branch: $currentBranch")
+                log.semverLifecycle("Semver configuration while calculating version: $config")
 
                 val calculator = TargetBranchVersionCalculator(ops, config, context, currentBranch)
                 calculator.calculateVersion().getOrElse {
