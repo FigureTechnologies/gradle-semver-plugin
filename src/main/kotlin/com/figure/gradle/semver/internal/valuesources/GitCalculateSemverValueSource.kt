@@ -13,6 +13,7 @@ import com.figure.gradle.semver.external.flatVersionCalculatorStrategy
 import com.figure.gradle.semver.external.flowVersionCalculatorStrategy
 import com.figure.gradle.semver.internal.git.GitRef
 import com.figure.gradle.semver.internal.git.hasBranch
+import com.figure.gradle.semver.internal.git.openGitDir
 import com.figure.gradle.semver.internal.semver.GitContextProviderOperations
 import com.figure.gradle.semver.internal.semver.GradleSemverContext
 import com.figure.gradle.semver.internal.semver.TargetBranchVersionCalculator
@@ -20,7 +21,6 @@ import com.figure.gradle.semver.internal.semver.VersionCalculatorConfig
 import com.figure.gradle.semver.internal.semverError
 import com.figure.gradle.semver.internal.semverInfo
 import com.figure.gradle.semver.internal.semverLifecycle
-import com.figure.gradle.semver.internal.util.MemoizedGit
 import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.Git
 import org.gradle.api.logging.Logger
@@ -89,7 +89,7 @@ internal abstract class GitCalculateSemverValueSource : ValueSource<String, GitC
 
         log.semverLifecycle("Using git directory: $gitDir")
 
-        val git = MemoizedGit.open(gitDir)
+        val git = openGitDir(gitDir)
         val config = buildCalculatorConfig(git)
         val ops = GitContextProviderOperations(git, config)
         val context = GradleSemverContext(ops)

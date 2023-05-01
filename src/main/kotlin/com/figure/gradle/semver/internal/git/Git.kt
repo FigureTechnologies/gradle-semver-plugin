@@ -26,8 +26,18 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import java.io.File
 
 private val log = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
+
+internal fun openGitDir(gitDir: String) =
+    Git(
+        FileRepositoryBuilder()
+            .setGitDir(File(gitDir))
+            .readEnvironment()
+            .findGitDir()
+            .build()
+    )
 
 internal fun Project.git(gitDir: String): Git =
     Git(
