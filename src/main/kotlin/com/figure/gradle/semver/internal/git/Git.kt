@@ -70,21 +70,46 @@ internal fun String?.semverTag(prefix: String): SemVer? =
         }
     }
 
-private fun isKotestTest(): Boolean =
-    Thread.currentThread().stackTrace.any { it.className.startsWith("io.kotest") }
+private fun isInTest(): Boolean {
+    println("-------------------- Checking stack trace --------------------")
+    Thread.currentThread().stackTrace.forEach {
+        println(it.className)
+    }
+    println("-------------------- Checking stack trace --------------------")
+    return Thread.currentThread().stackTrace.any { it.className.contains("kotest") }
+}
 
-internal fun Git.currentBranchRef(): String? =
-    when {
-        githubActionsBuild() && pullRequestEvent() && !isKotestTest() -> {
-            log.semverLifecycle("Resolving current branch ref based on github pull request head ref")
+fun Git.getCurrentBranch(): String? {
+    val githubRef = System.getenv("GITHUB_REF")
+    return if (githubRef != null && githubRef.startsWith("refs/heads/")) {
+        githubRef.substringAfter("refs/heads/")
+    } else {
+        repository.branch
+    }
+}
+
+internal fun Git.currentBranchRef(): String? {
+    println("Branches found:")
+    println("------------------------")
+    branchList().call().forEach {
+        println(it.name)
+    }
+    println("------------------------")
+    println("repository.branch: ${repository.branch}")
+    println("repository.fullBranch: ${repository.fullBranch}")
+    println("Current branch by ChatGPT: ${getCurrentBranch()}")
+    println("------------------------")
+
+    return when {
+        githubActionsBuild() && pullRequestEvent() -> {
             pullRequestHeadRef()?.let { ref -> "${GitRef.REMOTE_ORIGIN}/$ref" }
         }
 
         else -> {
-            log.semverLifecycle("Resolving current branch ref based on repository fullBranch name")
             repository.fullBranch
         }
     }
+}
 
 internal fun String?.shortName(): Result<String> {
     return this?.let {

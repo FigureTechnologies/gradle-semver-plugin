@@ -50,14 +50,4 @@ class ValidateRepoSpec : FunSpec({
         println(latestCommitFromRemote.getOrThrow().name)
         println(latestCommitFromRemoteViaLog.name)
     }
-
-    test("env") {
-        System.getenv().toSortedMap().forEach { k, v -> println("$k -- $v") }
-        println("------------------------------------------------------------")
-        System.getenv().toSortedMap().forEach { k, v ->
-            if (k.lowercase().contains("kotest") || v.lowercase().contains("kotest")) {
-                println("$k -- $v")
-            }
-        }
-    }
 })
