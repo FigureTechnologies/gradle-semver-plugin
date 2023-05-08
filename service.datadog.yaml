@@ -1,0 +1,14 @@
+schema-version: v2
+dd-service: gradle-semver-plugin
+team: devops
+contacts:
+- type: slack
+  contact: https://figure-group.slack.com/archives/CB721JFFC
+repos:
+- name: GitHub Repo
+  provider: github
+  url: https://github.com/FigureTechnologies/gradle-semver-plugin
+docs:
+- name: GitHub Team
+  provider: github
+  url: https://github.com/orgs/FigureTechnologies/teams/devops/members
