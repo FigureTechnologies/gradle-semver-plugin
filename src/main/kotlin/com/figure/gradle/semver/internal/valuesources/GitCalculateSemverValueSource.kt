@@ -9,8 +9,9 @@ package com.figure.gradle.semver.internal.valuesources
 
 import com.figure.gradle.semver.external.BranchMatchingConfiguration
 import com.figure.gradle.semver.external.VersionModifier
-import com.figure.gradle.semver.external.flatVersionCalculatorStrategy
 import com.figure.gradle.semver.external.flowVersionCalculatorStrategy
+import com.figure.gradle.semver.external.mainBasedFlatVersionCalculatorStrategy
+import com.figure.gradle.semver.external.masterBasedFlatVersionCalculatorStrategy
 import com.figure.gradle.semver.internal.git.GitRef
 import com.figure.gradle.semver.internal.git.hasBranch
 import com.figure.gradle.semver.internal.git.openGitDir
@@ -133,9 +134,14 @@ internal abstract class GitCalculateSemverValueSource : ValueSource<String, GitC
                 initialConfig.withBranchMatchingConfig(flowVersionCalculatorStrategy(versionModifier.get()))
             }
 
+            git.hasBranch(GitRef.Branch.MASTER.name).isNotEmpty() -> {
+                log.semverInfo("Enabling master-based Flat mode")
+                initialConfig.withBranchMatchingConfig(masterBasedFlatVersionCalculatorStrategy(versionModifier.get()))
+            }
+
             else -> {
-                log.semverInfo("Enabling Flat mode")
-                initialConfig.withBranchMatchingConfig(flatVersionCalculatorStrategy(versionModifier.get()))
+                log.semverInfo("Enabling main-based Flat mode")
+                initialConfig.withBranchMatchingConfig(mainBasedFlatVersionCalculatorStrategy(versionModifier.get()))
             }
         }
     }

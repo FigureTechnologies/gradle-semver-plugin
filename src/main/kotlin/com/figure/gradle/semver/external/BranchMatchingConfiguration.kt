@@ -47,7 +47,7 @@ fun flowVersionCalculatorStrategy(versionModifier: VersionModifier): VersionCalc
         versionModifier = versionModifier
     ),
     BranchMatchingConfiguration(
-        regex = """^hotfix/.*""".toRegex(),
+        regex = """^rc/.*""".toRegex(),
         targetBranch = GitRef.Branch.MAIN,
         versionQualifier = { currentBranch ->
             preReleaseWithCommitCount(
@@ -75,20 +75,41 @@ fun flowVersionCalculatorStrategy(versionModifier: VersionModifier): VersionCalc
     ),
 )
 
-fun flatVersionCalculatorStrategy(versionModifier: VersionModifier): VersionCalculatorStrategy = listOf(
+fun mainBasedFlatVersionCalculatorStrategy(versionModifier: VersionModifier): VersionCalculatorStrategy =
+    buildFlatVersionCalculatorStrategy(GitRef.Branch.MAIN, versionModifier)
+
+fun masterBasedFlatVersionCalculatorStrategy(versionModifier: VersionModifier): VersionCalculatorStrategy =
+    buildFlatVersionCalculatorStrategy(GitRef.Branch.MASTER, versionModifier)
+
+private fun buildFlatVersionCalculatorStrategy(
+    targetBranch: GitRef.Branch,
+    versionModifier: VersionModifier,
+): VersionCalculatorStrategy = listOf(
     BranchMatchingConfiguration(
-        regex = """^main$""".toRegex(),
-        targetBranch = GitRef.Branch.MAIN,
+        regex = """^${targetBranch.name}$""".toRegex(),
+        targetBranch = targetBranch,
         versionQualifier = { PreReleaseLabel.EMPTY to BuildMetadataLabel.EMPTY },
         versionModifier = versionModifier
     ),
     BranchMatchingConfiguration(
+        regex = """^rc/.*""".toRegex(),
+        targetBranch = targetBranch,
+        versionQualifier = { currentBranch ->
+            preReleaseWithCommitCount(
+                currentBranch = currentBranch,
+                targetBranch = targetBranch,
+                label = "rc"
+            ) to BuildMetadataLabel.EMPTY
+        },
+        versionModifier = versionModifier
+    ),
+    BranchMatchingConfiguration(
         regex = """.*""".toRegex(),
-        targetBranch = GitRef.Branch.MAIN,
+        targetBranch = targetBranch,
         versionQualifier = {
             preReleaseWithCommitCount(
                 currentBranch = it,
-                targetBranch = GitRef.Branch.MAIN,
+                targetBranch = targetBranch,
                 label = it.sanitizedNameWithoutPrefix()
             ) to BuildMetadataLabel.EMPTY
         },

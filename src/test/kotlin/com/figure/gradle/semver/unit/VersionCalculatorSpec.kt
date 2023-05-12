@@ -13,16 +13,18 @@ import com.figure.gradle.semver.external.ContextProviderOperations
 import com.figure.gradle.semver.external.PreReleaseLabel
 import com.figure.gradle.semver.external.SemverContext
 import com.figure.gradle.semver.external.VersionModifier
-import com.figure.gradle.semver.external.flatVersionCalculatorStrategy
 import com.figure.gradle.semver.external.flowVersionCalculatorStrategy
+import com.figure.gradle.semver.external.mainBasedFlatVersionCalculatorStrategy
+import com.figure.gradle.semver.external.masterBasedFlatVersionCalculatorStrategy
 import com.figure.gradle.semver.internal.git.GitRef
 import com.figure.gradle.semver.internal.semver.TargetBranchVersionCalculator
 import com.figure.gradle.semver.internal.semver.VersionCalculatorConfig
-import io.kotest.core.spec.style.WordSpec
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
 import net.swiftzer.semver.SemVer
 
-class VersionCalculatorSpec : WordSpec({
+class VersionCalculatorSpec : FunSpec({
     fun calculateBranchVersion(
         currentBranch: GitRef.Branch,
         branchVersions: Map<GitRef.Branch, SemVer>,
@@ -35,48 +37,64 @@ class VersionCalculatorSpec : WordSpec({
         return calculator.calculateVersion()
     }
 
-    "Calculate version with FlatDefaultBranchMatching" should {
-        "calculate the next version correctly" {
+    context("Calculate version with mainBasedFlatDefaultBranchMatching") {
+        context("calculate the next version correctly") {
             val mainBranchVersion = SemVer(1, 2, 3)
             val mainBranch = GitRef.Branch.MAIN
-            val developBranchVersion = SemVer(1, 2, 4, "beta")
-            val developBranch = GitRef.Branch.DEVELOP
-            val config = buildPluginConfig(flatVersionCalculatorStrategy { nextPatch() })
+            val config = buildPluginConfig(mainBasedFlatVersionCalculatorStrategy { nextPatch() })
 
             val branchVersions: Map<GitRef.Branch, SemVer> = mapOf(
                 mainBranch to mainBranchVersion,
-                developBranch to developBranchVersion
             )
 
-            // current == MAIN
-            calculateBranchVersion(
-                currentBranch = mainBranch,
-                branchVersions = branchVersions,
-                config = config
-            ).getOrThrow() shouldBe mainBranchVersion.nextPatch()
+            withData(
+                calculateBranchVersion(mainBranch, branchVersions, config).getOrThrow()
+                    to mainBranchVersion.nextPatch(),
 
-            // current != MAIN
-            setOf(
-                GitRef.Branch.DEVELOP,
-                GitRef.Branch("feature/my_weird_feature"),
-                GitRef.Branch("something"),
-                GitRef.Branch("hotfix/fix-1"),
-            ).forEach { currentBranch ->
-                calculateBranchVersion(
-                    currentBranch = currentBranch,
-                    branchVersions = branchVersions,
-                    config = config
-                ).getOrThrow().shouldBe(
-                    mainBranchVersion
-                        .nextPatch()
-                        .copy(preRelease = "${currentBranch.sanitizedNameWithoutPrefix()}.2")
-                )
+                calculateBranchVersion(GitRef.Branch("feature/my_weird_feature"), branchVersions, config).getOrThrow()
+                    to mainBranchVersion.nextPatch().copy(preRelease = "my_weird_feature.2"),
+
+                calculateBranchVersion(GitRef.Branch("something"), branchVersions, config).getOrThrow()
+                    to mainBranchVersion.nextPatch().copy(preRelease = "something.2"),
+
+                calculateBranchVersion(GitRef.Branch("rc/fix-1"), branchVersions, config).getOrThrow()
+                    to mainBranchVersion.nextPatch().copy(preRelease = "rc.2"),
+            ) { (calculatedVersion, expectedVersion) ->
+                calculatedVersion shouldBe expectedVersion
             }
         }
     }
 
-    "Calculate version with FlowDefaultBranchMatching" should {
-        "calculate the next version correctly" {
+    context("Calculate version with masterBasedFlatDefaultBranchMatching") {
+        context("calculate the next version correctly") {
+            val masterBranchVersion = SemVer(1, 2, 3)
+            val masterBranch = GitRef.Branch.MASTER
+            val config = buildPluginConfig(masterBasedFlatVersionCalculatorStrategy { nextPatch() })
+
+            val branchVersions: Map<GitRef.Branch, SemVer> = mapOf(
+                masterBranch to masterBranchVersion,
+            )
+
+            withData(
+                calculateBranchVersion(masterBranch, branchVersions, config).getOrThrow()
+                    to masterBranchVersion.nextPatch(),
+
+                calculateBranchVersion(GitRef.Branch("feature/my_weird_feature"), branchVersions, config).getOrThrow()
+                    to masterBranchVersion.nextPatch().copy(preRelease = "my_weird_feature.2"),
+
+                calculateBranchVersion(GitRef.Branch("something"), branchVersions, config).getOrThrow()
+                    to masterBranchVersion.nextPatch().copy(preRelease = "something.2"),
+
+                calculateBranchVersion(GitRef.Branch("rc/fix-1"), branchVersions, config).getOrThrow()
+                    to masterBranchVersion.nextPatch().copy(preRelease = "rc.2"),
+            ) { (calculatedVersion, expectedVersion) ->
+                calculatedVersion shouldBe expectedVersion
+            }
+        }
+    }
+
+    context("Calculate version with FlowDefaultBranchMatching") {
+        context("calculate the next version correctly") {
             val mainBranchVersion = SemVer(1, 2, 3)
             val mainBranch = GitRef.Branch.MAIN
             val developBranchVersion = SemVer(1, 2, 4, "beta")
@@ -88,60 +106,28 @@ class VersionCalculatorSpec : WordSpec({
                 developBranch to developBranchVersion
             )
 
-            // current == MAIN
-            calculateBranchVersion(
-                currentBranch = mainBranch,
-                branchVersions = branchVersions,
-                config = config
-            ).getOrThrow().shouldBe(
-                mainBranchVersion.nextPatch()
-            )
+            withData(
+                calculateBranchVersion(mainBranch, branchVersions, config).getOrThrow()
+                    to mainBranchVersion.nextPatch(),
 
-            calculateBranchVersion(
-                currentBranch = developBranch,
-                branchVersions = branchVersions,
-                config = config
-            ).getOrThrow().shouldBe(
-                mainBranchVersion
-                    .nextPatch()
-                    .copy(preRelease = "beta.2")
-            )
+                calculateBranchVersion(developBranch, branchVersions, config).getOrThrow() to
+                    mainBranchVersion.nextPatch().copy(preRelease = "beta.2"),
 
-            calculateBranchVersion(
-                currentBranch = GitRef.Branch("hotfix/something"),
-                branchVersions = branchVersions,
-                config = config
-            ).getOrThrow().shouldBe(
-                mainBranchVersion
-                    .nextPatch()
-                    .copy(preRelease = "rc.2")
-            )
+                calculateBranchVersion(GitRef.Branch("rc/something"), branchVersions, config).getOrThrow()
+                    to mainBranchVersion.nextPatch().copy(preRelease = "rc.2"),
 
-            calculateBranchVersion(
-                currentBranch = GitRef.Branch("feature/something_something*bla"),
-                branchVersions = branchVersions,
-                config = config
-            ).getOrThrow().shouldBe(
-                mainBranchVersion
-                    .nextPatch()
-                    .nextPatch()
-                    .copy(preRelease = "something_something-bla.2")
-            )
+                calculateBranchVersion(GitRef.Branch("feature/s_something*bla"), branchVersions, config).getOrThrow()
+                    to mainBranchVersion.nextPatch().nextPatch().copy(preRelease = "s_something-bla.2"),
 
-            // Assert that any branch name gets matched properly (previously only feature/ was allowed)
-            calculateBranchVersion(
-                currentBranch = GitRef.Branch("something_something*bla"),
-                branchVersions = branchVersions,
-                config = config
-            ).getOrThrow().shouldBe(
-                mainBranchVersion
-                    .nextPatch()
-                    .nextPatch()
-                    .copy(preRelease = "something_something-bla.2")
-            )
+                // Assert that any branch name gets matched properly (previously only feature/ was allowed)
+                calculateBranchVersion(GitRef.Branch("s_something*bla"), branchVersions, config).getOrThrow()
+                    to mainBranchVersion.nextPatch().nextPatch().copy(preRelease = "s_something-bla.2")
+            ) { (calculatedVersion, expectedVersion) ->
+                calculatedVersion shouldBe expectedVersion
+            }
         }
 
-        "support custom formats such as ShortCut" {
+        test("support custom formats such as ShortCut") {
             val mainBranchVersion = SemVer(1, 2, 3)
             val mainBranch = GitRef.Branch.MAIN
             val developBranchVersion = SemVer(1, 2, 4, "beta")
@@ -211,7 +197,7 @@ class VersionCalculatorSpec : WordSpec({
                         versionModifier
                     ),
                     BranchMatchingConfiguration(
-                        """^hotfix/.*""".toRegex(),
+                        """^rc/.*""".toRegex(),
                         GitRef.Branch.MAIN,
                         { preReleaseWithCommitCount(it, GitRef.Branch.MAIN, "rc") to BuildMetadataLabel.EMPTY },
                         versionModifier
@@ -244,7 +230,7 @@ class VersionCalculatorSpec : WordSpec({
             )
 
             calculateBranchVersion(
-                currentBranch = GitRef.Branch("hotfix/something"),
+                currentBranch = GitRef.Branch("rc/something"),
                 branchVersions = branchVersions,
                 config = config
             ).getOrThrow().shouldBe(

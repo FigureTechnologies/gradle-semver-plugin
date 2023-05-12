@@ -5,37 +5,45 @@
  * LICENSE.md file in the root directory of this source tree.
  */
 
-package com.figure.gradle.semver.functional
+package com.figure.gradle.semver.integration
 
-import com.figure.gradle.semver.testkit.GradleFunctionalTestKitExtension
+import com.figure.gradle.semver.testkit.GradleIntegrationTestKitExtension
 import com.figure.gradle.semver.util.GradleArgs
 import com.figure.gradle.semver.util.runTask
 import com.figure.gradle.semver.util.taskOutcome
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.file.exist
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 
-class CurrentSemverTaskFunctionalSpec : FunSpec({
+class GenerateVersionFileTaskSpec : FunSpec({
     val runner = GradleRunner.create()
 
-    val gradleFunctionalTestKitExtension = GradleFunctionalTestKitExtension(runner)
-    listener(gradleFunctionalTestKitExtension)
+    val gradleIntegrationTestKitExtension = GradleIntegrationTestKitExtension(runner)
+    listener(gradleIntegrationTestKitExtension)
 
-    val task = "currentSemver"
-    val defaultArguments = listOf(task, GradleArgs.Stacktrace)
+    val task = "generateVersionFile"
+    val defaultArguments = listOf("build", task, GradleArgs.Stacktrace)
 
-    test("no arguments") {
+    fun validateVersionFile() {
+        val versionFile = gradleIntegrationTestKitExtension.tempRepoDir.resolve("build/semver/version.txt")
+
+        versionFile should exist()
+        versionFile.readText() shouldContain "9.9.9"
+    }
+
+    test("build") {
         // When
         val (firstRun, secondRun) = runner.runTask(defaultArguments)
 
         // Then
         firstRun.taskOutcome(task) shouldBe TaskOutcome.SUCCESS
-        secondRun.taskOutcome(task) shouldBe TaskOutcome.SUCCESS
+        secondRun.taskOutcome(task) shouldBe TaskOutcome.UP_TO_DATE
 
-        firstRun.output shouldContain "version: 9.9.9"
-        secondRun.output shouldContain "version: 9.9.9"
+        validateVersionFile()
     }
 
     test("with parallel") {
@@ -47,10 +55,9 @@ class CurrentSemverTaskFunctionalSpec : FunSpec({
 
         // Then
         firstRun.taskOutcome(task) shouldBe TaskOutcome.SUCCESS
-        secondRun.taskOutcome(task) shouldBe TaskOutcome.SUCCESS
+        secondRun.taskOutcome(task) shouldBe TaskOutcome.UP_TO_DATE
 
-        firstRun.output shouldContain "version: 9.9.9"
-        secondRun.output shouldContain "version: 9.9.9"
+        validateVersionFile()
     }
 
     test("with build-cache") {
@@ -62,10 +69,9 @@ class CurrentSemverTaskFunctionalSpec : FunSpec({
 
         // Then
         firstRun.taskOutcome(task) shouldBe TaskOutcome.SUCCESS
-        secondRun.taskOutcome(task) shouldBe TaskOutcome.SUCCESS
+        secondRun.taskOutcome(task) shouldBe TaskOutcome.UP_TO_DATE
 
-        firstRun.output shouldContain "version: 9.9.9"
-        secondRun.output shouldContain "version: 9.9.9"
+        validateVersionFile()
     }
 
     test("with configuration-cache") {
@@ -76,14 +82,12 @@ class CurrentSemverTaskFunctionalSpec : FunSpec({
         val (firstRun, secondRun) = runner.runTask(arguments)
 
         // Then
-        firstRun.output shouldContain "no configuration cache is available for tasks: $task"
-        secondRun.output shouldContain "Reusing configuration cache."
+        firstRun.output shouldContain "no configuration cache is available for tasks"
 
         firstRun.taskOutcome(task) shouldBe TaskOutcome.SUCCESS
-        secondRun.taskOutcome(task) shouldBe TaskOutcome.SUCCESS
+        secondRun.taskOutcome(task) shouldBe TaskOutcome.UP_TO_DATE
 
-        firstRun.output shouldContain "version: 9.9.9"
-        secondRun.output shouldContain "version: 9.9.9"
+        validateVersionFile()
     }
 
     test("with parallel, build-cache, and configuration-cache") {
@@ -98,13 +102,11 @@ class CurrentSemverTaskFunctionalSpec : FunSpec({
         val (firstRun, secondRun) = runner.runTask(arguments)
 
         // Then
-        firstRun.output shouldContain "no configuration cache is available for tasks: $task"
-        secondRun.output shouldContain "Reusing configuration cache."
+        firstRun.output shouldContain "no configuration cache is available for tasks"
 
         firstRun.taskOutcome(task) shouldBe TaskOutcome.SUCCESS
-        secondRun.taskOutcome(task) shouldBe TaskOutcome.SUCCESS
+        secondRun.taskOutcome(task) shouldBe TaskOutcome.UP_TO_DATE
 
-        firstRun.output shouldContain "version: 9.9.9"
-        secondRun.output shouldContain "version: 9.9.9"
+        validateVersionFile()
     }
 })
