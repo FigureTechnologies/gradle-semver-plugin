@@ -29,7 +29,7 @@ import org.gradle.testkit.runner.GradleRunner
  *
  * TL;DR - Tests should work locally, tests will not work in GitHub Actions :(
  */
-class ComputeNextVersionIntegrationSpec : FunSpec({
+class StandardComputeNextVersionSpec : FunSpec({
 
     val runner = GradleRunner.create()
 

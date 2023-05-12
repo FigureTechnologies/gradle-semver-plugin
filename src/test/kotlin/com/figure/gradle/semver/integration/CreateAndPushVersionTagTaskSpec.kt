@@ -17,7 +17,7 @@ import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 
-class CreateAndPushVersionTagTaskIntegrationSpec : FunSpec({
+class CreateAndPushVersionTagTaskSpec : FunSpec({
     val runner = GradleRunner.create()
 
     val gradleIntegrationTestKitExtension = GradleIntegrationTestKitExtension(runner)
