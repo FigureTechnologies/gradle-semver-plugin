@@ -7,10 +7,12 @@
 
 package com.figure.gradle.semver.integration
 
+import com.figure.gradle.semver.internal.git.GitRef
 import com.figure.gradle.semver.testkit.GradleIntegrationTestKitExtension
 import com.figure.gradle.semver.util.GradleArgs
 import com.figure.gradle.semver.util.taskOutcome
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import org.gradle.testkit.runner.BuildResult
@@ -19,9 +21,6 @@ import org.gradle.testkit.runner.TaskOutcome
 
 class CreateAndPushVersionTagTaskSpec : FunSpec({
     val runner = GradleRunner.create()
-
-    val gradleIntegrationTestKitExtension = GradleIntegrationTestKitExtension(runner)
-    listener(gradleIntegrationTestKitExtension)
 
     val task = "createAndPushVersionTag"
     val defaultArguments = listOf("build", task, GradleArgs.Stacktrace)
@@ -38,69 +37,64 @@ class CreateAndPushVersionTagTaskSpec : FunSpec({
         return firstRun to secondRun
     }
 
-    test("build") {
-        // When
-        val (firstRun, secondRun) = runner.runWithoutExpectations(defaultArguments)
-
-        // Then
-        firstRun.taskOutcome(task) shouldBe TaskOutcome.SUCCESS
-        secondRun.taskOutcome(task) shouldBe TaskOutcome.FAILED
-        secondRun.output shouldContain "TagAlreadyExistsException"
-    }
-
-    test("with parallel") {
-        // Given
-        val arguments = defaultArguments + listOf(GradleArgs.Parallel)
-
-        // When
-        val (firstRun, secondRun) = runner.runWithoutExpectations(arguments)
-
-        // Then
-        firstRun.taskOutcome(task) shouldBe TaskOutcome.SUCCESS
-        secondRun.taskOutcome(task) shouldBe TaskOutcome.FAILED
-        secondRun.output shouldContain "TagAlreadyExistsException"
-    }
-
-    test("with build-cache") {
-        // Given
-        val arguments = defaultArguments + listOf(GradleArgs.BuildCache)
-
-        // When
-        val (firstRun, secondRun) = runner.runWithoutExpectations(arguments)
-
-        // Then
-        firstRun.taskOutcome(task) shouldBe TaskOutcome.SUCCESS
-        secondRun.taskOutcome(task) shouldBe TaskOutcome.FAILED
-        secondRun.output shouldContain "TagAlreadyExistsException"
-    }
-
-    test("with configuration-cache") {
-        // Given
-        val arguments = defaultArguments + listOf(GradleArgs.ConfigurationCache)
-
-        // When
-        val (firstRun, secondRun) = runner.runWithoutExpectations(arguments)
-
-        // Then
-        firstRun.taskOutcome(task) shouldBe TaskOutcome.SUCCESS
-        secondRun.taskOutcome(task) shouldBe TaskOutcome.FAILED
-        secondRun.output shouldContain "TagAlreadyExistsException"
-    }
-
-    test("with parallel, build-cache, and configuration-cache") {
-        // Given
-        val arguments = defaultArguments + listOf(
-            GradleArgs.Parallel,
-            GradleArgs.BuildCache,
-            GradleArgs.ConfigurationCache,
+    context("create and push version tag") {
+        val listeners = listOf(
+            GradleIntegrationTestKitExtension(
+                runner,
+                initialBranch = GitRef.Branch.MAIN
+            ),
+            GradleIntegrationTestKitExtension(
+                runner,
+                initialBranch = GitRef.Branch.MASTER
+            ),
+            GradleIntegrationTestKitExtension(
+                runner,
+                initialBranch = GitRef.Branch.MAIN,
+                defaultBranch = GitRef.Branch.DEVELOP
+            ),
+            GradleIntegrationTestKitExtension(
+                runner,
+                initialBranch = GitRef.Branch.MASTER,
+                defaultBranch = GitRef.Branch.DEVELOP
+            ),
         )
 
-        // When
-        val (firstRun, secondRun) = runner.runWithoutExpectations(arguments)
+        val testData = listOf(
+            TestData(listOf()),
+            TestData(listOf(GradleArgs.Parallel)),
+            TestData(listOf(GradleArgs.BuildCache)),
+            TestData(listOf(GradleArgs.ConfigurationCache)),
+            TestData(listOf(GradleArgs.Parallel, GradleArgs.BuildCache, GradleArgs.ConfigurationCache)),
+        )
 
-        // Then
-        firstRun.taskOutcome(task) shouldBe TaskOutcome.SUCCESS
-        secondRun.taskOutcome(task) shouldBe TaskOutcome.FAILED
-        secondRun.output shouldContain "TagAlreadyExistsException"
+        listeners.forEach { listener ->
+            listener(listener)
+
+            withData(
+                nameFn = {
+                    if (listener.defaultBranch != null) {
+                        "${listener.initialBranch.name}-${listener.defaultBranch.name} -- args: ${it.additionalArgs}"
+                    } else {
+                        "${listener.initialBranch.name} -- args: ${it.additionalArgs}"
+                    }
+                },
+                testData.asSequence()
+            ) {
+                // Given
+                val arguments = defaultArguments + it.additionalArgs
+
+                // When
+                val (firstRun, secondRun) = runner.runWithoutExpectations(arguments)
+
+                // Then
+                firstRun.taskOutcome(task) shouldBe TaskOutcome.SUCCESS
+                secondRun.taskOutcome(task) shouldBe TaskOutcome.FAILED
+                secondRun.output shouldContain "TagAlreadyExistsException"
+            }
+        }
     }
 })
+
+private data class TestData(
+    val additionalArgs: List<String>,
+)

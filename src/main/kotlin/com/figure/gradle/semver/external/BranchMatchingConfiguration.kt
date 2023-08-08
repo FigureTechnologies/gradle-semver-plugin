@@ -25,10 +25,19 @@ data class BranchMatchingConfiguration(
     val versionModifier: VersionModifier = { nextPatch() }
 )
 
-fun flowVersionCalculatorStrategy(versionModifier: VersionModifier): VersionCalculatorStrategy = listOf(
+fun mainBasedFlowVersionCalculatorStrategy(versionModifier: VersionModifier): VersionCalculatorStrategy =
+    buildFlowVersionCalculatorStrategy(GitRef.Branch.MAIN, versionModifier)
+
+fun masterBasedFlowVersionCalculatorStrategy(versionModifier: VersionModifier): VersionCalculatorStrategy =
+    buildFlowVersionCalculatorStrategy(GitRef.Branch.MASTER, versionModifier)
+
+private fun buildFlowVersionCalculatorStrategy(
+    targetBranch: GitRef.Branch,
+    versionModifier: VersionModifier
+): VersionCalculatorStrategy = listOf(
     BranchMatchingConfiguration(
-        regex = """^main$""".toRegex(),
-        targetBranch = GitRef.Branch.MAIN,
+        regex = """^${targetBranch.name}$""".toRegex(),
+        targetBranch = targetBranch,
         versionQualifier = {
             PreReleaseLabel.EMPTY to BuildMetadataLabel.EMPTY
         },
@@ -36,11 +45,11 @@ fun flowVersionCalculatorStrategy(versionModifier: VersionModifier): VersionCalc
     ),
     BranchMatchingConfiguration(
         regex = """^develop$""".toRegex(),
-        targetBranch = GitRef.Branch.MAIN,
+        targetBranch = targetBranch,
         versionQualifier = { currentBranch ->
             preReleaseWithCommitCount(
                 currentBranch = currentBranch,
-                targetBranch = GitRef.Branch.MAIN,
+                targetBranch = targetBranch,
                 label = "beta"
             ) to BuildMetadataLabel.EMPTY
         },
@@ -48,11 +57,11 @@ fun flowVersionCalculatorStrategy(versionModifier: VersionModifier): VersionCalc
     ),
     BranchMatchingConfiguration(
         regex = """^rc/.*""".toRegex(),
-        targetBranch = GitRef.Branch.MAIN,
+        targetBranch = targetBranch,
         versionQualifier = { currentBranch ->
             preReleaseWithCommitCount(
                 currentBranch = currentBranch,
-                targetBranch = GitRef.Branch.MAIN,
+                targetBranch = targetBranch,
                 label = "rc"
             ) to BuildMetadataLabel.EMPTY
         },
@@ -67,7 +76,7 @@ fun flowVersionCalculatorStrategy(versionModifier: VersionModifier): VersionCalc
         versionQualifier = { currentBranch ->
             preReleaseWithCommitCount(
                 currentBranch = currentBranch,
-                targetBranch = GitRef.Branch.MAIN,
+                targetBranch = targetBranch,
                 label = currentBranch.sanitizedNameWithoutPrefix()
             ) to BuildMetadataLabel.EMPTY
         },

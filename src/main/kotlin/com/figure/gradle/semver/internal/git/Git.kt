@@ -207,12 +207,11 @@ private fun Git.findYoungestTagCommitOnBranch(
         .firstOrNull { tags.containsKey(it.toObjectId()) }
 }
 
-internal fun Git.hasBranch(shortName: String): List<Ref> {
+internal fun Git.hasBranch(branch: GitRef.Branch): Boolean {
     return runCatching {
-        branchList().setContains(shortName).call().filter {
-            it.name.shortName().getOrThrow() == shortName
-        }
+        branchList().setContains(branch.name).call()
+            .any { it.name.shortName().getOrThrow() == branch.name }
     }.getOrElse {
-        emptyList()
+        false
     }
 }

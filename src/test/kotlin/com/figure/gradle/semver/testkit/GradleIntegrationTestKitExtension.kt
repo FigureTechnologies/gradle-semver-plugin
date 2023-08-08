@@ -7,6 +7,7 @@
 
 package com.figure.gradle.semver.testkit
 
+import com.figure.gradle.semver.internal.git.GitRef
 import com.figure.gradle.semver.util.appendFileContents
 import com.figure.gradle.semver.util.copyToDir
 import com.figure.gradle.semver.util.initializeWithCommitsAndTags
@@ -22,6 +23,8 @@ import kotlin.io.path.createTempDirectory
 
 class GradleIntegrationTestKitExtension(
     private val runner: GradleRunner,
+    val initialBranch: GitRef.Branch,
+    val defaultBranch: GitRef.Branch? = null,
     private val kotlinVersion: KotlinVersion = KotlinVersion.CURRENT,
     private val buildFile: File = resourceFromPath("integration/basic-project/build.gradle.kts"),
     private val settingsFile: File = resourceFromPath("integration/basic-project/settings.gradle.kts"),
@@ -32,6 +35,13 @@ class GradleIntegrationTestKitExtension(
     lateinit var git: Git
 
     override suspend fun beforeAny(testCase: TestCase) {
+        if (::tempRepoDir.isInitialized) {
+            tempRepoDir.deleteRecursively()
+            tempRemoteRepoDir.deleteRecursively()
+            localBuildCacheDirectory.deleteRecursively()
+            git.close()
+        }
+
         tempRepoDir = createTempDirectory("tempRepoDir").toFile()
         tempRemoteRepoDir = createTempDirectory("tempRemoteRepoDir").toFile()
 
@@ -54,8 +64,8 @@ class GradleIntegrationTestKitExtension(
         updatedSettingsFile.copyToDir(tempRepoDir, "settings.gradle.kts")
 
         // Initialize temp directory as a "repo"
-        git = Git.init().setDirectory(tempRepoDir).setInitialBranch("main").call()
-        git.initializeWithCommitsAndTags(tempRepoDir, tempRemoteRepoDir)
+        git = Git.init().setDirectory(tempRepoDir).setInitialBranch(initialBranch.name).call()
+        git.initializeWithCommitsAndTags(tempRepoDir, tempRemoteRepoDir, initialBranch, defaultBranch)
 
         runner.forwardOutput()
             .withProjectDir(File(tempRepoDir.path.toString()))
@@ -63,8 +73,6 @@ class GradleIntegrationTestKitExtension(
     }
 
     override suspend fun afterAny(testCase: TestCase, result: TestResult) {
-        tempRepoDir.deleteRecursively()
-        tempRemoteRepoDir.deleteRecursively()
-        localBuildCacheDirectory.deleteRecursively()
+
     }
 }
