@@ -13,8 +13,8 @@ import com.figure.gradle.semver.external.ContextProviderOperations
 import com.figure.gradle.semver.external.PreReleaseLabel
 import com.figure.gradle.semver.external.SemverContext
 import com.figure.gradle.semver.external.VersionModifier
-import com.figure.gradle.semver.external.mainBasedFlowVersionCalculatorStrategy
 import com.figure.gradle.semver.external.mainBasedFlatVersionCalculatorStrategy
+import com.figure.gradle.semver.external.mainBasedFlowVersionCalculatorStrategy
 import com.figure.gradle.semver.external.masterBasedFlatVersionCalculatorStrategy
 import com.figure.gradle.semver.internal.git.GitRef
 import com.figure.gradle.semver.internal.semver.TargetBranchVersionCalculator

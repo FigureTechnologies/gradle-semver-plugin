@@ -73,6 +73,5 @@ class GradleIntegrationTestKitExtension(
     }
 
     override suspend fun afterAny(testCase: TestCase, result: TestResult) {
-
     }
 }
