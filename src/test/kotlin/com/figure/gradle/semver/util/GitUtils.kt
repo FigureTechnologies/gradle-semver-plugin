@@ -7,6 +7,7 @@
 
 package com.figure.gradle.semver.util
 
+import com.figure.gradle.semver.internal.git.GitRef
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.revwalk.RevCommit
@@ -18,31 +19,18 @@ const val NEXT_PATCH_VERSION = "1.2.1"
 const val NEXT_MINOR_VERSION = "1.3.0"
 const val NEXT_MAJOR_VERSION = "2.0.0"
 
-fun Git.initializeWithCommitsAndTags(tempRepoDir: File, tempGitRemoteDir: File) {
+fun Git.initializeWithCommitsAndTags(
+    tempRepoDir: File,
+    tempGitRemoteDir: File,
+    initialBranch: GitRef.Branch,
+    defaultBranch: GitRef.Branch?,
+) {
     // create and commit 3 files in the repository and make a tag after each commit
-    for ((minor, i) in (1..3).withIndex()) {
-        val tagName = "v1.$minor.0"
-        val tagMessage = "Tag $tagName"
+    addCommitsAndTags(initialBranch, tempRepoDir)
 
-        val file = File(tempRepoDir, "file$i.txt")
-        file.writeText("This is file $i.")
-        add().addFilepattern("file$i.txt").call()
-
-        val author = PersonIdent("Author $i", "author$i@example.com")
-        val committer = PersonIdent("Committer $i", "committer$i@example.com")
-
-        val commit: RevCommit = commit().apply {
-            this.author = author
-            this.committer = committer
-            this.message = "Commit $i"
-        }.call()
-
-        tag().apply {
-            this.name = tagName
-            this.tagger = tagger
-            this.message = tagMessage
-            this.objectId = commit
-        }.call()
+    if (defaultBranch != null) {
+        checkout().setCreateBranch(true).setName(defaultBranch.name).call()
+        addCommitsAndTags(defaultBranch, tempRepoDir)
     }
 
     // create a temporary Git repository to use as the remote repository
@@ -65,4 +53,39 @@ fun Git.initializeWithCommitsAndTags(tempRepoDir: File, tempGitRemoteDir: File) 
         .call()
 
     fetch().setRefSpecs(refSpec).call()
+}
+
+private fun Git.addCommitsAndTags(
+    targetBranch: GitRef.Branch,
+    tempRepoDir: File,
+) {
+    for ((modifier, i) in (1..3).withIndex()) {
+        val tagName = if (targetBranch == GitRef.Branch.DEVELOP) {
+            "v1.$modifier.0-beta.1"
+        } else {
+            "v1.$modifier.0"
+        }
+
+        val tagMessage = "Tag $tagName"
+
+        val file = File(tempRepoDir, "file$i.txt")
+        file.writeText("This is file $i.")
+        add().addFilepattern("file$i.txt").call()
+
+        val author = PersonIdent("Author $i", "author$i@example.com")
+        val committer = PersonIdent("Committer $i", "committer$i@example.com")
+
+        val commit: RevCommit = commit().apply {
+            this.author = author
+            this.committer = committer
+            this.message = "Commit $i"
+        }.call()
+
+        tag().apply {
+            this.name = tagName
+            this.tagger = tagger
+            this.message = tagMessage
+            this.objectId = commit
+        }.call()
+    }
 }

@@ -9,9 +9,11 @@ package com.figure.gradle.semver.internal.valuesources
 
 import com.figure.gradle.semver.external.BranchMatchingConfiguration
 import com.figure.gradle.semver.external.VersionModifier
-import com.figure.gradle.semver.external.flowVersionCalculatorStrategy
 import com.figure.gradle.semver.external.mainBasedFlatVersionCalculatorStrategy
+import com.figure.gradle.semver.external.mainBasedFlowVersionCalculatorStrategy
 import com.figure.gradle.semver.external.masterBasedFlatVersionCalculatorStrategy
+import com.figure.gradle.semver.external.masterBasedFlowVersionCalculatorStrategy
+import com.figure.gradle.semver.internal.exceptions.UnsupportedBranchingStrategy
 import com.figure.gradle.semver.internal.git.GitRef
 import com.figure.gradle.semver.internal.git.hasBranch
 import com.figure.gradle.semver.internal.git.openGitDir
@@ -129,19 +131,29 @@ internal abstract class GitCalculateSemverValueSource : ValueSource<String, GitC
                 initialConfig.withBranchMatchingConfig(versionStrategy.get())
             }
 
-            git.hasBranch(GitRef.Branch.DEVELOP.name).isNotEmpty() -> {
-                log.semverInfo("Enabling Git Flow mode")
-                initialConfig.withBranchMatchingConfig(flowVersionCalculatorStrategy(versionModifier.get()))
+            git.hasBranch(GitRef.Branch.DEVELOP) && git.hasBranch(GitRef.Branch.MAIN) -> {
+                log.semverInfo("Enabling Git Flow mode for develop and main")
+                initialConfig.withBranchMatchingConfig(mainBasedFlowVersionCalculatorStrategy(versionModifier.get()))
             }
 
-            git.hasBranch(GitRef.Branch.MASTER.name).isNotEmpty() -> {
+            git.hasBranch(GitRef.Branch.DEVELOP) && git.hasBranch(GitRef.Branch.MASTER) -> {
+                log.semverInfo("Enabling Git Flow mode for develop and master")
+                initialConfig.withBranchMatchingConfig(masterBasedFlowVersionCalculatorStrategy(versionModifier.get()))
+            }
+
+            git.hasBranch(GitRef.Branch.MAIN) -> {
+                log.semverInfo("Enabling main-based Flat mode")
+                initialConfig.withBranchMatchingConfig(mainBasedFlatVersionCalculatorStrategy(versionModifier.get()))
+            }
+
+            git.hasBranch(GitRef.Branch.MASTER) -> {
                 log.semverInfo("Enabling master-based Flat mode")
                 initialConfig.withBranchMatchingConfig(masterBasedFlatVersionCalculatorStrategy(versionModifier.get()))
             }
 
             else -> {
-                log.semverInfo("Enabling main-based Flat mode")
-                initialConfig.withBranchMatchingConfig(mainBasedFlatVersionCalculatorStrategy(versionModifier.get()))
+                log.semverError("Could not determine branching strategy. No version calculation will be performed.")
+                throw UnsupportedBranchingStrategy()
             }
         }
     }

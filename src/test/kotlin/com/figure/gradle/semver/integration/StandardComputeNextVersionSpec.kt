@@ -7,6 +7,7 @@
 
 package com.figure.gradle.semver.integration
 
+import com.figure.gradle.semver.internal.git.GitRef
 import com.figure.gradle.semver.testkit.GradleIntegrationTestKitExtension
 import com.figure.gradle.semver.util.GradleArgs
 import com.figure.gradle.semver.util.NEXT_PATCH_VERSION
@@ -35,6 +36,8 @@ class StandardComputeNextVersionSpec : FunSpec({
 
     val gradleIntegrationTestKitExtension = GradleIntegrationTestKitExtension(
         runner = runner,
+        initialBranch = GitRef.Branch.MAIN,
+        defaultBranch = GitRef.Branch.DEVELOP,
         buildFile = resourceFromPath("integration/standard-project/build.gradle.kts"),
         settingsFile = resourceFromPath("integration/standard-project/settings.gradle.kts")
     )

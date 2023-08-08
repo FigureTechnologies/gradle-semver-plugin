@@ -7,6 +7,7 @@
 
 package com.figure.gradle.semver.integration
 
+import com.figure.gradle.semver.internal.git.GitRef
 import com.figure.gradle.semver.testkit.GradleIntegrationTestKitExtension
 import com.figure.gradle.semver.util.GradleArgs
 import com.figure.gradle.semver.util.runTask
@@ -20,7 +21,7 @@ import org.gradle.testkit.runner.TaskOutcome
 class CurrentSemverTaskSpec : FunSpec({
     val runner = GradleRunner.create()
 
-    val gradleIntegrationTestKitExtension = GradleIntegrationTestKitExtension(runner)
+    val gradleIntegrationTestKitExtension = GradleIntegrationTestKitExtension(runner, GitRef.Branch.MAIN)
     listener(gradleIntegrationTestKitExtension)
 
     val task = "currentSemver"

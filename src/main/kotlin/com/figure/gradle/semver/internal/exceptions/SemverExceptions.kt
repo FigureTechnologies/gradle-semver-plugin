@@ -25,3 +25,8 @@ internal class TagAlreadyExistsException(tag: String) :
         | the existing tag before running again.
         """.trimMargin().replace("\n", "")
     )
+
+internal class UnsupportedBranchingStrategy() :
+    Exception(
+        "Unsupported branching strategy. Supported branching strategies: main, master, main-develop, master-develop"
+    )
