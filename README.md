@@ -132,12 +132,23 @@ used.
 - `Flow` - Broadly based on a [Git Flow workflow](https://nvie.com/posts/a-successful-git-branching-model/) without
   release branches, the following branches are supported:
 
-| branch                    | pre release label | target branch | example       |
-|---------------------------|-------------------|---------------|---------------|
-| `main`                    | ''                | main          | 1.2.3         |
-| `develop`                 | beta              | main          | 1.2.4-beta.13 |
-| `rc/my-release-candidate` | rc                | main          | 1.2.4-rc.2    |
-| `xxx`                     | xxx               | develop       | 1.2.5-xxx.13  |
+| branch                    | pre release label | target branch  | example       |
+|---------------------------|-------------------|----------------|---------------|
+| `main` or `master`        | ''                | main or master | 1.2.3         |
+| `develop`                 | beta              | main or master | 1.2.4-beta.13 |
+| `rc/my-release-candidate` | rc                | main or master | 1.2.4-rc.2    |
+| `xxx`                     | xxx               | develop        | 1.2.5-xxx.13  |
+
+### Branch Matching Detection Order
+
+The following outlines the branch matching detection order from first matched to last matched:
+
+1. Custom version strategy
+2. `main` and `develop` exist
+3. `master` and `develop` exist
+4. `main` only exists
+5. `master` only exists
+6. Throw unsupported branching strategy
 
 ## Branch Matching Strategy
 
