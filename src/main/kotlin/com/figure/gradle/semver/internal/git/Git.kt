@@ -17,6 +17,7 @@ import com.figure.gradle.semver.internal.semverInfo
 import com.figure.gradle.semver.internal.semverWarn
 import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.ListBranchCommand
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
@@ -79,25 +80,19 @@ internal fun Git.currentBranchRef(): String? =
 internal fun String?.shortName(): Result<String> {
     return this?.let {
         when {
-            it.startsWith(GitRef.REF_HEAD) -> {
-                runCatching {
-                    Result.success(it.substringAfter("${GitRef.REF_HEAD}/"))
-                }.getOrElse { ex ->
-                    Result.failure(GitException(ex))
-                }
-            }
-
-            it.startsWith(GitRef.REMOTE_ORIGIN) -> {
-                runCatching {
-                    Result.success(it.substringAfter("${GitRef.REMOTE_ORIGIN}/"))
-                }.getOrElse { ex ->
-                    Result.failure(GitException(ex))
-                }
-            }
-
+            it.startsWith(GitRef.REF_HEAD) -> parseBranchName(it, GitRef.REF_HEAD)
+            it.startsWith(GitRef.REMOTE_ORIGIN) -> parseBranchName(it, GitRef.REMOTE_ORIGIN)
             else -> Result.failure(UnexpectedException("Unable to parse branch ref: $it"))
         }
     } ?: Result.failure(UnexpectedException("Unable to parse null branch ref"))
+}
+
+private fun parseBranchName(fullBranchName: String, prefix: String): Result<String> {
+    return runCatching {
+        Result.success(fullBranchName.substringAfter("$prefix/"))
+    }.getOrElse { ex ->
+        Result.failure(GitException(ex))
+    }
 }
 
 internal fun Git.calculateBaseBranchVersion(
@@ -207,11 +202,14 @@ private fun Git.findYoungestTagCommitOnBranch(
         .firstOrNull { tags.containsKey(it.toObjectId()) }
 }
 
-internal fun Git.hasBranch(branch: GitRef.Branch): Boolean {
-    return runCatching {
-        branchList().setContains(branch.name).call()
-            .any { it.name.shortName().getOrThrow() == branch.name }
+fun Git.hasBranch(branch: GitRef.Branch): Boolean =
+    runCatching {
+        val branchNames = branchList()
+            .setListMode(ListBranchCommand.ListMode.ALL)
+            .call()
+            .mapNotNull { it.name.shortName().getOrNull() }
+
+        branch.name in branchNames
     }.getOrElse {
         false
     }
-}
