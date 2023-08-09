@@ -14,6 +14,7 @@ import com.figure.gradle.semver.internal.pullRequestEvent
 import com.figure.gradle.semver.internal.pullRequestHeadRef
 import com.figure.gradle.semver.internal.semverError
 import com.figure.gradle.semver.internal.semverInfo
+import com.figure.gradle.semver.internal.semverLifecycle
 import com.figure.gradle.semver.internal.semverWarn
 import net.swiftzer.semver.SemVer
 import org.eclipse.jgit.api.Git
@@ -209,8 +210,11 @@ private fun Git.findYoungestTagCommitOnBranch(
 
 internal fun Git.hasBranch(branch: GitRef.Branch): Boolean {
     return runCatching {
-        branchList().setContains(branch.name).call()
-            .any { it.name.shortName().getOrThrow() == branch.name }
+        val branchList = branchList().setContains(branch.name).call()
+
+        log.semverLifecycle("Branch list found for ${branch.name}: ${branchList.map { it.name }}")
+
+        branchList.any { it.name.shortName().getOrThrow() == branch.name }
     }.getOrElse {
         false
     }
