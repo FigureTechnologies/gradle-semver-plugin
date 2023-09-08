@@ -194,12 +194,6 @@ semver {
     // This is only used for non-user defined strategies, i.e. predefined Flow or Flat
     findProperty("semver.modifier")?.toString()
         ?.let { versionModifier(buildVersionModifier(it)) }
-
-    // Manually specifying the gitDir location is typically not necessary. However, in cases where you have a composite
-    // gradle build, it will become necessary to define where your .git directory is in correlation to your composite
-    // build. In the following example, you may have a build at `parent/child`. `child` specifies that the parent
-    // directory to its projectDir should contain the `.git` directory.
-    gitDir("${rootProject.projectDir.parent}/.git")
 }
 
 version = semver.version

@@ -29,9 +29,7 @@ abstract class GenerateVersionFileTask : DefaultTask() {
 
     @TaskAction
     fun generateVersionFile() {
-        val file = destination.get().asFile
-
-        file.apply {
+        destination.get().asFile.apply {
             parentFile.mkdirs()
             createNewFile()
             writeText(

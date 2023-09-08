@@ -23,26 +23,14 @@ import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import java.io.File
 
 private val log = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 
-internal fun openGitDir(gitDir: String) =
+internal fun openGitDir() =
     Git(
         FileRepositoryBuilder()
-            .setGitDir(File(gitDir))
-            .readEnvironment()
-            .findGitDir()
-            .build()
-    )
-
-internal fun Project.git(gitDir: String): Git =
-    Git(
-        FileRepositoryBuilder()
-            .setGitDir(file(gitDir))
             .readEnvironment()
             .findGitDir()
             .build()

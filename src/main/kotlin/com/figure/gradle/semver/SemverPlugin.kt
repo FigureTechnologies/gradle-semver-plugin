@@ -41,7 +41,6 @@ class SemverPlugin : Plugin<Project> {
 
         project.tasks.register<CreateAndPushVersionTagTask>("createAndPushVersionTag") {
             this.versionTagName.set(semver.versionTagName)
-            this.gitDir.set(project.file(semver.gitDir.get()))
         }
     }
 }

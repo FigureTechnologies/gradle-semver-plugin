@@ -14,10 +14,10 @@ import com.figure.gradle.semver.internal.semver.VersionCalculatorConfig
 import com.figure.gradle.semver.internal.semver.versionModifierFromString
 import com.figure.gradle.semver.internal.valuesources.gitCalculateSemverProvider
 import net.swiftzer.semver.SemVer
-import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
@@ -25,32 +25,28 @@ import javax.inject.Inject
 
 abstract class SemverExtension @Inject constructor(
     objects: ObjectFactory,
-    project: Project,
-    providerFactory: ProviderFactory,
+    private val providers: ProviderFactory,
 ) {
     /**
      * This version invocation takes place at project build time of the project that is utilizing this plugin
-     * The version is not calculated until a build happens that requires `semver.version`
+     * The version is not calculated until a build happens that requires `semver.version.get()`
      */
-    val version: String by lazy {
-        providerFactory.gitCalculateSemverProvider(
-            gitDir = gitDir,
+    val version: Provider<String>
+        get() = providers.gitCalculateSemverProvider(
             tagPrefix = tagPrefix,
             initialVersion = initialVersion.get().toString(),
             overrideVersion = overrideVersion.orNull?.toString(),
             versionStrategy = versionStrategy,
             versionModifier = versionModifier,
-        ).get()
-    }
+            boundedVersion = boundedVersion,
+        )
 
-    val versionTagName: String by lazy { calculateVersionTagName() }
-
-    // TODO: For v2, see if rootRepoDirectory can be specified instead (without causing Gradle issues) where
-    //  a semver task relies on the build task to complete. Maybe needs specified as a string instead of File to
-    //  work? Use Git.open(rootRepoDirectory) to create the Git object then.
-    internal val gitDir: Property<String> =
-        objects.property<String>()
-            .convention("${project.rootProject.rootDir.path}/.git")
+    /**
+     * This version tag invocation takes place at project build time of the project that is utilizing this plugin
+     * The version is not calculated until a build happens that requires `semver.versionTagName.get()`
+     */
+    val versionTagName: Provider<String>
+        get() = calculateVersionTagName()
 
     private val tagPrefix: Property<String> =
         objects.property<String>()
@@ -72,9 +68,9 @@ abstract class SemverExtension @Inject constructor(
         objects.property<VersionModifier>()
             .convention { nextPatch() }
 
-    fun gitDir(gitDir: String) {
-        this.gitDir.set(gitDir)
-    }
+    private val boundedVersion: Property<SemVer> =
+        objects.property<SemVer>()
+            .convention(null)
 
     fun tagPrefix(prefix: String) {
         if (overrideVersion.orNull != null) {
@@ -110,9 +106,12 @@ abstract class SemverExtension @Inject constructor(
         this.versionStrategy.set(strategy)
     }
 
-    private fun calculateVersionTagName(): String {
-        return tagPrefix.map { prefix -> "$prefix$version" }.get()
+    fun boundedVersion(version: String) {
+        this.boundedVersion.set(SemVer.parse(version))
     }
+
+    private fun calculateVersionTagName(): Provider<String> =
+        tagPrefix.map { prefix -> "$prefix$version" }
 
     private fun possiblyPrefixVersion(version: String, prefix: String): SemVer {
         return SemVer.parse(version.trimMargin(prefix)) // fail fast, don't let an invalid version propagate to runtime

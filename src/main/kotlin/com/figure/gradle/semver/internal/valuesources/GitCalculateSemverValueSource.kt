@@ -42,21 +42,21 @@ private val log = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
  * from it later.
  */
 internal fun ProviderFactory.gitCalculateSemverProvider(
-    gitDir: Property<String>,
     tagPrefix: Property<String>,
     initialVersion: String,
     overrideVersion: String?,
     versionStrategy: ListProperty<BranchMatchingConfiguration>,
     versionModifier: Property<VersionModifier>,
+    boundedVersion: Property<SemVer>,
 ): Provider<String> {
     return of(GitCalculateSemverValueSource::class.java) { spec ->
         spec.parameters {
-            it.gitDir.set(gitDir)
             it.tagPrefix.set(tagPrefix)
             it.initialVersion.set(initialVersion)
             it.overrideVersion.set(overrideVersion)
             it.versionStrategy.set(versionStrategy)
             it.versionModifier.set(versionModifier)
+            it.boundedVersion.set(boundedVersion)
         }
     }
 }
@@ -77,22 +77,20 @@ internal fun ProviderFactory.gitCalculateSemverProvider(
  */
 internal abstract class GitCalculateSemverValueSource : ValueSource<String, GitCalculateSemverValueSource.Params> {
     interface Params : ValueSourceParameters {
-        val gitDir: Property<String>
         val tagPrefix: Property<String>
         val initialVersion: Property<String>
         val overrideVersion: Property<String>
         val versionStrategy: ListProperty<BranchMatchingConfiguration>
         val versionModifier: Property<VersionModifier>
+        val boundedVersion: Property<SemVer>
     }
 
     override fun obtain(): String? = calculateVersion().toString()
 
     private fun calculateVersion(): SemVer {
-        val gitDir = parameters.gitDir.get()
+        val git = openGitDir()
+        log.semverInfo("Using git directory: ${git.repository.directory.path}")
 
-        log.semverInfo("Using git directory: $gitDir")
-
-        val git = openGitDir(gitDir)
         val config = buildCalculatorConfig(git)
         val ops = GitContextProviderOperations(git, config)
         val context = GradleSemverContext(ops)

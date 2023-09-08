@@ -15,38 +15,31 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.PathSensitive
-import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
-import java.io.File
 
 @CacheableTask
 abstract class CreateAndPushVersionTagTask : DefaultTask() {
     @get:Input
     abstract val versionTagName: Property<String>
 
-    @get:InputDirectory
-    @get:PathSensitive(PathSensitivity.ABSOLUTE)
-    abstract val gitDir: Property<File>
-
     @TaskAction
     fun createAndPushTag() {
         val git = Git(
             FileRepositoryBuilder()
-                .setGitDir(gitDir.get())
                 .readEnvironment()
                 .findGitDir()
                 .build()
         )
 
+        val versionTag = versionTagName.get()
+
         val tags = git.tagList().call()
-        val tagAlreadyExists = versionTagName.get() in tags.map { it.name.replace("refs/tags/", "") }
+        val tagAlreadyExists = versionTag in tags.map { it.name.replace("refs/tags/", "") }
 
-        if (tagAlreadyExists) throw TagAlreadyExistsException(versionTagName.get())
+        if (tagAlreadyExists) throw TagAlreadyExistsException(versionTag)
 
-        git.tag().setName(versionTagName.get()).call()
+        git.tag().setName(versionTag).call()
         git.push().setPushTags().call()
-        logger.semverLifecycle("Created and pushed version tag: ${versionTagName.get()}")
+        logger.semverLifecycle("Created and pushed version tag: $versionTag")
     }
 }
