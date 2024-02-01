@@ -14,7 +14,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: figure-linux-standard
 
     steps:
       - name: Set up JDK 17
