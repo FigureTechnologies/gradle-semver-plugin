@@ -32,17 +32,11 @@ internal class GitContextProviderOperations(
         }
     }
 
-    override fun branchVersion(
-        currentBranch: GitRef.Branch,
-        targetBranch: GitRef.Branch,
-    ): Result<SemVer?> {
+    override fun branchVersion(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch): Result<SemVer?> {
         return git.calculateBaseBranchVersion(targetBranch, currentBranch, tags)
     }
 
-    override fun commitsSinceBranchPoint(
-        currentBranch: GitRef.Branch,
-        targetBranch: GitRef.Branch,
-    ): Result<Int?> {
+    override fun commitsSinceBranchPoint(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch): Result<Int?> {
         return git.latestCommitOnBranch(currentBranch).map { branchPoint ->
             gitCommitsSinceBranchPoint(git, branchPoint, targetBranch, tags).getOrThrow()
         }

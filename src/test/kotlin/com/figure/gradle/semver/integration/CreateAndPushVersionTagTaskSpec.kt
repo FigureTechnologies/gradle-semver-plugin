@@ -26,50 +26,46 @@ class CreateAndPushVersionTagTaskSpec : FunSpec({
     val defaultArguments = listOf("build", task, GradleArgs.STACKTRACE)
 
     fun GradleRunner.runWithoutExpectations(arguments: List<String>): Pair<BuildResult, BuildResult> {
-        val firstRun =
-            this
-                .withArguments(arguments)
-                .build()
+        val firstRun = this
+            .withArguments(arguments)
+            .build()
 
-        val secondRun =
-            this
-                .withArguments(arguments)
-                .run()
+        val secondRun = this
+            .withArguments(arguments)
+            .run()
 
         return firstRun to secondRun
     }
 
     context("create and push version tag") {
-        val listeners =
-            listOf(
-                GradleIntegrationTestKitExtension(
-                    runner,
-                    initialBranch = GitRef.Branch.MAIN,
-                ),
-                GradleIntegrationTestKitExtension(
-                    runner,
-                    initialBranch = GitRef.Branch.MASTER,
-                ),
-                GradleIntegrationTestKitExtension(
-                    runner,
-                    initialBranch = GitRef.Branch.MAIN,
-                    defaultBranch = GitRef.Branch.DEVELOP,
-                ),
-                GradleIntegrationTestKitExtension(
-                    runner,
-                    initialBranch = GitRef.Branch.MASTER,
-                    defaultBranch = GitRef.Branch.DEVELOP,
-                ),
-            )
+        val listeners = listOf(
+            GradleIntegrationTestKitExtension(
+                runner,
+                initialBranch = GitRef.Branch.MAIN,
+            ),
+            GradleIntegrationTestKitExtension(
+                runner,
+                initialBranch = GitRef.Branch.MASTER,
+            ),
+            GradleIntegrationTestKitExtension(
+                runner,
+                initialBranch = GitRef.Branch.MAIN,
+                defaultBranch = GitRef.Branch.DEVELOP,
+            ),
+            GradleIntegrationTestKitExtension(
+                runner,
+                initialBranch = GitRef.Branch.MASTER,
+                defaultBranch = GitRef.Branch.DEVELOP,
+            ),
+        )
 
-        val testData =
-            listOf(
-                TestData(listOf()),
-                TestData(listOf(GradleArgs.PARALLEL)),
-                TestData(listOf(GradleArgs.BUILD_CACHE)),
-                TestData(listOf(GradleArgs.CONFIGURATION_CACHE)),
-                TestData(listOf(GradleArgs.PARALLEL, GradleArgs.BUILD_CACHE, GradleArgs.CONFIGURATION_CACHE)),
-            )
+        val testData = listOf(
+            TestData(listOf()),
+            TestData(listOf(GradleArgs.PARALLEL)),
+            TestData(listOf(GradleArgs.BUILD_CACHE)),
+            TestData(listOf(GradleArgs.CONFIGURATION_CACHE)),
+            TestData(listOf(GradleArgs.PARALLEL, GradleArgs.BUILD_CACHE, GradleArgs.CONFIGURATION_CACHE)),
+        )
 
         listeners.forEach { listener ->
             listener(listener)
