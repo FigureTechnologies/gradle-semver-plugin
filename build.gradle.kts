@@ -50,14 +50,14 @@ dependencies {
     // Leak semver library users of this plugin so that they can implement their own versionModifier strategy
     // TODO: For v2, remove need for semver jar for consumers. They shouldn't need to know about this detail
     listOf(
-        libs.swiftzer.semver
+        libs.swiftzer.semver,
     ).forEach {
         api(it)
     }
 
     listOf(
         gradleTestKit(),
-        libs.bundles.kotest
+        libs.bundles.kotest,
     ).forEach {
         testImplementation(it)
     }
@@ -83,7 +83,7 @@ tasks.withType<KotlinCompile>().configureEach {
         freeCompilerArgs.addAll(
             "-version",
             "-Xjsr305=strict",
-            "-opt-in=kotlin.RequiresOptIn"
+            "-opt-in=kotlin.RequiresOptIn",
         )
         verbose.set(true)
     }
@@ -127,13 +127,11 @@ githubRelease {
     token(githubTokenValue)
 }
 
-ktlint {
-    disabledRules.set(setOf("trailing-comma-on-declaration-site", "trailing-comma-on-call-site"))
-}
-
 tasks.wrapper {
     distributionType = Wrapper.DistributionType.ALL
 }
 
 logger.lifecycle("JDK toolchain version: ${java.toolchain.languageVersion.get()}")
-logger.lifecycle("Kotlin version: ${extensions.findByType<org.jetbrains.kotlin.gradle.dsl.KotlinTopLevelExtension>()?.coreLibrariesVersion}")
+logger.lifecycle(
+    "Kotlin version: ${extensions.findByType<org.jetbrains.kotlin.gradle.dsl.KotlinTopLevelExtension>()?.coreLibrariesVersion}",
+)

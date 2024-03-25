@@ -15,7 +15,7 @@ internal data class VersionCalculatorConfig(
     val tagPrefix: String,
     val initialVersion: SemVer = SemVer(0, 0, 1),
     val overrideVersion: SemVer? = null,
-    val branchMatching: VersionCalculatorStrategy = mainBasedFlowVersionCalculatorStrategy { nextPatch() }
+    val branchMatching: VersionCalculatorStrategy = mainBasedFlowVersionCalculatorStrategy { nextPatch() },
 ) {
     companion object {
         internal val DEFAULT_VERSION = SemVer(0, 1, 0, null, null)

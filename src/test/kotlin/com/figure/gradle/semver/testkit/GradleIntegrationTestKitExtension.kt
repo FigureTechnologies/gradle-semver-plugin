@@ -45,21 +45,23 @@ class GradleIntegrationTestKitExtension(
         tempRepoDir = createTempDirectory("tempRepoDir").toFile()
         tempRemoteRepoDir = createTempDirectory("tempRemoteRepoDir").toFile()
 
-        val updatedBuildFile = buildFile.readText().replace("@kotlin-version@", kotlinVersion.toString())
-            .toFile("${tempRepoDir.path}/build/updated/build.gradle.kts")
+        val updatedBuildFile =
+            buildFile.readText().replace("@kotlin-version@", kotlinVersion.toString())
+                .toFile("${tempRepoDir.path}/build/updated/build.gradle.kts")
 
         updatedBuildFile.copyToDir(tempRepoDir, "build.gradle.kts")
 
         localBuildCacheDirectory = File(tempRepoDir, "local-cache")
-        val updatedSettingsFile = settingsFile.appendFileContents(
-            """
+        val updatedSettingsFile =
+            settingsFile.appendFileContents(
+                """
             buildCache {
                 local {
                     directory = "${localBuildCacheDirectory.toURI()}"
                 }
             }
-            """.trimMargin()
-        )
+                """.trimMargin(),
+            )
 
         updatedSettingsFile.copyToDir(tempRepoDir, "settings.gradle.kts")
 
@@ -72,6 +74,9 @@ class GradleIntegrationTestKitExtension(
             .withPluginClasspath()
     }
 
-    override suspend fun afterAny(testCase: TestCase, result: TestResult) {
+    override suspend fun afterAny(
+        testCase: TestCase,
+        result: TestResult,
+    ) {
     }
 }

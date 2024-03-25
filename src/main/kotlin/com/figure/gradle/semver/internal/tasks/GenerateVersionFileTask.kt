@@ -17,7 +17,6 @@ import org.gradle.api.tasks.TaskAction
 
 @CacheableTask
 abstract class GenerateVersionFileTask : DefaultTask() {
-
     @get:OutputFile
     abstract val destination: RegularFileProperty
 
@@ -38,7 +37,7 @@ abstract class GenerateVersionFileTask : DefaultTask() {
                 """
                     |${version.get()}
                     |${versionTagName.get()}
-                """.trimMargin()
+                """.trimMargin(),
             )
         }
     }

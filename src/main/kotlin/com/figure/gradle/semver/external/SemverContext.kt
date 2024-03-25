@@ -22,14 +22,15 @@ interface SemverContext {
         targetBranch: GitRef.Branch,
         label: String,
     ) = PreReleaseLabel(
-        value = ops.commitsSinceBranchPoint(currentBranch, targetBranch).fold(
-            onSuccess = {
-                "$label.$it"
-            },
-            onFailure = {
-                log.semverWarn("Unable to calculate commits since branch point on current $currentBranch")
-                label
-            }
-        )
+        value =
+            ops.commitsSinceBranchPoint(currentBranch, targetBranch).fold(
+                onSuccess = {
+                    "$label.$it"
+                },
+                onFailure = {
+                    log.semverWarn("Unable to calculate commits since branch point on current $currentBranch")
+                    label
+                },
+            ),
     )
 }
