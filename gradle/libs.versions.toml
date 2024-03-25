@@ -4,7 +4,7 @@ kotlin = "1.9.23"
 
 # Library versions
 detekt = "1.23.6"
-gradle-plugin-publish = "1.2.0"
+gradle-plugin-publish = "1.2.1"
 jgit = "6.5.0.202303070854-r"
 kotest = "5.6.2"
 ktlint-gradle = "11.5.1"
