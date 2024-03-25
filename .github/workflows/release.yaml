@@ -65,7 +65,7 @@ jobs:
           echo -n "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | base64 --decode > release.gpg
 
       - name: Build and Release Main
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
           gradle-home-cache-cleanup: true
