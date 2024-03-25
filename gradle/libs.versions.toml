@@ -3,7 +3,7 @@
 kotlin = "1.8.22"
 
 # Library versions
-detekt = "1.23.0"
+detekt = "1.23.6"
 gradle-plugin-publish = "1.2.0"
 jgit = "6.5.0.202303070854-r"
 kotest = "5.6.2"
