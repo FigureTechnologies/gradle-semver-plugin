@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023 Figure Technologies and its affiliates.
+ * Copyright (c) 2024 Figure Technologies and its affiliates.
  *
  * This source code is licensed under the Apache 2.0 license found in the
  * LICENSE.md file in the root directory of this source tree.
@@ -83,7 +83,7 @@ class GenerateVersionFileTaskSpec : FunSpec({
         val (firstRun, secondRun) = runner.runTask(arguments)
 
         // Then
-        firstRun.output shouldContain "no configuration cache is available for tasks"
+        firstRun.output shouldContain "Calculating task graph as no cached configuration is available for tasks"
 
         firstRun.taskOutcome(task) shouldBe TaskOutcome.SUCCESS
         secondRun.taskOutcome(task) shouldBe TaskOutcome.UP_TO_DATE
@@ -103,7 +103,7 @@ class GenerateVersionFileTaskSpec : FunSpec({
         val (firstRun, secondRun) = runner.runTask(arguments)
 
         // Then
-        firstRun.output shouldContain "no configuration cache is available for tasks"
+        firstRun.output shouldContain "Calculating task graph as no cached configuration is available for tasks"
 
         firstRun.taskOutcome(task) shouldBe TaskOutcome.SUCCESS
         secondRun.taskOutcome(task) shouldBe TaskOutcome.UP_TO_DATE

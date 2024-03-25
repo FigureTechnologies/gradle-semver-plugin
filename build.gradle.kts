@@ -108,22 +108,23 @@ tasks.withType<Test>().configureEach {
 // project version, also used for publishing
 version = semver.version
 
-val githubTokenValue = findProperty("githubToken")?.toString() ?: System.getenv("GITHUB_TOKEN")
+val githubTokenValue: String = findProperty("githubToken")?.toString() ?: System.getenv("GITHUB_TOKEN")
 
 githubRelease {
+    apiEndpoint = "https://api.github.com" // should only change for GitHub enterprise users
+    body = ""
+    draft = false
+    dryRun = false // by default false; you can use this to see what actions would be taken without making a release
+    generateReleaseNotes = true
+    overwrite = false
+    owner = "FigureTechnologies"
+    prerelease = false
+    repo = "gradle-semver-plugin" // Should automatically pick up your project name, overwrite this if you need something else
+    targetCommitish = System.getenv("TARGET_COMMIT_ISH")?.takeIf { it.isNotBlank() } ?: "main"
+
+    // This is your personal access token with Repo permissions
+    // You get this from your user settings > developer settings > Personal Access Tokens
     token(githubTokenValue)
-    owner("FigureTechnologies")
-    repo("gradle-semver-plugin")
-    tagName(semver.versionTagName)
-    targetCommitish("main")
-    body("")
-    generateReleaseNotes(true)
-    draft(false)
-    prerelease(false)
-    overwrite(false)
-    dryRun(false)
-    apiEndpoint("https://api.github.com")
-    client
 }
 
 ktlint {
