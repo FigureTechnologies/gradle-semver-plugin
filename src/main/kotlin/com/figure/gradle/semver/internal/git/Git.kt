@@ -36,7 +36,7 @@ internal fun openGitDir(gitDir: String) =
             .setGitDir(File(gitDir))
             .readEnvironment()
             .findGitDir()
-            .build()
+            .build(),
     )
 
 internal fun Project.git(gitDir: String): Git =
@@ -45,7 +45,7 @@ internal fun Project.git(gitDir: String): Git =
             .setGitDir(file(gitDir))
             .readEnvironment()
             .findGitDir()
-            .build()
+            .build(),
     )
 
 internal fun Git.tagMap(prefix: String): Map<ObjectId, SemVer> {
@@ -87,7 +87,10 @@ internal fun String?.shortName(): Result<String> {
     } ?: Result.failure(UnexpectedException("Unable to parse null branch ref"))
 }
 
-private fun parseBranchName(fullBranchName: String, prefix: String): Result<String> {
+private fun parseBranchName(
+    fullBranchName: String,
+    prefix: String,
+): Result<String> {
     return runCatching {
         Result.success(fullBranchName.substringAfter("$prefix/"))
     }.getOrElse { ex ->
@@ -140,9 +143,10 @@ internal fun gitCommitsSinceBranchPoint(
     tags: Map<ObjectId, SemVer>,
 ): Result<Int> {
     val commits = git.log().call().toList()
-    val newCommits = commits.takeWhile {
-        it.toObjectId() != branchPoint.toObjectId() && it.commitTime > branchPoint.commitTime
-    }
+    val newCommits =
+        commits.takeWhile {
+            it.toObjectId() != branchPoint.toObjectId() && it.commitTime > branchPoint.commitTime
+        }
 
     return when {
         newCommits.map { it.toObjectId() }.contains(branchPoint.toObjectId()) -> {
@@ -155,7 +159,7 @@ internal fun gitCommitsSinceBranchPoint(
                     append("Unable to find branch point [${branchPoint.id.name}: ${branchPoint.shortMessage}] ")
                     append("typically this happens when commits were squashed & merged and this branch [$branch] has ")
                     append("not been rebased yet, using nearest commit with a semver tag, this is just an estimate")
-                }
+                },
             )
 
             git.findYoungestTagCommitOnBranch(branch, tags)
@@ -168,7 +172,7 @@ internal fun gitCommitsSinceBranchPoint(
                         buildString {
                             append("Failed to find any semver tags on branch [$branch], does main have ")
                             append("any version tags? Using 0 as commit count since branch point")
-                        }
+                        },
                     )
                     Result.success(0)
                 }
@@ -181,8 +185,8 @@ internal fun gitCommitsSinceBranchPoint(
                         append("The branch ${branch.refName} did not contain the branch point ")
                         append("[${branchPoint.toObjectId()}: ${branchPoint.shortMessage}], ")
                         append("have you rebased your current branch?")
-                    }
-                )
+                    },
+                ),
             )
         }
     }
@@ -204,10 +208,11 @@ private fun Git.findYoungestTagCommitOnBranch(
 
 fun Git.hasBranch(branch: GitRef.Branch): Boolean =
     runCatching {
-        val branchNames = branchList()
-            .setListMode(ListBranchCommand.ListMode.ALL)
-            .call()
-            .mapNotNull { it.name.shortName().getOrNull() }
+        val branchNames =
+            branchList()
+                .setListMode(ListBranchCommand.ListMode.ALL)
+                .call()
+                .mapNotNull { it.name.shortName().getOrNull() }
 
         branch.name in branchNames
     }.getOrElse {

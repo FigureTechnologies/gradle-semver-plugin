@@ -11,8 +11,7 @@ import java.io.File
 import java.io.FileWriter
 import java.nio.file.NotDirectoryException
 
-fun resourceFromPath(resourcePath: String): File =
-    File(Thread.currentThread().contextClassLoader?.getResource(resourcePath)?.toURI()!!)
+fun resourceFromPath(resourcePath: String): File = File(Thread.currentThread().contextClassLoader?.getResource(resourcePath)?.toURI()!!)
 
 fun String.toFile(path: String): File {
     val newFile = File(path)
@@ -21,7 +20,10 @@ fun String.toFile(path: String): File {
     return newFile
 }
 
-fun File.copyToDir(dest: File, fileName: String = this.name) {
+fun File.copyToDir(
+    dest: File,
+    fileName: String = this.name,
+) {
     if (dest.isDirectory) {
         val newFile = File("${dest.path}/$fileName")
         this.copyTo(newFile)

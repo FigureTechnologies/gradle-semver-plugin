@@ -32,13 +32,14 @@ abstract class CreateAndPushVersionTagTask : DefaultTask() {
 
     @TaskAction
     fun createAndPushTag() {
-        val git = Git(
-            FileRepositoryBuilder()
-                .setGitDir(gitDir.get())
-                .readEnvironment()
-                .findGitDir()
-                .build()
-        )
+        val git =
+            Git(
+                FileRepositoryBuilder()
+                    .setGitDir(gitDir.get())
+                    .readEnvironment()
+                    .findGitDir()
+                    .build(),
+            )
 
         val tags = git.tagList().call()
         val tagAlreadyExists = versionTagName.get() in tags.map { it.name.replace("refs/tags/", "") }

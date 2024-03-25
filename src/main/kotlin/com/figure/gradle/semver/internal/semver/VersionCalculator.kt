@@ -29,9 +29,8 @@ internal class TargetBranchVersionCalculator(
     private val contextProviderOperations: ContextProviderOperations,
     private val config: VersionCalculatorConfig,
     private val context: SemverContext,
-    private val currentBranch: GitRef.Branch
+    private val currentBranch: GitRef.Branch,
 ) : VersionCalculator {
-
     override fun calculateVersion(): Result<SemVer> {
         return previousVersion().map {
             versionQualifier(versionModifier(it))
@@ -80,7 +79,7 @@ internal class TargetBranchVersionCalculator(
                 context.fn(currentBranch).let {
                     current.copy(
                         preRelease = it.first.value.ifBlank { null },
-                        buildMetadata = it.second.value.ifBlank { null }
+                        buildMetadata = it.second.value.ifBlank { null },
                     )
                 }
             }

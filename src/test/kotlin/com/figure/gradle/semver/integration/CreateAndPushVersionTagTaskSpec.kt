@@ -23,7 +23,7 @@ class CreateAndPushVersionTagTaskSpec : FunSpec({
     val runner = GradleRunner.create()
 
     val task = "createAndPushVersionTag"
-    val defaultArguments = listOf("build", task, GradleArgs.Stacktrace)
+    val defaultArguments = listOf("build", task, GradleArgs.STACKTRACE)
 
     fun GradleRunner.runWithoutExpectations(arguments: List<String>): Pair<BuildResult, BuildResult> {
         val firstRun = this
@@ -41,30 +41,30 @@ class CreateAndPushVersionTagTaskSpec : FunSpec({
         val listeners = listOf(
             GradleIntegrationTestKitExtension(
                 runner,
-                initialBranch = GitRef.Branch.MAIN
-            ),
-            GradleIntegrationTestKitExtension(
-                runner,
-                initialBranch = GitRef.Branch.MASTER
-            ),
-            GradleIntegrationTestKitExtension(
-                runner,
                 initialBranch = GitRef.Branch.MAIN,
-                defaultBranch = GitRef.Branch.DEVELOP
             ),
             GradleIntegrationTestKitExtension(
                 runner,
                 initialBranch = GitRef.Branch.MASTER,
-                defaultBranch = GitRef.Branch.DEVELOP
+            ),
+            GradleIntegrationTestKitExtension(
+                runner,
+                initialBranch = GitRef.Branch.MAIN,
+                defaultBranch = GitRef.Branch.DEVELOP,
+            ),
+            GradleIntegrationTestKitExtension(
+                runner,
+                initialBranch = GitRef.Branch.MASTER,
+                defaultBranch = GitRef.Branch.DEVELOP,
             ),
         )
 
         val testData = listOf(
             TestData(listOf()),
-            TestData(listOf(GradleArgs.Parallel)),
-            TestData(listOf(GradleArgs.BuildCache)),
-            TestData(listOf(GradleArgs.ConfigurationCache)),
-            TestData(listOf(GradleArgs.Parallel, GradleArgs.BuildCache, GradleArgs.ConfigurationCache)),
+            TestData(listOf(GradleArgs.PARALLEL)),
+            TestData(listOf(GradleArgs.BUILD_CACHE)),
+            TestData(listOf(GradleArgs.CONFIGURATION_CACHE)),
+            TestData(listOf(GradleArgs.PARALLEL, GradleArgs.BUILD_CACHE, GradleArgs.CONFIGURATION_CACHE)),
         )
 
         listeners.forEach { listener ->
@@ -78,7 +78,7 @@ class CreateAndPushVersionTagTaskSpec : FunSpec({
                         "${listener.initialBranch.name} -- args: ${it.additionalArgs}"
                     }
                 },
-                testData.asSequence()
+                testData.asSequence(),
             ) {
                 // Given
                 val arguments = defaultArguments + it.additionalArgs

@@ -34,13 +34,14 @@ class StandardComputeNextVersionSpec : FunSpec({
 
     val runner = GradleRunner.create()
 
-    val gradleIntegrationTestKitExtension = GradleIntegrationTestKitExtension(
-        runner = runner,
-        initialBranch = GitRef.Branch.MAIN,
-        defaultBranch = GitRef.Branch.DEVELOP,
-        buildFile = resourceFromPath("integration/standard-project/build.gradle.kts"),
-        settingsFile = resourceFromPath("integration/standard-project/settings.gradle.kts")
-    )
+    val gradleIntegrationTestKitExtension =
+        GradleIntegrationTestKitExtension(
+            runner = runner,
+            initialBranch = GitRef.Branch.MAIN,
+            defaultBranch = GitRef.Branch.DEVELOP,
+            buildFile = resourceFromPath("integration/standard-project/build.gradle.kts"),
+            settingsFile = resourceFromPath("integration/standard-project/settings.gradle.kts"),
+        )
 
     listener(gradleIntegrationTestKitExtension)
 
@@ -52,9 +53,10 @@ class StandardComputeNextVersionSpec : FunSpec({
         git.push().call()
 
         // When
-        val buildResult = runner
-            .withArguments(GradleArgs.Stacktrace)
-            .build()
+        val buildResult =
+            runner
+                .withArguments(GradleArgs.STACKTRACE)
+                .build()
 
         // Then
         buildResult.output shouldContain NEXT_PATCH_VERSION
@@ -68,14 +70,15 @@ class StandardComputeNextVersionSpec : FunSpec({
         git.push().call()
 
         // When
-        val buildResult = runner
-            .withArguments(
-                GradleArgs.Stacktrace,
-                GradleArgs.Parallel,
-                GradleArgs.BuildCache,
-                GradleArgs.ConfigurationCache
-            )
-            .build()
+        val buildResult =
+            runner
+                .withArguments(
+                    GradleArgs.STACKTRACE,
+                    GradleArgs.PARALLEL,
+                    GradleArgs.BUILD_CACHE,
+                    GradleArgs.CONFIGURATION_CACHE,
+                )
+                .build()
 
         // Then
         buildResult.output shouldContain NEXT_PATCH_VERSION

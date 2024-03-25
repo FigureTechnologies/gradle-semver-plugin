@@ -120,7 +120,7 @@ internal abstract class GitCalculateSemverValueSource : ValueSource<String, GitC
         val initialConfig = VersionCalculatorConfig(
             tagPrefix = parameters.tagPrefix.get(),
             initialVersion = SemVer.parse(parameters.initialVersion.get()),
-            overrideVersion = parameters.overrideVersion.orNull?.let { SemVer.parse(it) }
+            overrideVersion = parameters.overrideVersion.orNull?.let { SemVer.parse(it) },
         )
 
         val versionStrategy = parameters.versionStrategy

@@ -23,10 +23,10 @@ internal class TagAlreadyExistsException(tag: String) :
         """
         |Tag $tag already exists on remote! Either skip publishing the artifact on the next run or delete
         | the existing tag before running again.
-        """.trimMargin().replace("\n", "")
+        """.trimMargin().replace("\n", ""),
     )
 
 internal class UnsupportedBranchingStrategy() :
     Exception(
-        "Unsupported branching strategy. Supported branching strategies: main, master, main-develop, master-develop"
+        "Unsupported branching strategy. Supported branching strategies: main, master, main-develop, master-develop",
     )

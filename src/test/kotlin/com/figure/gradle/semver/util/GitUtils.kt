@@ -60,11 +60,12 @@ private fun Git.addCommitsAndTags(
     tempRepoDir: File,
 ) {
     for ((modifier, i) in (1..3).withIndex()) {
-        val tagName = if (targetBranch == GitRef.Branch.DEVELOP) {
-            "v1.$modifier.0-beta.1"
-        } else {
-            "v1.$modifier.0"
-        }
+        val tagName =
+            if (targetBranch == GitRef.Branch.DEVELOP) {
+                "v1.$modifier.0-beta.1"
+            } else {
+                "v1.$modifier.0"
+            }
 
         val tagMessage = "Tag $tagName"
 
@@ -75,11 +76,12 @@ private fun Git.addCommitsAndTags(
         val author = PersonIdent("Author $i", "author$i@example.com")
         val committer = PersonIdent("Committer $i", "committer$i@example.com")
 
-        val commit: RevCommit = commit().apply {
-            this.author = author
-            this.committer = committer
-            this.message = "Commit $i"
-        }.call()
+        val commit: RevCommit =
+            commit().apply {
+                this.author = author
+                this.committer = committer
+                this.message = "Commit $i"
+            }.call()
 
         tag().apply {
             this.name = tagName

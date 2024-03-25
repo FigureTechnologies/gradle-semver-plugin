@@ -82,7 +82,7 @@ abstract class SemverExtension @Inject constructor(
                 """
                 |Cannot set semver tagPrefix after override version has been set.
                 | The override version depends on the tagPrefix. Set the tagPrefix first.
-                """.trimMargin().replace("\n", "")
+                """.trimMargin().replace("\n", ""),
             )
         }
         this.tagPrefix.set(prefix)

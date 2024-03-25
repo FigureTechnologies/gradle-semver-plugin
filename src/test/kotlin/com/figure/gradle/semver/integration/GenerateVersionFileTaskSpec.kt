@@ -27,7 +27,7 @@ class GenerateVersionFileTaskSpec : FunSpec({
     listener(gradleIntegrationTestKitExtension)
 
     val task = "generateVersionFile"
-    val defaultArguments = listOf("build", task, GradleArgs.Stacktrace)
+    val defaultArguments = listOf("build", task, GradleArgs.STACKTRACE)
 
     fun validateVersionFile() {
         val versionFile = gradleIntegrationTestKitExtension.tempRepoDir.resolve("build/semver/version.txt")
@@ -49,7 +49,7 @@ class GenerateVersionFileTaskSpec : FunSpec({
 
     test("with parallel") {
         // Given
-        val arguments = defaultArguments + listOf(GradleArgs.Parallel)
+        val arguments = defaultArguments + listOf(GradleArgs.PARALLEL)
 
         // When
         val (firstRun, secondRun) = runner.runTask(arguments)
@@ -63,7 +63,7 @@ class GenerateVersionFileTaskSpec : FunSpec({
 
     test("with build-cache") {
         // Given
-        val arguments = defaultArguments + listOf(GradleArgs.BuildCache)
+        val arguments = defaultArguments + listOf(GradleArgs.BUILD_CACHE)
 
         // When
         val (firstRun, secondRun) = runner.runTask(arguments)
@@ -77,7 +77,7 @@ class GenerateVersionFileTaskSpec : FunSpec({
 
     test("with configuration-cache") {
         // Given
-        val arguments = defaultArguments + listOf(GradleArgs.ConfigurationCache)
+        val arguments = defaultArguments + listOf(GradleArgs.CONFIGURATION_CACHE)
 
         // When
         val (firstRun, secondRun) = runner.runTask(arguments)
@@ -93,11 +93,13 @@ class GenerateVersionFileTaskSpec : FunSpec({
 
     test("with parallel, build-cache, and configuration-cache") {
         // Given
-        val arguments = defaultArguments + listOf(
-            GradleArgs.Parallel,
-            GradleArgs.BuildCache,
-            GradleArgs.ConfigurationCache,
-        )
+        val arguments =
+            defaultArguments +
+                listOf(
+                    GradleArgs.PARALLEL,
+                    GradleArgs.BUILD_CACHE,
+                    GradleArgs.CONFIGURATION_CACHE,
+                )
 
         // When
         val (firstRun, secondRun) = runner.runTask(arguments)

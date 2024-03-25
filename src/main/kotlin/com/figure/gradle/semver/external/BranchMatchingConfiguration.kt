@@ -22,7 +22,7 @@ data class BranchMatchingConfiguration(
     val regex: Regex,
     val targetBranch: GitRef.Branch,
     val versionQualifier: VersionQualifier,
-    val versionModifier: VersionModifier = { nextPatch() }
+    val versionModifier: VersionModifier = { nextPatch() },
 )
 
 fun mainBasedFlowVersionCalculatorStrategy(versionModifier: VersionModifier): VersionCalculatorStrategy =
@@ -33,56 +33,55 @@ fun masterBasedFlowVersionCalculatorStrategy(versionModifier: VersionModifier): 
 
 private fun buildFlowVersionCalculatorStrategy(
     targetBranch: GitRef.Branch,
-    versionModifier: VersionModifier
-): VersionCalculatorStrategy = listOf(
-    BranchMatchingConfiguration(
-        regex = """^${targetBranch.name}$""".toRegex(),
-        targetBranch = targetBranch,
-        versionQualifier = {
-            PreReleaseLabel.EMPTY to BuildMetadataLabel.EMPTY
-        },
-        versionModifier = versionModifier
-    ),
-    BranchMatchingConfiguration(
-        regex = """^develop$""".toRegex(),
-        targetBranch = targetBranch,
-        versionQualifier = { currentBranch ->
-            preReleaseWithCommitCount(
-                currentBranch = currentBranch,
-                targetBranch = targetBranch,
-                label = "beta"
-            ) to BuildMetadataLabel.EMPTY
-        },
-        versionModifier = versionModifier
-    ),
-    BranchMatchingConfiguration(
-        regex = """^rc/.*""".toRegex(),
-        targetBranch = targetBranch,
-        versionQualifier = { currentBranch ->
-            preReleaseWithCommitCount(
-                currentBranch = currentBranch,
-                targetBranch = targetBranch,
-                label = "rc"
-            ) to BuildMetadataLabel.EMPTY
-        },
-        versionModifier = versionModifier
-    ),
-    /**
-     * This one must be last so the other configurations get matched first
-     */
-    BranchMatchingConfiguration(
-        regex = """.*""".toRegex(),
-        targetBranch = GitRef.Branch.DEVELOP,
-        versionQualifier = { currentBranch ->
-            preReleaseWithCommitCount(
-                currentBranch = currentBranch,
-                targetBranch = targetBranch,
-                label = currentBranch.sanitizedNameWithoutPrefix()
-            ) to BuildMetadataLabel.EMPTY
-        },
-        versionModifier = versionModifier
-    ),
-)
+    versionModifier: VersionModifier,
+): VersionCalculatorStrategy =
+    listOf(
+        BranchMatchingConfiguration(
+            regex = """^${targetBranch.name}$""".toRegex(),
+            targetBranch = targetBranch,
+            versionQualifier = {
+                PreReleaseLabel.EMPTY to BuildMetadataLabel.EMPTY
+            },
+            versionModifier = versionModifier,
+        ),
+        BranchMatchingConfiguration(
+            regex = """^develop$""".toRegex(),
+            targetBranch = targetBranch,
+            versionQualifier = { currentBranch ->
+                preReleaseWithCommitCount(
+                    currentBranch = currentBranch,
+                    targetBranch = targetBranch,
+                    label = "beta",
+                ) to BuildMetadataLabel.EMPTY
+            },
+            versionModifier = versionModifier,
+        ),
+        BranchMatchingConfiguration(
+            regex = """^rc/.*""".toRegex(),
+            targetBranch = targetBranch,
+            versionQualifier = { currentBranch ->
+                preReleaseWithCommitCount(
+                    currentBranch = currentBranch,
+                    targetBranch = targetBranch,
+                    label = "rc",
+                ) to BuildMetadataLabel.EMPTY
+            },
+            versionModifier = versionModifier,
+        ),
+        // This one must be last so the other configurations get matched first
+        BranchMatchingConfiguration(
+            regex = """.*""".toRegex(),
+            targetBranch = GitRef.Branch.DEVELOP,
+            versionQualifier = { currentBranch ->
+                preReleaseWithCommitCount(
+                    currentBranch = currentBranch,
+                    targetBranch = targetBranch,
+                    label = currentBranch.sanitizedNameWithoutPrefix(),
+                ) to BuildMetadataLabel.EMPTY
+            },
+            versionModifier = versionModifier,
+        ),
+    )
 
 fun mainBasedFlatVersionCalculatorStrategy(versionModifier: VersionModifier): VersionCalculatorStrategy =
     buildFlatVersionCalculatorStrategy(GitRef.Branch.MAIN, versionModifier)
@@ -93,35 +92,36 @@ fun masterBasedFlatVersionCalculatorStrategy(versionModifier: VersionModifier): 
 private fun buildFlatVersionCalculatorStrategy(
     targetBranch: GitRef.Branch,
     versionModifier: VersionModifier,
-): VersionCalculatorStrategy = listOf(
-    BranchMatchingConfiguration(
-        regex = """^${targetBranch.name}$""".toRegex(),
-        targetBranch = targetBranch,
-        versionQualifier = { PreReleaseLabel.EMPTY to BuildMetadataLabel.EMPTY },
-        versionModifier = versionModifier
-    ),
-    BranchMatchingConfiguration(
-        regex = """^rc/.*""".toRegex(),
-        targetBranch = targetBranch,
-        versionQualifier = { currentBranch ->
-            preReleaseWithCommitCount(
-                currentBranch = currentBranch,
-                targetBranch = targetBranch,
-                label = "rc"
-            ) to BuildMetadataLabel.EMPTY
-        },
-        versionModifier = versionModifier
-    ),
-    BranchMatchingConfiguration(
-        regex = """.*""".toRegex(),
-        targetBranch = targetBranch,
-        versionQualifier = {
-            preReleaseWithCommitCount(
-                currentBranch = it,
-                targetBranch = targetBranch,
-                label = it.sanitizedNameWithoutPrefix()
-            ) to BuildMetadataLabel.EMPTY
-        },
-        versionModifier = versionModifier
-    ),
-)
+): VersionCalculatorStrategy =
+    listOf(
+        BranchMatchingConfiguration(
+            regex = """^${targetBranch.name}$""".toRegex(),
+            targetBranch = targetBranch,
+            versionQualifier = { PreReleaseLabel.EMPTY to BuildMetadataLabel.EMPTY },
+            versionModifier = versionModifier,
+        ),
+        BranchMatchingConfiguration(
+            regex = """^rc/.*""".toRegex(),
+            targetBranch = targetBranch,
+            versionQualifier = { currentBranch ->
+                preReleaseWithCommitCount(
+                    currentBranch = currentBranch,
+                    targetBranch = targetBranch,
+                    label = "rc",
+                ) to BuildMetadataLabel.EMPTY
+            },
+            versionModifier = versionModifier,
+        ),
+        BranchMatchingConfiguration(
+            regex = """.*""".toRegex(),
+            targetBranch = targetBranch,
+            versionQualifier = {
+                preReleaseWithCommitCount(
+                    currentBranch = it,
+                    targetBranch = targetBranch,
+                    label = it.sanitizedNameWithoutPrefix(),
+                ) to BuildMetadataLabel.EMPTY
+            },
+            versionModifier = versionModifier,
+        ),
+    )

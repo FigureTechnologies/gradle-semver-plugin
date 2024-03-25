@@ -18,8 +18,10 @@ sealed interface GitRef {
     }
 
     data class Branch(
-        val name: String, // example: `main`
-        val refName: String, // example: `refs/remotes/origin/main`
+        // example: `main`
+        val name: String,
+        // example: `refs/remotes/origin/main`
+        val refName: String,
     ) {
         constructor(name: String) : this(name, "$REF_HEAD/$name")
 

@@ -8,8 +8,8 @@
 package com.figure.gradle.semver.util
 
 object GradleArgs {
-    const val Parallel = "--parallel"
-    const val BuildCache = "--build-cache"
-    const val ConfigurationCache = "--configuration-cache"
-    const val Stacktrace = "--stacktrace"
+    const val PARALLEL = "--parallel"
+    const val BUILD_CACHE = "--build-cache"
+    const val CONFIGURATION_CACHE = "--configuration-cache"
+    const val STACKTRACE = "--stacktrace"
 }
