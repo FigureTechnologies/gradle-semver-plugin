@@ -64,8 +64,8 @@ jobs:
           gpg --list-secret-keys --keyid-format LONG
           echo -n "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | base64 --decode > release.gpg
 
-      - name: Build and Release Main
-        uses: gradle/gradle-build-action@v2
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
           gradle-home-cache-cleanup: true
@@ -74,15 +74,18 @@ jobs:
             notifications
             jdks
             wrapper
-          arguments: |
-            -Psemver.modifier=${{ github.event.inputs.versionModifier }}
-            clean build ${{ steps.build_parameters.outputs.publishCommand }}
-            ${{ steps.build_parameters.outputs.githubReleaseCommand }}
-            -Psigning.keyId=${{ secrets.OSSRH_GPG_SECRET_KEY_ID }}
-            -Psigning.password=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}"
-            -Psigning.secretKeyRingFile=release.gpg
-            -Pgradle.publish.key=${{ secrets.OSS_GRADLE_PUBLISH_KEY }}
-            -Pgradle.publish.secret=${{ secrets.OSS_GRADLE_PUBLISH_SECRET }}
-            --stacktrace
-            --parallel
-            --build-cache
+
+      - name: Build and Release Main
+        run: |
+          ./gradlew
+          -Psemver.modifier=${{ github.event.inputs.versionModifier }}
+          build ${{ steps.build_parameters.outputs.publishCommand }}
+          ${{ steps.build_parameters.outputs.githubReleaseCommand }}
+          -Psigning.keyId=${{ secrets.OSSRH_GPG_SECRET_KEY_ID }}
+          -Psigning.password=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}"
+          -Psigning.secretKeyRingFile=release.gpg
+          -Pgradle.publish.key=${{ secrets.OSS_GRADLE_PUBLISH_KEY }}
+          -Pgradle.publish.secret=${{ secrets.OSS_GRADLE_PUBLISH_SECRET }}
+          --stacktrace
+          --parallel
+          --build-cache
