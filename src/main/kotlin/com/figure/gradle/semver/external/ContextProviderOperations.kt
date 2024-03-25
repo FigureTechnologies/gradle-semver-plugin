@@ -13,13 +13,7 @@ import net.swiftzer.semver.SemVer
 interface ContextProviderOperations {
     fun currentBranch(): GitRef.Branch?
 
-    fun branchVersion(
-        currentBranch: GitRef.Branch,
-        targetBranch: GitRef.Branch,
-    ): Result<SemVer?>
+    fun branchVersion(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch): Result<SemVer?>
 
-    fun commitsSinceBranchPoint(
-        currentBranch: GitRef.Branch,
-        targetBranch: GitRef.Branch,
-    ): Result<Int?>
+    fun commitsSinceBranchPoint(currentBranch: GitRef.Branch, targetBranch: GitRef.Branch): Result<Int?>
 }

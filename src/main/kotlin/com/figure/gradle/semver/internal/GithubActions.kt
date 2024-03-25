@@ -15,4 +15,5 @@ internal fun pullRequestEvent(): Boolean =
     System.getenv("GITHUB_EVENT_NAME")
         ?.let { it == "pull_request" } ?: false
 
-internal fun pullRequestHeadRef(): String? = System.getenv("GITHUB_HEAD_REF")
+internal fun pullRequestHeadRef(): String? =
+    System.getenv("GITHUB_HEAD_REF")

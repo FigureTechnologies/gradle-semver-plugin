@@ -23,103 +23,98 @@ import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
 import javax.inject.Inject
 
-abstract class SemverExtension
-    @Inject
-    constructor(
-        objects: ObjectFactory,
-        project: Project,
-        providerFactory: ProviderFactory,
-    ) {
-        /**
-         * This version invocation takes place at project build time of the project that is utilizing this plugin
-         * The version is not calculated until a build happens that requires `semver.version`
-         */
-        val version: String by lazy {
-            providerFactory.gitCalculateSemverProvider(
-                gitDir = gitDir,
-                tagPrefix = tagPrefix,
-                initialVersion = initialVersion.get().toString(),
-                overrideVersion = overrideVersion.orNull?.toString(),
-                versionStrategy = versionStrategy,
-                versionModifier = versionModifier,
-            ).get()
-        }
+abstract class SemverExtension @Inject constructor(
+    objects: ObjectFactory,
+    project: Project,
+    providerFactory: ProviderFactory,
+) {
+    /**
+     * This version invocation takes place at project build time of the project that is utilizing this plugin
+     * The version is not calculated until a build happens that requires `semver.version`
+     */
+    val version: String by lazy {
+        providerFactory.gitCalculateSemverProvider(
+            gitDir = gitDir,
+            tagPrefix = tagPrefix,
+            initialVersion = initialVersion.get().toString(),
+            overrideVersion = overrideVersion.orNull?.toString(),
+            versionStrategy = versionStrategy,
+            versionModifier = versionModifier,
+        ).get()
+    }
 
-        val versionTagName: String by lazy { calculateVersionTagName() }
+    val versionTagName: String by lazy { calculateVersionTagName() }
 
-        // TODO: For v2, see if rootRepoDirectory can be specified instead (without causing Gradle issues) where
-        //  a semver task relies on the build task to complete. Maybe needs specified as a string instead of File to
-        //  work? Use Git.open(rootRepoDirectory) to create the Git object then.
-        internal val gitDir: Property<String> =
-            objects.property<String>()
-                .convention("${project.rootProject.rootDir.path}/.git")
+    // TODO: For v2, see if rootRepoDirectory can be specified instead (without causing Gradle issues) where
+    //  a semver task relies on the build task to complete. Maybe needs specified as a string instead of File to
+    //  work? Use Git.open(rootRepoDirectory) to create the Git object then.
+    internal val gitDir: Property<String> =
+        objects.property<String>()
+            .convention("${project.rootProject.rootDir.path}/.git")
 
-        private val tagPrefix: Property<String> =
-            objects.property<String>()
-                .convention(VersionCalculatorConfig.DEFAULT_TAG_PREFIX)
+    private val tagPrefix: Property<String> =
+        objects.property<String>()
+            .convention(VersionCalculatorConfig.DEFAULT_TAG_PREFIX)
 
-        private val initialVersion: Property<SemVer> =
-            objects.property<SemVer>()
-                .convention(VersionCalculatorConfig.DEFAULT_VERSION)
+    private val initialVersion: Property<SemVer> =
+        objects.property<SemVer>()
+            .convention(VersionCalculatorConfig.DEFAULT_VERSION)
 
-        private val versionStrategy: ListProperty<BranchMatchingConfiguration> =
-            objects.listProperty<BranchMatchingConfiguration>()
-                .convention(null)
+    private val versionStrategy: ListProperty<BranchMatchingConfiguration> =
+        objects.listProperty<BranchMatchingConfiguration>()
+            .convention(null)
 
-        private val overrideVersion: Property<SemVer> =
-            objects.property<SemVer>()
-                .convention(null)
+    private val overrideVersion: Property<SemVer> =
+        objects.property<SemVer>()
+            .convention(null)
 
-        private val versionModifier: Property<VersionModifier> =
-            objects.property<VersionModifier>()
-                .convention { nextPatch() }
+    private val versionModifier: Property<VersionModifier> =
+        objects.property<VersionModifier>()
+            .convention { nextPatch() }
 
-        fun gitDir(gitDir: String) {
-            this.gitDir.set(gitDir)
-        }
+    fun gitDir(gitDir: String) {
+        this.gitDir.set(gitDir)
+    }
 
-        fun tagPrefix(prefix: String) {
-            if (overrideVersion.orNull != null) {
-                throw IllegalArgumentException(
-                    """
+    fun tagPrefix(prefix: String) {
+        if (overrideVersion.orNull != null) {
+            throw IllegalArgumentException(
+                """
                 |Cannot set semver tagPrefix after override version has been set.
                 | The override version depends on the tagPrefix. Set the tagPrefix first.
-                    """.trimMargin().replace("\n", ""),
-                )
-            }
-            this.tagPrefix.set(prefix)
+                """.trimMargin().replace("\n", ""),
+            )
         }
+        this.tagPrefix.set(prefix)
+    }
 
-        fun initialVersion(version: String?) {
-            version?.also {
-                this.initialVersion.set(SemVer.parse(it))
-            }
-        }
-
-        fun overrideVersion(version: String) {
-            this.overrideVersion.set(possiblyPrefixVersion(version, tagPrefix.get()))
-        }
-
-        fun versionModifier(modifier: VersionModifier) {
-            this.versionModifier.set(modifier)
-        }
-
-        fun buildVersionModifier(modifier: String): VersionModifier {
-            return versionModifierFromString(modifier)
-        }
-
-        fun versionCalculatorStrategy(strategy: VersionCalculatorStrategy) {
-            this.versionStrategy.set(strategy)
-        }
-
-        private fun calculateVersionTagName(): String {
-            return tagPrefix.map { prefix -> "$prefix$version" }.get()
-        }
-
-        private fun possiblyPrefixVersion(
-            version: String,
-            prefix: String,
-        ): SemVer {
-            return SemVer.parse(version.trimMargin(prefix)) // fail fast, don't let an invalid version propagate to runtime
+    fun initialVersion(version: String?) {
+        version?.also {
+            this.initialVersion.set(SemVer.parse(it))
         }
     }
+
+    fun overrideVersion(version: String) {
+        this.overrideVersion.set(possiblyPrefixVersion(version, tagPrefix.get()))
+    }
+
+    fun versionModifier(modifier: VersionModifier) {
+        this.versionModifier.set(modifier)
+    }
+
+    fun buildVersionModifier(modifier: String): VersionModifier {
+        return versionModifierFromString(modifier)
+    }
+
+    fun versionCalculatorStrategy(strategy: VersionCalculatorStrategy) {
+        this.versionStrategy.set(strategy)
+    }
+
+    private fun calculateVersionTagName(): String {
+        return tagPrefix.map { prefix -> "$prefix$version" }.get()
+    }
+
+    private fun possiblyPrefixVersion(version: String, prefix: String): SemVer {
+        return SemVer.parse(version.trimMargin(prefix)) // fail fast, don't let an invalid version propagate to runtime
+    }
+}
