@@ -3,7 +3,7 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      versionModifier:
+      version-modifier:
         description: "Version Modifier"
         default: "minor"
         type: choice
@@ -12,7 +12,7 @@ on:
           - "patch"
           - "minor"
           - "major"
-      skipPublishing:
+      skip-publishing:
         description: "Skip artifact publishing"
         required: false
         type: boolean
@@ -55,7 +55,7 @@ jobs:
             echo "githubReleaseCommand=githubRelease" >> $GITHUB_OUTPUT
           fi
         env:
-          SKIP_PUBLISH: ${{ github.event.inputs.skipPublishing }}
+          SKIP_PUBLISH: ${{ github.event.inputs.skip-publishing }}
 
       - name: Install gpg secret key
         run: |
@@ -65,10 +65,10 @@ jobs:
           echo -n "${{ secrets.OSSRH_GPG_SECRET_KEY }}" | base64 --decode > release.gpg
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
-          gradle-home-cache-cleanup: true
+          cache-cleanup: true
           gradle-home-cache-includes: |
             caches
             notifications
@@ -78,7 +78,7 @@ jobs:
       - name: Build and Release Main
         run: |
           ./gradlew \
-            -Psemver.modifier=${{ github.event.inputs.versionModifier }} \
+            -Psemver.modifier=${{ github.event.inputs.version-modifier }} \
             build ${{ steps.build_parameters.outputs.publishCommand }} \
             ${{ steps.build_parameters.outputs.githubReleaseCommand }} \
             -Psigning.keyId=${{ secrets.OSSRH_GPG_SECRET_KEY_ID }} \
