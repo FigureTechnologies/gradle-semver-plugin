@@ -1,0 +1,34 @@
+:root {
+    --md-primary-fg-color: #5A56EC;
+    --md-accent-fg-color: #5A56EC;
+}
+
+th:not(:last-child), td:not(:last-child) {
+    border: 1px solid var(--md-typeset-table-color);
+    border-spacing: 0;
+    border-bottom: none;
+    border-left: none;
+    border-top: none;
+}
+
+.md-typeset__table th, .md-typeset__table td {
+    word-wrap: break-word;
+    width: auto; /* Ensure columns auto-size based on content */
+}
+
+[data-md-color-scheme="slate"] .md-typeset__table tr:nth-child(2n) {
+    background-color: var(--md-typeset-table-color--light);
+}
+
+[data-md-color-scheme="default"] .md-typeset__table tr:nth-child(2n) {
+    background-color: var(--md-typeset-table-color--light);
+}
+
+/* Make sure tables are always 100% width */
+.md-typeset__table {
+    min-width: 100%;
+}
+
+.md-typeset table:not([class]) {
+    display: table;
+}

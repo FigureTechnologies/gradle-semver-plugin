@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+site_name: 'Semver Gradle Plugin'
+site_description: 'Gradle plugin to automatically calculate the next semantic version based on the git history.'
+site_author: 'Tyler Crawford'
+remote_branch: gh-pages
+
+repo_name: 'gradle-semver-plugin'
+repo_url: 'https://github.com/FigureTechnologies/gradle-semver-plugin'
+
+copyright: 'Copyright &copy; 2024 Tyler Crawford'
+
+theme:
+  name: material
+  language: 'en'
+  favicon: 'assets/package-white.svg'
+  logo: 'assets/package-white.svg'
+  font:
+    code: 'Robot Mono'
+  palette:
+    - media: '(prefers-color-scheme: light)'
+      scheme: default
+      primary: 'custom'
+      accent: 'custom'
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: '(prefers-color-scheme: dark)'
+      scheme: slate
+      primary: 'custom'
+      accent: 'custom'
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+plugins:
+  - search
+
+markdown_extensions:
+  # Admonitions (aka callout blocks)
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+
+  - smarty
+  - codehilite:
+      guess_lang: false
+  - footnotes
+  - meta
+  - toc:
+      permalink: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.inlinehilite
+  - pymdownx.magiclink
+  - pymdownx.smartsymbols
+  - pymdownx.emoji
+  - tables
+
+extra_css:
+  - stylesheets/extra.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/FigureTechnologies
+
+nav:
+  - "Getting Started": 'index.md'
+  - Usage:
+      - quick-start.md
+      - modifiers.md
+      - stages.md
+      - modifiers-with-stages.md
+      - append-build-metadata.md
+      - for-major-version.md
+      - override-version.md
+      - tag-prefix.md
+  - "Branch-based Version Calculation": 'branch-based-version-calculation.md'

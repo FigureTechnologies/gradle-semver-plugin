@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>NestedBlockDepth:GradleProjectListener.kt$GradleProjectListener$fun initRepository(config: RepositoryConfig, printLocalGitObjects: Boolean = true): GradleProjectListener</ID>
+    <ID>TooManyFunctions:LogExtensions.kt$com.figure.gradle.semver.internal.logging.LogExtensions.kt</ID>
+  </CurrentIssues>
+</SmellBaseline>

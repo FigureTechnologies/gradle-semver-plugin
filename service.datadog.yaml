@@ -11,4 +11,4 @@ repos:
 docs:
 - name: GitHub Team
   provider: github
-  url: https://github.com/orgs/FigureTechnologies/teams/backend-platform-dev-experience/members
+  url: https://github.com/orgs/FigureTechnologies/teams/backend-core-tech/members
