@@ -22,7 +22,10 @@ enum class BuildMetadataOptions {
     ;
 
     companion object {
-        fun from(value: String, default: BuildMetadataOptions): BuildMetadataOptions =
+        fun from(
+            value: String,
+            default: BuildMetadataOptions,
+        ): BuildMetadataOptions =
             BuildMetadataOptions.entries
                 .find { it.name.equals(value, ignoreCase = true) }
                 ?: default

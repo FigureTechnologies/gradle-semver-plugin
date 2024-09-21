@@ -35,10 +35,11 @@ abstract class AbstractProject : AbstractGradleProject(), AutoCloseable {
 
     val dslKind: GradleProject.DslKind = GradleProject.DslKind.KOTLIN
 
-    val scribe = Scribe(
-        dslKind = dslKind,
-        indent = 2,
-    )
+    val scribe =
+        Scribe(
+            dslKind = dslKind,
+            indent = 2,
+        )
 
     val buildCacheDir: File =
         createTempDirectory("build-cache").toFile()
@@ -68,10 +69,11 @@ abstract class AbstractProject : AbstractGradleProject(), AutoCloseable {
 
         localGit.commit("Initial commit", allowEmptyCommit = true)
 
-        val gitInstanceWriter = GitInstanceWriter(
-            localGit = localGit,
-            gitActionsConfig = gitInstance.actions,
-        )
+        val gitInstanceWriter =
+            GitInstanceWriter(
+                localGit = localGit,
+                gitActionsConfig = gitInstance.actions,
+            )
 
         gitInstanceWriter.write(gitInstance.debugging)
     }

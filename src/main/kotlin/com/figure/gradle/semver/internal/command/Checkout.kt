@@ -21,7 +21,10 @@ import org.eclipse.jgit.lib.Ref
 class Checkout(
     private val git: Git,
 ) {
-    operator fun invoke(branchName: String, createBranch: Boolean = false): Ref =
+    operator fun invoke(
+        branchName: String,
+        createBranch: Boolean = false,
+    ): Ref =
         git.checkout()
             .setName(branchName)
             .setCreateBranch(createBranch)

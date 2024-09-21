@@ -19,9 +19,7 @@ import com.figure.gradle.semver.kit.render.Element
 import com.figure.gradle.semver.kit.render.Scribe
 import java.io.File
 
-fun semver(
-    fn: SemverConfiguration.Builder.() -> Unit,
-): SemverConfiguration {
+fun semver(fn: SemverConfiguration.Builder.() -> Unit): SemverConfiguration {
     val builder = SemverConfiguration.Builder()
     builder.fn()
     return builder.build()
@@ -36,23 +34,24 @@ class SemverConfiguration(
 ) : Element.Block {
     override val name: String = "semver"
 
-    override fun render(scribe: Scribe): String = scribe.block(this) { s ->
-        rootProjectDir?.let {
-            s.line { s.append("rootProjectDir = \"$rootProjectDir\"") }
+    override fun render(scribe: Scribe): String =
+        scribe.block(this) { s ->
+            rootProjectDir?.let {
+                s.line { s.append("rootProjectDir = \"$rootProjectDir\"") }
+            }
+            initialVersion?.let {
+                s.line { s.append("initialVersion = \"$initialVersion\"") }
+            }
+            mainBranch?.let {
+                s.line { s.append("mainBranch = \"$mainBranch\"") }
+            }
+            developmentBranch?.let {
+                s.line { s.append("developmentBranch = \"$developmentBranch\"") }
+            }
+            appendBuildMetadata?.let {
+                s.line { s.append("appendBuildMetadata = \"$appendBuildMetadata\"") }
+            }
         }
-        initialVersion?.let {
-            s.line { s.append("initialVersion = \"$initialVersion\"") }
-        }
-        mainBranch?.let {
-            s.line { s.append("mainBranch = \"$mainBranch\"") }
-        }
-        developmentBranch?.let {
-            s.line { s.append("developmentBranch = \"$developmentBranch\"") }
-        }
-        appendBuildMetadata?.let {
-            s.line { s.append("appendBuildMetadata = \"$appendBuildMetadata\"") }
-        }
-    }
 
     class Builder {
         var rootProjectDir: File? = null

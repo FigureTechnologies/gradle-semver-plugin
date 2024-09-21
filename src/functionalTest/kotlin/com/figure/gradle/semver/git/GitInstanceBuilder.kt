@@ -17,8 +17,10 @@ package com.figure.gradle.semver.git
 
 import com.figure.gradle.semver.projects.AbstractProject
 
-fun gitInstance(project: AbstractProject, block: GitInstance.Builder.() -> Unit): GitInstance =
-    GitInstance.Builder(project).apply(block).build()
+fun gitInstance(
+    project: AbstractProject,
+    block: GitInstance.Builder.() -> Unit,
+): GitInstance = GitInstance.Builder(project).apply(block).build()
 
 data class GitInstance(
     val project: AbstractProject,
@@ -38,11 +40,12 @@ data class GitInstance(
             return actions
         }
 
-        fun build() = GitInstance(
-            project = project,
-            debugging = debugging,
-            initialBranch = initialBranch,
-            actions = actions,
-        )
+        fun build() =
+            GitInstance(
+                project = project,
+                debugging = debugging,
+                initialBranch = initialBranch,
+                actions = actions,
+            )
     }
 }

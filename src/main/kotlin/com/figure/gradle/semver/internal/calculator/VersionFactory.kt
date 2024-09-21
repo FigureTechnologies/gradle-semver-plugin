@@ -33,9 +33,7 @@ import org.gradle.api.provider.ValueSourceParameters
 
 private val log = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 
-fun ProviderFactory.versionFactory(
-    context: VersionFactoryContext,
-): Provider<String> =
+fun ProviderFactory.versionFactory(context: VersionFactoryContext): Provider<String> =
     of(VersionFactory::class.java) { spec ->
         spec.parameters {
             it.versionFactoryContext.set(context)
@@ -82,33 +80,34 @@ abstract class VersionFactory : ValueSource<String, VersionFactory.Params> {
         val latestVersion = kgit.tags.latestOrInitial(factoryContext.initialVersion, factoryContext.forMajorVersion)
         val latestNonPreReleaseVersion = kgit.tags.latestNonPreReleaseOrInitial(factoryContext.initialVersion)
 
-        val version = when {
-            context.gitState != GitState.NOMINAL -> {
-                GitStateVersionCalculator.calculate(latestNonPreReleaseVersion, context)
-            }
+        val version =
+            when {
+                context.gitState != GitState.NOMINAL -> {
+                    GitStateVersionCalculator.calculate(latestNonPreReleaseVersion, context)
+                }
 
-            overrideVersion != null -> {
-                runCatching {
-                    overrideVersion.toVersion()
-                }.getOrElse {
-                    throw InvalidOverrideVersionError(overrideVersion)
-                }.toString()
-            }
+                overrideVersion != null -> {
+                    runCatching {
+                        overrideVersion.toVersion()
+                    }.getOrElse {
+                        throw InvalidOverrideVersionError(overrideVersion)
+                    }.toString()
+                }
 
-            kgit.branch.isOnMainBranch(context.mainBranch, context.forTesting) -> {
-                StageVersionCalculator.calculate(latestVersion, context)
-            }
-
-            // Works for any branch
-            else -> {
-                // Compute based on the branch name, otherwise, use the stage to compute the next version
-                if (context.stage == Stage.Auto) {
-                    BranchVersionCalculator(kgit).calculate(latestNonPreReleaseVersion, context)
-                } else {
+                kgit.branch.isOnMainBranch(context.mainBranch, context.forTesting) -> {
                     StageVersionCalculator.calculate(latestVersion, context)
                 }
+
+                // Works for any branch
+                else -> {
+                    // Compute based on the branch name, otherwise, use the stage to compute the next version
+                    if (context.stage == Stage.Auto) {
+                        BranchVersionCalculator(kgit).calculate(latestNonPreReleaseVersion, context)
+                    } else {
+                        StageVersionCalculator.calculate(latestVersion, context)
+                    }
+                }
             }
-        }
 
         return version
     }

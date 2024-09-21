@@ -40,23 +40,19 @@ fun String.lightgray() = this.colored("\u001B[37m")
 
 fun String.bold() = this.colored("\u001B[1m")
 
-fun Logger.error(message: () -> String) =
-    this.error(LOG_ERROR_PREFIX.bold() + message().red())
+fun Logger.error(message: () -> String) = this.error(LOG_ERROR_PREFIX.bold() + message().red())
 
-fun Logger.error(throwable: Throwable?, message: () -> String) =
-    this.error(LOG_ERROR_PREFIX.bold() + message().red(), throwable)
+fun Logger.error(
+    throwable: Throwable?,
+    message: () -> String,
+) = this.error(LOG_ERROR_PREFIX.bold() + message().red(), throwable)
 
-fun Logger.quiet(message: () -> String) =
-    this.quiet(LOG_QUIET_PREFIX.bold() + message().lightgray())
+fun Logger.quiet(message: () -> String) = this.quiet(LOG_QUIET_PREFIX.bold() + message().lightgray())
 
-fun Logger.warn(message: () -> String) =
-    this.warn(LOG_WARN_PREFIX.bold() + message().yellow())
+fun Logger.warn(message: () -> String) = this.warn(LOG_WARN_PREFIX.bold() + message().yellow())
 
-fun Logger.lifecycle(message: () -> String) =
-    this.lifecycle(LOG_LIFECYCLE_PREFIX.bold() + message().purple())
+fun Logger.lifecycle(message: () -> String) = this.lifecycle(LOG_LIFECYCLE_PREFIX.bold() + message().purple())
 
-fun Logger.info(message: () -> String) =
-    this.info(LOG_INFO_PREFIX.bold() + message().green())
+fun Logger.info(message: () -> String) = this.info(LOG_INFO_PREFIX.bold() + message().green())
 
-fun Logger.debug(message: () -> String) =
-    this.debug(LOG_DEBUG_PREFIX.bold() + message().darkgray())
+fun Logger.debug(message: () -> String) = this.debug(LOG_DEBUG_PREFIX.bold() + message().darkgray())

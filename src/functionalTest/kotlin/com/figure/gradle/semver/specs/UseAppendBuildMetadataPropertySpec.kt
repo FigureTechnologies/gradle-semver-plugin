@@ -30,13 +30,14 @@ import io.kotest.extensions.system.withEnvironment
 import org.gradle.util.GradleVersion
 
 class UseAppendBuildMetadataPropertySpec : FunSpec({
-    val projects = install(
-        GradleProjectsExtension(
-            RegularProject(projectName = "regular-project"),
-            SettingsProject(projectName = "settings-project"),
-            SubprojectProject(projectName = "subproject-project"),
-        ),
-    )
+    val projects =
+        install(
+            GradleProjectsExtension(
+                RegularProject(projectName = "regular-project"),
+                SettingsProject(projectName = "settings-project"),
+                SubprojectProject(projectName = "subproject-project"),
+            ),
+        )
 
     val mainBranch = "main"
     val developmentBranch = "develop"
@@ -49,9 +50,10 @@ class UseAppendBuildMetadataPropertySpec : FunSpec({
 
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                }
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                    }
             }
 
             // When
@@ -67,9 +69,10 @@ class UseAppendBuildMetadataPropertySpec : FunSpec({
 
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                }
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                    }
             }
 
             // When
@@ -86,9 +89,10 @@ class UseAppendBuildMetadataPropertySpec : FunSpec({
 
                 projects.git {
                     initialBranch = mainBranch
-                    actions = actions {
-                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                    }
+                    actions =
+                        actions {
+                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        }
                 }
 
                 // When
@@ -108,9 +112,10 @@ class UseAppendBuildMetadataPropertySpec : FunSpec({
                 // Given
                 projects.git {
                     initialBranch = mainBranch
-                    actions = actions {
-                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                    }
+                    actions =
+                        actions {
+                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        }
                 }
 
                 // When
@@ -124,12 +129,13 @@ class UseAppendBuildMetadataPropertySpec : FunSpec({
                 // Given
                 projects.git {
                     initialBranch = mainBranch
-                    actions = actions {
-                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                    actions =
+                        actions {
+                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                        checkout(developmentBranch)
-                        commit(message = "1 commit on $developmentBranch")
-                    }
+                            checkout(developmentBranch)
+                            commit(message = "1 commit on $developmentBranch")
+                        }
                 }
 
                 // When
@@ -143,12 +149,13 @@ class UseAppendBuildMetadataPropertySpec : FunSpec({
                 // Given
                 projects.git {
                     initialBranch = mainBranch
-                    actions = actions {
-                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                    actions =
+                        actions {
+                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                        checkout(featureBranch)
-                        commit(message = "1 commit on $featureBranch")
-                    }
+                            checkout(featureBranch)
+                            commit(message = "1 commit on $featureBranch")
+                        }
                 }
 
                 // When
@@ -167,9 +174,10 @@ class UseAppendBuildMetadataPropertySpec : FunSpec({
                     // Given
                     projects.git {
                         initialBranch = mainBranch
-                        actions = actions {
-                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                        }
+                        actions =
+                            actions {
+                                commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                            }
                     }
 
                     // When
@@ -185,12 +193,13 @@ class UseAppendBuildMetadataPropertySpec : FunSpec({
                     // Given
                     projects.git {
                         initialBranch = mainBranch
-                        actions = actions {
-                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        actions =
+                            actions {
+                                commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                            checkout(developmentBranch)
-                            commit(message = "1 commit on $developmentBranch")
-                        }
+                                checkout(developmentBranch)
+                                commit(message = "1 commit on $developmentBranch")
+                            }
                     }
 
                     // When
@@ -206,12 +215,13 @@ class UseAppendBuildMetadataPropertySpec : FunSpec({
                     // Given
                     projects.git {
                         initialBranch = mainBranch
-                        actions = actions {
-                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        actions =
+                            actions {
+                                commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                            checkout(featureBranch)
-                            commit(message = "1 commit on $featureBranch")
-                        }
+                                checkout(featureBranch)
+                                commit(message = "1 commit on $featureBranch")
+                            }
                     }
 
                     // When

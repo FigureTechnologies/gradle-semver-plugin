@@ -27,13 +27,14 @@ import io.kotest.core.spec.style.FunSpec
 import org.gradle.util.GradleVersion
 
 class UseOverrideVersionSpec : FunSpec({
-    val projects = install(
-        GradleProjectsExtension(
-            RegularProject(projectName = "regular-project"),
-            SettingsProject(projectName = "settings-project"),
-            SubprojectProject(projectName = "subproject-project"),
-        ),
-    )
+    val projects =
+        install(
+            GradleProjectsExtension(
+                RegularProject(projectName = "regular-project"),
+                SettingsProject(projectName = "settings-project"),
+                SubprojectProject(projectName = "subproject-project"),
+            ),
+        )
 
     val mainBranch = "main"
     val developmentBranch = "develop"
@@ -46,9 +47,10 @@ class UseOverrideVersionSpec : FunSpec({
 
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch")
-                }
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch")
+                    }
             }
 
             // When
@@ -66,9 +68,10 @@ class UseOverrideVersionSpec : FunSpec({
 
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch")
-                }
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch")
+                    }
             }
 
             // When
@@ -84,12 +87,13 @@ class UseOverrideVersionSpec : FunSpec({
 
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch")
 
-                    checkout(developmentBranch)
-                    commit(message = "1 commit on $developmentBranch")
-                }
+                        checkout(developmentBranch)
+                        commit(message = "1 commit on $developmentBranch")
+                    }
             }
 
             // When
@@ -105,12 +109,13 @@ class UseOverrideVersionSpec : FunSpec({
 
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch")
 
-                    checkout(featureBranch)
-                    commit(message = "1 commit on $featureBranch")
-                }
+                        checkout(featureBranch)
+                        commit(message = "1 commit on $featureBranch")
+                    }
             }
 
             // When

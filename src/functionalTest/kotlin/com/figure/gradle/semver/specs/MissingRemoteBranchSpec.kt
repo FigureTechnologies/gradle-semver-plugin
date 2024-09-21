@@ -25,13 +25,14 @@ import io.kotest.core.spec.style.FunSpec
 import org.gradle.util.GradleVersion
 
 class MissingRemoteBranchSpec : FunSpec({
-    val projects = install(
-        GradleProjectsExtension(
-            RegularProject(projectName = "regular-project"),
-            SettingsProject(projectName = "settings-project"),
-            SubprojectProject(projectName = "subproject-project"),
-        ),
-    )
+    val projects =
+        install(
+            GradleProjectsExtension(
+                RegularProject(projectName = "regular-project"),
+                SettingsProject(projectName = "settings-project"),
+                SubprojectProject(projectName = "subproject-project"),
+            ),
+        )
 
     val mainBranch = "main"
     val developmentBranch = "develop"
@@ -41,11 +42,12 @@ class MissingRemoteBranchSpec : FunSpec({
         // Given
         projects.git {
             initialBranch = mainBranch
-            actions = actions {
-                commit(message = "1 commit on $mainBranch", tag = "0.2.5")
+            actions =
+                actions {
+                    commit(message = "1 commit on $mainBranch", tag = "0.2.5")
 
-                removeRemoteBranch(mainBranch)
-            }
+                    removeRemoteBranch(mainBranch)
+                }
         }
 
         // When
@@ -59,14 +61,15 @@ class MissingRemoteBranchSpec : FunSpec({
         // Given
         projects.git {
             initialBranch = mainBranch
-            actions = actions {
-                commit(message = "1 commit on $mainBranch", tag = "0.2.5")
+            actions =
+                actions {
+                    commit(message = "1 commit on $mainBranch", tag = "0.2.5")
 
-                checkout(developmentBranch)
-                commit(message = "1 commit on $developmentBranch")
+                    checkout(developmentBranch)
+                    commit(message = "1 commit on $developmentBranch")
 
-                removeRemoteBranch(mainBranch)
-            }
+                    removeRemoteBranch(mainBranch)
+                }
         }
 
         // When
@@ -80,14 +83,15 @@ class MissingRemoteBranchSpec : FunSpec({
         // Given
         projects.git {
             initialBranch = mainBranch
-            actions = actions {
-                commit(message = "1 commit on $mainBranch", tag = "0.2.5")
+            actions =
+                actions {
+                    commit(message = "1 commit on $mainBranch", tag = "0.2.5")
 
-                checkout(featureBranch)
-                commit(message = "1 commit on $featureBranch")
+                    checkout(featureBranch)
+                    commit(message = "1 commit on $featureBranch")
 
-                removeRemoteBranch(mainBranch)
-            }
+                    removeRemoteBranch(mainBranch)
+                }
         }
 
         // When

@@ -28,13 +28,14 @@ import io.kotest.core.spec.style.FunSpec
 import org.gradle.util.GradleVersion
 
 class CalculateNextVersionWithStageSpec : FunSpec({
-    val projects = install(
-        GradleProjectsExtension(
-            RegularProject(projectName = "regular-project"),
-            SettingsProject(projectName = "settings-project"),
-            SubprojectProject(projectName = "subproject-project"),
-        ),
-    )
+    val projects =
+        install(
+            GradleProjectsExtension(
+                RegularProject(projectName = "regular-project"),
+                SettingsProject(projectName = "settings-project"),
+                SubprojectProject(projectName = "subproject-project"),
+            ),
+        )
 
     val mainBranch = "main"
     val featureBranch = "feature/cool/branch"
@@ -45,14 +46,15 @@ class CalculateNextVersionWithStageSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                    checkout(developmentBranch)
-                    commit(message = "1 commit on $developmentBranch")
+                        checkout(developmentBranch)
+                        commit(message = "1 commit on $developmentBranch")
 
-                    checkout(mainBranch)
-                }
+                        checkout(mainBranch)
+                    }
             }
 
             // When
@@ -68,12 +70,13 @@ class CalculateNextVersionWithStageSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                    checkout(featureBranch)
-                    commit(message = "1 commit on $featureBranch")
-                }
+                        checkout(featureBranch)
+                        commit(message = "1 commit on $featureBranch")
+                    }
             }
 
             // When
@@ -87,12 +90,13 @@ class CalculateNextVersionWithStageSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.2-alpha.1")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.2-alpha.1")
 
-                    checkout(featureBranch)
-                    commit(message = "1 commit on $featureBranch")
-                }
+                        checkout(featureBranch)
+                        commit(message = "1 commit on $featureBranch")
+                    }
             }
 
             // When
@@ -106,12 +110,13 @@ class CalculateNextVersionWithStageSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.2-alpha.3")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.2-alpha.3")
 
-                    checkout(featureBranch)
-                    commit(message = "1 commit on $featureBranch")
-                }
+                        checkout(featureBranch)
+                        commit(message = "1 commit on $featureBranch")
+                    }
             }
 
             // When
@@ -125,12 +130,13 @@ class CalculateNextVersionWithStageSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.2-rc.5")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.2-rc.5")
 
-                    checkout(developmentBranch)
-                    commit(message = "1 commit on $developmentBranch")
-                }
+                        checkout(developmentBranch)
+                        commit(message = "1 commit on $developmentBranch")
+                    }
             }
 
             // When
@@ -144,13 +150,14 @@ class CalculateNextVersionWithStageSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.2")
-                    commit(message = "2 commit on $mainBranch", tag = "1.0.3-my-awesome-feature.5")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.2")
+                        commit(message = "2 commit on $mainBranch", tag = "1.0.3-my-awesome-feature.5")
 
-                    checkout(developmentBranch)
-                    commit(message = "1 commit on $developmentBranch")
-                }
+                        checkout(developmentBranch)
+                        commit(message = "1 commit on $developmentBranch")
+                    }
             }
 
             // When
@@ -164,10 +171,11 @@ class CalculateNextVersionWithStageSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.2")
-                    commit(message = "2 commit on $mainBranch", tag = "1.0.3-my-awesome-feature.5")
-                }
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.2")
+                        commit(message = "2 commit on $mainBranch", tag = "1.0.3-my-awesome-feature.5")
+                    }
             }
 
             // When

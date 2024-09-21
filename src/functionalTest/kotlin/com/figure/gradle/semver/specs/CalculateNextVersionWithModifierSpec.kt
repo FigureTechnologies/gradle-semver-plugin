@@ -29,13 +29,14 @@ import io.kotest.core.spec.style.FunSpec
 import org.gradle.util.GradleVersion
 
 class CalculateNextVersionWithModifierSpec : FunSpec({
-    val projects = install(
-        GradleProjectsExtension(
-            RegularProject(projectName = "regular-project"),
-            SettingsProject(projectName = "settings-project"),
-            SubprojectProject(projectName = "subproject-project"),
-        ),
-    )
+    val projects =
+        install(
+            GradleProjectsExtension(
+                RegularProject(projectName = "regular-project"),
+                SettingsProject(projectName = "settings-project"),
+                SubprojectProject(projectName = "subproject-project"),
+            ),
+        )
 
     val mainBranch = "master"
     val developmentBranch = "devel"
@@ -46,14 +47,15 @@ class CalculateNextVersionWithModifierSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                    checkout(developmentBranch)
-                    commit(message = "1 commit on $developmentBranch")
+                        checkout(developmentBranch)
+                        commit(message = "1 commit on $developmentBranch")
 
-                    checkout(featureBranch)
-                }
+                        checkout(featureBranch)
+                    }
             }
 
             // When / Then
@@ -69,14 +71,15 @@ class CalculateNextVersionWithModifierSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                    checkout(developmentBranch)
-                    commit(message = "1 commit on $developmentBranch")
+                        checkout(developmentBranch)
+                        commit(message = "1 commit on $developmentBranch")
 
-                    checkout(mainBranch)
-                }
+                        checkout(mainBranch)
+                    }
             }
 
             // When
@@ -90,14 +93,15 @@ class CalculateNextVersionWithModifierSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                    checkout(developmentBranch)
-                    commit(message = "1 commit on $developmentBranch")
+                        checkout(developmentBranch)
+                        commit(message = "1 commit on $developmentBranch")
 
-                    checkout(mainBranch)
-                }
+                        checkout(mainBranch)
+                    }
             }
 
             // When
@@ -111,14 +115,15 @@ class CalculateNextVersionWithModifierSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                    checkout(developmentBranch)
-                    commit(message = "1 commit on $developmentBranch")
+                        checkout(developmentBranch)
+                        commit(message = "1 commit on $developmentBranch")
 
-                    checkout(mainBranch)
-                }
+                        checkout(mainBranch)
+                    }
             }
 
             // When
@@ -132,12 +137,13 @@ class CalculateNextVersionWithModifierSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                    checkout(featureBranch)
-                    commit(message = "1 commit on $featureBranch")
-                }
+                        checkout(featureBranch)
+                        commit(message = "1 commit on $featureBranch")
+                    }
             }
 
             // When
@@ -151,12 +157,13 @@ class CalculateNextVersionWithModifierSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                    checkout(featureBranch)
-                    commit(message = "1 commit on $featureBranch")
-                }
+                        checkout(featureBranch)
+                        commit(message = "1 commit on $featureBranch")
+                    }
             }
 
             // When
@@ -170,12 +177,13 @@ class CalculateNextVersionWithModifierSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                    checkout(featureBranch)
-                    commit(message = "1 commit on $featureBranch")
-                }
+                        checkout(featureBranch)
+                        commit(message = "1 commit on $featureBranch")
+                    }
             }
 
             // When

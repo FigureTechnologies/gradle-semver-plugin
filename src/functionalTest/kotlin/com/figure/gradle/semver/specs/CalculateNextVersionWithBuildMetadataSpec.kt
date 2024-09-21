@@ -37,22 +37,25 @@ class CalculateNextVersionWithBuildMetadataSpec : FunSpec({
     context("should not append build metadata") {
         test("when build metadata is invalid") {
             // Given
-            val semver = semver {
-                appendBuildMetadata = "invalid"
-            }
+            val semver =
+                semver {
+                    appendBuildMetadata = "invalid"
+                }
 
-            val projects = install(
-                GradleProjectsExtension(
-                    RegularProject(projectName = "regular-project", semver = semver),
-                    SettingsProject(projectName = "settings-project", semver = semver),
-                    SubprojectProject(projectName = "subproject-project", semver = semver),
-                ),
-            )
+            val projects =
+                install(
+                    GradleProjectsExtension(
+                        RegularProject(projectName = "regular-project", semver = semver),
+                        SettingsProject(projectName = "settings-project", semver = semver),
+                        SubprojectProject(projectName = "subproject-project", semver = semver),
+                    ),
+                )
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                }
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                    }
             }
 
             // When
@@ -64,22 +67,25 @@ class CalculateNextVersionWithBuildMetadataSpec : FunSpec({
 
         test("when ${BuildMetadataOptions.NEVER} is specified") {
             // Given
-            val semver = semver {
-                appendBuildMetadata = BuildMetadataOptions.NEVER.name
-            }
+            val semver =
+                semver {
+                    appendBuildMetadata = BuildMetadataOptions.NEVER.name
+                }
 
-            val projects = install(
-                GradleProjectsExtension(
-                    RegularProject(projectName = "regular-project", semver = semver),
-                    SettingsProject(projectName = "settings-project", semver = semver),
-                    SubprojectProject(projectName = "subproject-project", semver = semver),
-                ),
-            )
+            val projects =
+                install(
+                    GradleProjectsExtension(
+                        RegularProject(projectName = "regular-project", semver = semver),
+                        SettingsProject(projectName = "settings-project", semver = semver),
+                        SubprojectProject(projectName = "subproject-project", semver = semver),
+                    ),
+                )
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                }
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                    }
             }
 
             // When
@@ -92,22 +98,25 @@ class CalculateNextVersionWithBuildMetadataSpec : FunSpec({
         test("when ${BuildMetadataOptions.LOCALLY} is specified but building in CI") {
             withEnvironment("CI", "true", mode = OverrideMode.SetOrOverride) {
                 // Given
-                val semver = semver {
-                    appendBuildMetadata = BuildMetadataOptions.LOCALLY.name
-                }
+                val semver =
+                    semver {
+                        appendBuildMetadata = BuildMetadataOptions.LOCALLY.name
+                    }
 
-                val projects = install(
-                    GradleProjectsExtension(
-                        RegularProject(projectName = "regular-project", semver = semver),
-                        SettingsProject(projectName = "settings-project", semver = semver),
-                        SubprojectProject(projectName = "subproject-project", semver = semver),
-                    ),
-                )
+                val projects =
+                    install(
+                        GradleProjectsExtension(
+                            RegularProject(projectName = "regular-project", semver = semver),
+                            SettingsProject(projectName = "settings-project", semver = semver),
+                            SubprojectProject(projectName = "subproject-project", semver = semver),
+                        ),
+                    )
                 projects.git {
                     initialBranch = mainBranch
-                    actions = actions {
-                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                    }
+                    actions =
+                        actions {
+                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        }
                 }
 
                 // When
@@ -120,22 +129,25 @@ class CalculateNextVersionWithBuildMetadataSpec : FunSpec({
 
         test("when appendBuildMetadata is set to null") {
             // Given
-            val semver = semver {
-                appendBuildMetadata = null
-            }
+            val semver =
+                semver {
+                    appendBuildMetadata = null
+                }
 
-            val projects = install(
-                GradleProjectsExtension(
-                    RegularProject(projectName = "regular-project", semver = semver),
-                    SettingsProject(projectName = "settings-project", semver = semver),
-                    SubprojectProject(projectName = "subproject-project", semver = semver),
-                ),
-            )
+            val projects =
+                install(
+                    GradleProjectsExtension(
+                        RegularProject(projectName = "regular-project", semver = semver),
+                        SettingsProject(projectName = "settings-project", semver = semver),
+                        SubprojectProject(projectName = "subproject-project", semver = semver),
+                    ),
+                )
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                }
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                    }
             }
 
             // When
@@ -148,25 +160,28 @@ class CalculateNextVersionWithBuildMetadataSpec : FunSpec({
 
     context("should append build metadata") {
         context("when ${BuildMetadataOptions.ALWAYS} is specified") {
-            val semver = semver {
-                appendBuildMetadata = BuildMetadataOptions.ALWAYS.name
-            }
+            val semver =
+                semver {
+                    appendBuildMetadata = BuildMetadataOptions.ALWAYS.name
+                }
 
-            val projects = install(
-                GradleProjectsExtension(
-                    RegularProject(projectName = "regular-project", semver = semver),
-                    SettingsProject(projectName = "settings-project", semver = semver),
-                    SubprojectProject(projectName = "subproject-project", semver = semver),
-                ),
-            )
+            val projects =
+                install(
+                    GradleProjectsExtension(
+                        RegularProject(projectName = "regular-project", semver = semver),
+                        SettingsProject(projectName = "settings-project", semver = semver),
+                        SubprojectProject(projectName = "subproject-project", semver = semver),
+                    ),
+                )
 
             test("and on $mainBranch branch") {
                 // Given
                 projects.git {
                     initialBranch = mainBranch
-                    actions = actions {
-                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                    }
+                    actions =
+                        actions {
+                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        }
                 }
 
                 // When
@@ -180,12 +195,13 @@ class CalculateNextVersionWithBuildMetadataSpec : FunSpec({
                 // Given
                 projects.git {
                     initialBranch = mainBranch
-                    actions = actions {
-                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                    actions =
+                        actions {
+                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                        checkout(developmentBranch)
-                        commit(message = "1 commit on $developmentBranch")
-                    }
+                            checkout(developmentBranch)
+                            commit(message = "1 commit on $developmentBranch")
+                        }
                 }
 
                 // When
@@ -199,12 +215,13 @@ class CalculateNextVersionWithBuildMetadataSpec : FunSpec({
                 // Given
                 projects.git {
                     initialBranch = mainBranch
-                    actions = actions {
-                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                    actions =
+                        actions {
+                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                        checkout(featureBranch)
-                        commit(message = "1 commit on $featureBranch")
-                    }
+                            checkout(featureBranch)
+                            commit(message = "1 commit on $featureBranch")
+                        }
                 }
 
                 // When
@@ -216,26 +233,29 @@ class CalculateNextVersionWithBuildMetadataSpec : FunSpec({
         }
 
         context("when ${BuildMetadataOptions.LOCALLY} is specified") {
-            val semver = semver {
-                appendBuildMetadata = BuildMetadataOptions.LOCALLY.name
-            }
+            val semver =
+                semver {
+                    appendBuildMetadata = BuildMetadataOptions.LOCALLY.name
+                }
 
-            val projects = install(
-                GradleProjectsExtension(
-                    RegularProject(projectName = "regular-project", semver = semver),
-                    SettingsProject(projectName = "settings-project", semver = semver),
-                    SubprojectProject(projectName = "subproject-project", semver = semver),
-                ),
-            )
+            val projects =
+                install(
+                    GradleProjectsExtension(
+                        RegularProject(projectName = "regular-project", semver = semver),
+                        SettingsProject(projectName = "settings-project", semver = semver),
+                        SubprojectProject(projectName = "subproject-project", semver = semver),
+                    ),
+                )
 
             test("and on $mainBranch branch") {
                 withEnvironment("CI", null, mode = OverrideMode.SetOrOverride) {
                     // Given
                     projects.git {
                         initialBranch = mainBranch
-                        actions = actions {
-                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                        }
+                        actions =
+                            actions {
+                                commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                            }
                     }
 
                     // When
@@ -251,12 +271,13 @@ class CalculateNextVersionWithBuildMetadataSpec : FunSpec({
                     // Given
                     projects.git {
                         initialBranch = mainBranch
-                        actions = actions {
-                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        actions =
+                            actions {
+                                commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                            checkout(developmentBranch)
-                            commit(message = "1 commit on $developmentBranch")
-                        }
+                                checkout(developmentBranch)
+                                commit(message = "1 commit on $developmentBranch")
+                            }
                     }
 
                     // When
@@ -272,12 +293,13 @@ class CalculateNextVersionWithBuildMetadataSpec : FunSpec({
                     // Given
                     projects.git {
                         initialBranch = mainBranch
-                        actions = actions {
-                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        actions =
+                            actions {
+                                commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                            checkout(featureBranch)
-                            commit(message = "1 commit on $featureBranch")
-                        }
+                                checkout(featureBranch)
+                                commit(message = "1 commit on $featureBranch")
+                            }
                     }
 
                     // When

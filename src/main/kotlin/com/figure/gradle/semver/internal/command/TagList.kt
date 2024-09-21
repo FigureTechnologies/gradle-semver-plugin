@@ -27,11 +27,9 @@ import org.eclipse.jgit.lib.Ref
 class TagList(
     private val git: Git,
 ) {
-    operator fun invoke(): List<Ref> =
-        git.tagList().call()
+    operator fun invoke(): List<Ref> = git.tagList().call()
 
-    fun find(tagName: String): Ref? =
-        invoke().find { it.name == tagName }
+    fun find(tagName: String): Ref? = invoke().find { it.name == tagName }
 
     val versionedTags: List<Version>
         get() = invoke().mapNotNull { it.name.replace(Constants.R_TAGS, "").toVersionOrNull(strict = false) }
@@ -55,14 +53,16 @@ class TagList(
             .maxOrNull()
     }
 
-    fun latestOrInitial(initial: String, forMajorVersion: Int?): Version =
-        latest(forMajorVersion) ?: initial.toVersion()
+    fun latestOrInitial(
+        initial: String,
+        forMajorVersion: Int?,
+    ): Version = latest(forMajorVersion) ?: initial.toVersion()
 
     private val latestNonPreRelease: Version?
-        get() = versionedTags
-            .filter { version -> version.isNotPreRelease }
-            .maxOrNull()
+        get() =
+            versionedTags
+                .filter { version -> version.isNotPreRelease }
+                .maxOrNull()
 
-    fun latestNonPreReleaseOrInitial(initial: String): Version =
-        latestNonPreRelease ?: initial.toVersion()
+    fun latestNonPreReleaseOrInitial(initial: String): Version = latestNonPreRelease ?: initial.toVersion()
 }

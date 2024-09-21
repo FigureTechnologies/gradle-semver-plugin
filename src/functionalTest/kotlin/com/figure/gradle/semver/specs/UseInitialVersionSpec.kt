@@ -36,26 +36,29 @@ class UseInitialVersionSpec : FunSpec({
     val expectedStableVersion = initialVersion.toVersion().nextPatch().toString()
 
     context("should use initial version") {
-        val semver = semver {
-            this.initialVersion = initialVersion
-        }
+        val semver =
+            semver {
+                this.initialVersion = initialVersion
+            }
 
-        val projects = install(
-            GradleProjectsExtension(
-                RegularProject(projectName = "regular-project", semver = semver),
-                SettingsProject(projectName = "settings-project", semver = semver),
-                SubprojectProject(projectName = "subproject-project", semver = semver),
-            ),
-        )
+        val projects =
+            install(
+                GradleProjectsExtension(
+                    RegularProject(projectName = "regular-project", semver = semver),
+                    SettingsProject(projectName = "settings-project", semver = semver),
+                    SubprojectProject(projectName = "subproject-project", semver = semver),
+                ),
+            )
 
         test("on main branch") {
             // Given
             // The default initial value is "0.0.0" which is supplied by the plugin
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit("1 commit on $mainBranch")
-                }
+                actions =
+                    actions {
+                        commit("1 commit on $mainBranch")
+                    }
             }
 
             // When
@@ -70,12 +73,13 @@ class UseInitialVersionSpec : FunSpec({
             // The default initial value is "0.0.0" which is supplied by the plugin
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit("1 commit on $mainBranch")
+                actions =
+                    actions {
+                        commit("1 commit on $mainBranch")
 
-                    checkout(developmentBranch)
-                    commit("1 commit on $developmentBranch")
-                }
+                        checkout(developmentBranch)
+                        commit("1 commit on $developmentBranch")
+                    }
             }
 
             // When
@@ -90,12 +94,13 @@ class UseInitialVersionSpec : FunSpec({
             // The default initial value is "0.0.0" which is supplied by the plugin
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit("1 commit on $mainBranch")
+                actions =
+                    actions {
+                        commit("1 commit on $mainBranch")
 
-                    checkout(featureBranch)
-                    commit("1 commit on $featureBranch")
-                }
+                        checkout(featureBranch)
+                        commit("1 commit on $featureBranch")
+                    }
             }
 
             // When

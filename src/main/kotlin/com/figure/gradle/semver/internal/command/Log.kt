@@ -21,6 +21,5 @@ import org.eclipse.jgit.revwalk.RevCommit
 class Log(
     private val git: Git,
 ) {
-    operator fun invoke(): List<RevCommit> =
-        git.log().call().toList()
+    operator fun invoke(): List<RevCommit> = git.log().call().toList()
 }

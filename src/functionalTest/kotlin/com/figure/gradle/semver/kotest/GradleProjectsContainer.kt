@@ -37,7 +37,10 @@ class GradleProjectsExtension(
         projects.close()
     }
 
-    override suspend fun afterAny(testCase: TestCase, result: TestResult) {
+    override suspend fun afterAny(
+        testCase: TestCase,
+        result: TestResult,
+    ) {
         projects.cleanAfterAny()
     }
 }

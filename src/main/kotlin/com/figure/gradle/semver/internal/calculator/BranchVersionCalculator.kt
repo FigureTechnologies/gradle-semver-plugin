@@ -27,23 +27,28 @@ import io.github.z4kn4fein.semver.inc
 class BranchVersionCalculator(
     private val kGit: KGit,
 ) : VersionCalculator {
-    override fun calculate(latestVersion: Version, context: VersionCalculatorContext): String = with(context) {
-        val currentBranch = kGit.branch.currentRef(forTesting)
-        val developmentBranch = kGit.branches.findDevelopmentBranch(developmentBranch, mainBranch)
-        val mainBranch = kGit.branches.findMainBranch(mainBranch)
+    override fun calculate(
+        latestVersion: Version,
+        context: VersionCalculatorContext,
+    ): String =
+        with(context) {
+            val currentBranch = kGit.branch.currentRef(forTesting)
+            val developmentBranch = kGit.branches.findDevelopmentBranch(developmentBranch, mainBranch)
+            val mainBranch = kGit.branches.findMainBranch(mainBranch)
 
-        val commitCount = if (currentBranch != developmentBranch) {
-            kGit.branches.commitCountBetween(developmentBranch.name, currentBranch.name)
-        } else {
-            kGit.branches.commitCountBetween(mainBranch.name, currentBranch.name)
+            val commitCount =
+                if (currentBranch != developmentBranch) {
+                    kGit.branches.commitCountBetween(developmentBranch.name, currentBranch.name)
+                } else {
+                    kGit.branches.commitCountBetween(mainBranch.name, currentBranch.name)
+                }
+
+            val prereleaseLabel = currentBranch.sanitizedWithoutPrefix()
+            val prereleaseLabelWithCommitCount = "$prereleaseLabel.$commitCount"
+
+            return latestVersion
+                .inc(modifier.toInc(), prereleaseLabelWithCommitCount)
+                .appendBuildMetadata(context.appendBuildMetadata)
+                .toString()
         }
-
-        val prereleaseLabel = currentBranch.sanitizedWithoutPrefix()
-        val prereleaseLabelWithCommitCount = "$prereleaseLabel.$commitCount"
-
-        return latestVersion
-            .inc(modifier.toInc(), prereleaseLabelWithCommitCount)
-            .appendBuildMetadata(context.appendBuildMetadata)
-            .toString()
-    }
 }

@@ -26,13 +26,14 @@ import io.kotest.core.spec.style.FunSpec
 import org.gradle.util.GradleVersion
 
 class UseTagPrefixSpec : FunSpec({
-    val projects = install(
-        GradleProjectsExtension(
-            RegularProject(projectName = "regular-project"),
-            SettingsProject(projectName = "settings-project"),
-            SubprojectProject(projectName = "subproject-project"),
-        ),
-    )
+    val projects =
+        install(
+            GradleProjectsExtension(
+                RegularProject(projectName = "regular-project"),
+                SettingsProject(projectName = "settings-project"),
+                SubprojectProject(projectName = "subproject-project"),
+            ),
+        )
 
     val mainBranch = "main"
 
@@ -41,9 +42,10 @@ class UseTagPrefixSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "0.2.5")
-                }
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "0.2.5")
+                    }
             }
 
             // When
@@ -58,9 +60,10 @@ class UseTagPrefixSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "0.2.5")
-                }
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "0.2.5")
+                    }
             }
 
             // When

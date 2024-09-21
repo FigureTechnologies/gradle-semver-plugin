@@ -26,6 +26,8 @@ kotest-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref 
 kotest-runner = { module = "io.kotest:kotest-runner-junit5-jvm", version.ref = "kotest" }
 testkit-support = { module = "com.autonomousapps:gradle-testkit-support", version.ref = "testkit-support" }
 
+gradle-plugin-publish = { module = "com.gradle.plugin-publish:com.gradle.plugin-publish.gradle.plugin", version.ref = "publish-plugin" }
+
 [plugins]
 
 best-practices = { id = "com.autonomousapps.plugin-best-practices-plugin", version.ref = "best-practices" }

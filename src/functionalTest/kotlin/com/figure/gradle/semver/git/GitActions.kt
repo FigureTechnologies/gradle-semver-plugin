@@ -124,12 +124,18 @@ class Actions(
         actionsToRun.add(checkoutAction)
     }
 
-    fun commit(message: String = "Empty Commit", tag: String = "") {
+    fun commit(
+        message: String = "Empty Commit",
+        tag: String = "",
+    ) {
         val commitAction = CommitAction(message, tag)
         actionsToRun.add(commitAction)
     }
 
-    fun runScript(script: Script, vararg arguments: String) {
+    fun runScript(
+        script: Script,
+        vararg arguments: String,
+    ) {
         val runScriptAction = RunScriptAction(script, project, arguments.toList())
         actionsToRun.add(runScriptAction)
     }

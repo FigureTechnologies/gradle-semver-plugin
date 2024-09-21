@@ -24,11 +24,12 @@ class KGit(
 ) {
     val git: Git by lazy {
         when {
-            directory != null && initializeRepo != null -> init(
-                directory,
-                bare = initializeRepo.bare,
-                initialBranch = initializeRepo.initialBranch,
-            )
+            directory != null && initializeRepo != null ->
+                init(
+                    directory,
+                    bare = initializeRepo.bare,
+                    initialBranch = initializeRepo.initialBranch,
+                )
 
             directory != null -> open(directory)
             else -> open()

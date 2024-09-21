@@ -26,8 +26,7 @@ class GradleProjects(
     private val projects: Map<String, AbstractProject>,
 ) : AutoCloseable {
     companion object {
-        fun gradleProjects(vararg projects: AbstractProject) =
-            GradleProjects(projects.associateBy { it.projectName })
+        fun gradleProjects(vararg projects: AbstractProject) = GradleProjects(projects.associateBy { it.projectName })
     }
 
     val versions: List<String>
@@ -48,18 +47,27 @@ class GradleProjects(
         projects.values.forEach { it.cleanAfterAny() }
     }
 
-    fun build(gradleVersion: GradleVersion, vararg args: String): Map<AbstractProject, BuildResult> =
+    fun build(
+        gradleVersion: GradleVersion,
+        vararg args: String,
+    ): Map<AbstractProject, BuildResult> =
         projects.values.associateWith { project ->
             build(gradleVersion, project.gradleProject.rootDir, *args)
         }
 
     // TODO: Anywhere this is used, check for the specific message, not just BUILD FAILED
-    fun runWithoutExpectations(gradleVersion: GradleVersion, vararg args: String): Map<AbstractProject, BuildResult> =
+    fun runWithoutExpectations(
+        gradleVersion: GradleVersion,
+        vararg args: String,
+    ): Map<AbstractProject, BuildResult> =
         projects.values.associateWith { project ->
             runWithoutExpectations(gradleVersion, project.gradleProject.rootDir, *args)
         }
 
-    fun buildAndFail(gradleVersion: GradleVersion, vararg args: String): Map<AbstractProject, BuildResult> =
+    fun buildAndFail(
+        gradleVersion: GradleVersion,
+        vararg args: String,
+    ): Map<AbstractProject, BuildResult> =
         projects.values.associateWith { project ->
             buildAndFail(gradleVersion, project.gradleProject.rootDir, *args)
         }

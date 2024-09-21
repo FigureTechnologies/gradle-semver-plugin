@@ -38,10 +38,11 @@ import org.gradle.kotlin.dsl.create
 
 class SemverPlugin : Plugin<PluginAware> {
     override fun apply(target: PluginAware) {
-        val semverExtension = target.extensions.create<SemverExtension>("semver").apply {
-            initialVersion.convention("0.0.0")
-            appendBuildMetadata.convention("")
-        }
+        val semverExtension =
+            target.extensions.create<SemverExtension>("semver").apply {
+                initialVersion.convention("0.0.0")
+                appendBuildMetadata.convention("")
+            }
 
         when (target) {
             is Settings -> {
@@ -65,20 +66,22 @@ class SemverPlugin : Plugin<PluginAware> {
     }
 
     private fun PluginAware.calculateVersion(semverExtension: SemverExtension): String {
-        val versionFactoryContext = VersionFactoryContext(
-            initialVersion = semverExtension.initialVersion.get(),
-            stage = this.stage.get(),
-            modifier = this.modifier.get(),
-            forTesting = this.forTesting.get(),
-            overrideVersion = this.overrideVersion.orNull,
-            forMajorVersion = this.forMajorVersion.orNull,
-            rootDir = semverExtension.rootProjectDir.getOrElse { this.rootDir }.asFile,
-            mainBranch = semverExtension.mainBranch.orNull,
-            developmentBranch = semverExtension.developmentBranch.orNull,
-            appendBuildMetadata = (appendBuildMetadata.takeIf { it.isPresent } ?: semverExtension.appendBuildMetadata)
-                .map { BuildMetadataOptions.from(it, BuildMetadataOptions.NEVER) }
-                .get(),
-        )
+        val versionFactoryContext =
+            VersionFactoryContext(
+                initialVersion = semverExtension.initialVersion.get(),
+                stage = this.stage.get(),
+                modifier = this.modifier.get(),
+                forTesting = this.forTesting.get(),
+                overrideVersion = this.overrideVersion.orNull,
+                forMajorVersion = this.forMajorVersion.orNull,
+                rootDir = semverExtension.rootProjectDir.getOrElse { this.rootDir }.asFile,
+                mainBranch = semverExtension.mainBranch.orNull,
+                developmentBranch = semverExtension.developmentBranch.orNull,
+                appendBuildMetadata =
+                    (appendBuildMetadata.takeIf { it.isPresent } ?: semverExtension.appendBuildMetadata)
+                        .map { BuildMetadataOptions.from(it, BuildMetadataOptions.NEVER) }
+                        .get(),
+            )
 
         val nextVersion = this.providers.versionFactory(versionFactoryContext).get()
 

@@ -18,5 +18,8 @@ package com.figure.gradle.semver.internal.calculator
 import io.github.z4kn4fein.semver.Version
 
 interface VersionCalculator {
-    fun calculate(latestVersion: Version, context: VersionCalculatorContext): String
+    fun calculate(
+        latestVersion: Version,
+        context: VersionCalculatorContext,
+    ): String
 }

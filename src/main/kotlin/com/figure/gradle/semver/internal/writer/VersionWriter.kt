@@ -20,7 +20,10 @@ import com.figure.gradle.semver.internal.extensions.getOrCreate
 import com.figure.gradle.semver.internal.extensions.projectDir
 import org.gradle.api.plugins.PluginAware
 
-fun PluginAware.writeVersionToPropertiesFile(version: String, tagPrefix: String) {
+fun PluginAware.writeVersionToPropertiesFile(
+    version: String,
+    tagPrefix: String,
+) {
     projectDir.resolve(Constants.SEMVER_PROPERTY_PATH).getOrCreate().writeText(
         """
         |version=$version

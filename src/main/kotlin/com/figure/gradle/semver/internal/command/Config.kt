@@ -21,7 +21,10 @@ import org.eclipse.jgit.lib.ConfigConstants
 class Config(
     private val git: Git,
 ) {
-    fun author(name: String, email: String) {
+    fun author(
+        name: String,
+        email: String,
+    ) {
         val config = git.repository.config
 
         config.setString(

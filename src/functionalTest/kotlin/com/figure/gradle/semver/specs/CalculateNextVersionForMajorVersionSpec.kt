@@ -32,13 +32,14 @@ import io.kotest.core.spec.style.FunSpec
 import org.gradle.util.GradleVersion
 
 class CalculateNextVersionForMajorVersionSpec : FunSpec({
-    val projects = install(
-        GradleProjectsExtension(
-            RegularProject(projectName = "regular-project"),
-            SettingsProject(projectName = "settings-project"),
-            SubprojectProject(projectName = "subproject-project"),
-        ),
-    )
+    val projects =
+        install(
+            GradleProjectsExtension(
+                RegularProject(projectName = "regular-project"),
+                SettingsProject(projectName = "settings-project"),
+                SubprojectProject(projectName = "subproject-project"),
+            ),
+        )
 
     val mainBranch = "master"
     val developmentBranch = "devel"
@@ -50,22 +51,24 @@ class CalculateNextVersionForMajorVersionSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "0.2.5")
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.1")
-                    commit(message = "1 commit on $mainBranch", tag = "1.1.0")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "0.2.5")
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.1")
+                        commit(message = "1 commit on $mainBranch", tag = "1.1.0")
 
-                    checkout(releaseBranch)
-                    commit(message = "1 commit on $releaseBranch")
-                }
+                        checkout(releaseBranch)
+                        commit(message = "1 commit on $releaseBranch")
+                    }
             }
 
             // When
-            val outputs = projects.runWithoutExpectations(
-                GradleVersion.current(),
-                "-P${SemverProperty.ForMajorVersion.property}=not-an-integer",
-            ).values.map { it.output }
+            val outputs =
+                projects.runWithoutExpectations(
+                    GradleVersion.current(),
+                    "-P${SemverProperty.ForMajorVersion.property}=not-an-integer",
+                ).values.map { it.output }
 
             // Then
             outputs shouldOnlyContain "semver.forMajorVersion must be representative of a valid major version line (0, 1, 2, etc.)"
@@ -75,24 +78,26 @@ class CalculateNextVersionForMajorVersionSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "0.2.5")
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.1")
-                    commit(message = "1 commit on $mainBranch", tag = "1.1.0")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "0.2.5")
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.1")
+                        commit(message = "1 commit on $mainBranch", tag = "1.1.0")
 
-                    checkout(releaseBranch)
-                    commit(message = "1 commit on $releaseBranch")
-                }
+                        checkout(releaseBranch)
+                        commit(message = "1 commit on $releaseBranch")
+                    }
             }
 
             // When
-            val results = projects.runWithoutExpectations(
-                GradleVersion.current(),
-                semverStage(Stage.Stable),
-                semverModifier(Modifier.Major),
-                semverForMajorVersion(0),
-            )
+            val results =
+                projects.runWithoutExpectations(
+                    GradleVersion.current(),
+                    semverStage(Stage.Stable),
+                    semverModifier(Modifier.Major),
+                    semverForMajorVersion(0),
+                )
 
             // Then
             results.values.map { it.output } shouldOnlyContain "forMajorVersion cannot be used with the 'major' modifier"
@@ -104,17 +109,18 @@ class CalculateNextVersionForMajorVersionSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "0.2.5")
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.1")
-                    commit(message = "1 commit on $mainBranch", tag = "1.1.0")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "0.2.5")
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.1")
+                        commit(message = "1 commit on $mainBranch", tag = "1.1.0")
 
-                    checkout(developmentBranch)
-                    commit(message = "1 commit on $developmentBranch")
+                        checkout(developmentBranch)
+                        commit(message = "1 commit on $developmentBranch")
 
-                    checkout(mainBranch)
-                }
+                        checkout(mainBranch)
+                    }
             }
 
             // When
@@ -128,17 +134,18 @@ class CalculateNextVersionForMajorVersionSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "0.2.5")
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.1")
-                    commit(message = "1 commit on $mainBranch", tag = "1.1.0")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "0.2.5")
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.1")
+                        commit(message = "1 commit on $mainBranch", tag = "1.1.0")
 
-                    checkout(developmentBranch)
-                    commit(message = "1 commit on $developmentBranch")
+                        checkout(developmentBranch)
+                        commit(message = "1 commit on $developmentBranch")
 
-                    checkout(mainBranch)
-                }
+                        checkout(mainBranch)
+                    }
             }
 
             // When
@@ -152,15 +159,16 @@ class CalculateNextVersionForMajorVersionSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "0.2.5")
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.1")
-                    commit(message = "1 commit on $mainBranch", tag = "1.1.0")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "0.2.5")
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.1")
+                        commit(message = "1 commit on $mainBranch", tag = "1.1.0")
 
-                    checkout(developmentBranch)
-                    commit(message = "1 commit on $developmentBranch")
-                }
+                        checkout(developmentBranch)
+                        commit(message = "1 commit on $developmentBranch")
+                    }
             }
 
             // When
@@ -174,15 +182,16 @@ class CalculateNextVersionForMajorVersionSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "0.2.5")
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.1")
-                    commit(message = "1 commit on $mainBranch", tag = "1.1.0")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "0.2.5")
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.1")
+                        commit(message = "1 commit on $mainBranch", tag = "1.1.0")
 
-                    checkout(featureBranch)
-                    commit(message = "1 commit on $featureBranch")
-                }
+                        checkout(featureBranch)
+                        commit(message = "1 commit on $featureBranch")
+                    }
             }
 
             // When
@@ -196,15 +205,16 @@ class CalculateNextVersionForMajorVersionSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "0.2.5")
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.1")
-                    commit(message = "1 commit on $mainBranch", tag = "1.1.0")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "0.2.5")
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.1")
+                        commit(message = "1 commit on $mainBranch", tag = "1.1.0")
 
-                    checkout(featureBranch)
-                    commit(message = "1 commit on $featureBranch")
-                }
+                        checkout(featureBranch)
+                        commit(message = "1 commit on $featureBranch")
+                    }
             }
 
             // When

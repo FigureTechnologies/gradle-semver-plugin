@@ -18,9 +18,7 @@ package com.figure.gradle.semver.gradle
 import com.figure.gradle.semver.kit.render.Element
 import com.figure.gradle.semver.kit.render.Scribe
 
-fun buildCache(
-    fn: BuildCache.Builder.() -> Unit,
-): BuildCache {
+fun buildCache(fn: BuildCache.Builder.() -> Unit): BuildCache {
     val builder = BuildCache.Builder()
     builder.fn()
     return builder.build()
@@ -31,9 +29,10 @@ class BuildCache(
 ) : Element.Block {
     override val name: String = "buildCache"
 
-    override fun render(scribe: Scribe): String = scribe.block(this) { s ->
-        local?.render(s)
-    }
+    override fun render(scribe: Scribe): String =
+        scribe.block(this) { s ->
+            local?.render(s)
+        }
 
     class Builder {
         var local: BuildCacheLocal? = null

@@ -26,7 +26,10 @@ import org.eclipse.jgit.lib.Ref
 class BranchList(
     private val git: Git,
 ) {
-    fun findDevelopmentBranch(providedDevelopmentBranch: String?, providedMainBranch: String?): Ref =
+    fun findDevelopmentBranch(
+        providedDevelopmentBranch: String?,
+        providedMainBranch: String?,
+    ): Ref =
         find(providedDevelopmentBranch)
             ?: find("develop")
             ?: find("devel")
@@ -48,8 +51,7 @@ class BranchList(
             ?: find("master")
             ?: error("Could not determine main branch. Searched, in order, for: $providedMainBranch, main, master")
 
-    fun exists(branchName: String): Boolean =
-        find(branchName) != null
+    fun exists(branchName: String): Boolean = find(branchName) != null
 
     /**
      * Finds an exact branch by name preferring local branches over remote branches, but will return
@@ -74,12 +76,16 @@ class BranchList(
             .call()
             .filter { branchName.lowercase() in it.name.lowercase() }
 
-    fun commitCountBetween(baseBranchName: String, targetBranchName: String): Int {
+    fun commitCountBetween(
+        baseBranchName: String,
+        targetBranchName: String,
+    ): Int {
         // Try to resolve the remote branch first, then fall back to the local branch
         // This should fix situations where you're on the base branch with commits locally.
         // If that's the case, you'll likely get 0 commits between the base and the target branch.
-        val baseBranch: ObjectId = git.repository.resolve("$R_REMOTES_ORIGIN/$baseBranchName")
-            ?: git.repository.resolve(baseBranchName)
+        val baseBranch: ObjectId =
+            git.repository.resolve("$R_REMOTES_ORIGIN/$baseBranchName")
+                ?: git.repository.resolve(baseBranchName)
 
         val targetBranch: ObjectId = git.repository.resolve(targetBranchName)
 

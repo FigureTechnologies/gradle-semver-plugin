@@ -25,13 +25,14 @@ import io.kotest.core.spec.style.FunSpec
 import org.gradle.util.GradleVersion
 
 class CalculateNextVersionWithoutInputsSpec : FunSpec({
-    val projects = install(
-        GradleProjectsExtension(
-            RegularProject(projectName = "regular-project"),
-            SettingsProject(projectName = "settings-project"),
-            SubprojectProject(projectName = "subproject-project"),
-        ),
-    )
+    val projects =
+        install(
+            GradleProjectsExtension(
+                RegularProject(projectName = "regular-project"),
+                SettingsProject(projectName = "settings-project"),
+                SubprojectProject(projectName = "subproject-project"),
+            ),
+        )
 
     val mainBranch = "main"
     val developmentBranch = "develop"
@@ -42,12 +43,13 @@ class CalculateNextVersionWithoutInputsSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                    checkout(developmentBranch)
-                    commit(message = "1 commit on $developmentBranch")
-                    checkout(mainBranch)
-                }
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        checkout(developmentBranch)
+                        commit(message = "1 commit on $developmentBranch")
+                        checkout(mainBranch)
+                    }
             }
 
             // When
@@ -61,11 +63,12 @@ class CalculateNextVersionWithoutInputsSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                    checkout(developmentBranch)
-                    commit(message = "1 commit on $developmentBranch")
-                }
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        checkout(developmentBranch)
+                        commit(message = "1 commit on $developmentBranch")
+                    }
             }
 
             // When
@@ -79,13 +82,14 @@ class CalculateNextVersionWithoutInputsSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                    checkout(developmentBranch)
-                    commit(message = "1 commit on $developmentBranch", tag = "1.0.1-develop.1")
-                    commit(message = "2 commit on $developmentBranch")
-                    commit(message = "3 commit on $developmentBranch")
-                }
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        checkout(developmentBranch)
+                        commit(message = "1 commit on $developmentBranch", tag = "1.0.1-develop.1")
+                        commit(message = "2 commit on $developmentBranch")
+                        commit(message = "3 commit on $developmentBranch")
+                    }
             }
 
             // When
@@ -99,16 +103,17 @@ class CalculateNextVersionWithoutInputsSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                    checkout(developmentBranch)
-                    commit(message = "1 commit on $developmentBranch")
+                        checkout(developmentBranch)
+                        commit(message = "1 commit on $developmentBranch")
 
-                    checkout(featureBranch)
-                    commit(message = "1 commit on $featureBranch")
-                    commit(message = "2 commit on $featureBranch")
-                }
+                        checkout(featureBranch)
+                        commit(message = "1 commit on $featureBranch")
+                        commit(message = "2 commit on $featureBranch")
+                    }
             }
 
             // When
@@ -122,13 +127,14 @@ class CalculateNextVersionWithoutInputsSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                    checkout(featureBranch)
-                    commit(message = "1 commit on $featureBranch")
-                    commit(message = "2 commit on $featureBranch")
-                }
+                        checkout(featureBranch)
+                        commit(message = "1 commit on $featureBranch")
+                        commit(message = "2 commit on $featureBranch")
+                    }
             }
 
             // When
@@ -142,17 +148,18 @@ class CalculateNextVersionWithoutInputsSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                    checkout(developmentBranch)
-                    commit(message = "1 commit on $developmentBranch")
+                        checkout(developmentBranch)
+                        commit(message = "1 commit on $developmentBranch")
 
-                    checkout(featureBranch)
-                    commit(message = "1 commit on $featureBranch")
+                        checkout(featureBranch)
+                        commit(message = "1 commit on $featureBranch")
 
-                    checkout(developmentBranch)
-                }
+                        checkout(developmentBranch)
+                    }
             }
 
             // When
@@ -166,13 +173,14 @@ class CalculateNextVersionWithoutInputsSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.2")
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.3-alpha.1")
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.2")
+                        commit(message = "1 commit on $mainBranch", tag = "1.0.3-alpha.1")
 
-                    checkout(featureBranch)
-                    commit(message = "1 commit on $featureBranch")
-                }
+                        checkout(featureBranch)
+                        commit(message = "1 commit on $featureBranch")
+                    }
             }
 
             // When

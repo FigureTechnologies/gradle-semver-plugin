@@ -49,8 +49,10 @@ class Branch(
             git.repository.findRef(System.getenv(githubHeadRef) ?: shortName)
         }
 
-    fun isOnMainBranch(providedMainBranch: String? = null, forTesting: Boolean = false): Boolean =
-        currentRef(forTesting).name == branchList.findMainBranch(providedMainBranch).name
+    fun isOnMainBranch(
+        providedMainBranch: String? = null,
+        forTesting: Boolean = false,
+    ): Boolean = currentRef(forTesting).name == branchList.findMainBranch(providedMainBranch).name
 
     fun create(branchName: String): Ref =
         git.branchCreate()

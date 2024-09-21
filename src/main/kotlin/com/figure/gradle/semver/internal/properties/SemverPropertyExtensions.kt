@@ -38,13 +38,14 @@ val PluginAware.overrideVersion: Provider<String>
     get() = semverProperty(SemverProperty.OverrideVersion)
 
 val PluginAware.forMajorVersion: Provider<Int>
-    get() = semverProperty(SemverProperty.ForMajorVersion).map {
-        runCatching {
-            it.toInt()
-        }.getOrElse {
-            error("semver.forMajorVersion must be representative of a valid major version line (0, 1, 2, etc.)")
+    get() =
+        semverProperty(SemverProperty.ForMajorVersion).map {
+            runCatching {
+                it.toInt()
+            }.getOrElse {
+                error("semver.forMajorVersion must be representative of a valid major version line (0, 1, 2, etc.)")
+            }
         }
-    }
 
 val PluginAware.appendBuildMetadata: Provider<String>
     get() = semverProperty(SemverProperty.AppendBuildMetadata)
@@ -52,7 +53,10 @@ val PluginAware.appendBuildMetadata: Provider<String>
 val PluginAware.forTesting: Provider<Boolean>
     get() = semverProperty(SemverProperty.ForTesting).map { it.toBoolean() }.orElse(false)
 
-private fun PluginAware.gradlePropertiesProperty(semverProperty: SemverProperty, propertiesDirectory: File): Provider<String> {
+private fun PluginAware.gradlePropertiesProperty(
+    semverProperty: SemverProperty,
+    propertiesDirectory: File,
+): Provider<String> {
     return if (propertiesDirectory.resolve(GRADLE_PROPERTIES).exists()) {
         providers.provider {
             Properties().apply {

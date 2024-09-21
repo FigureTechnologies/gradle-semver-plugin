@@ -18,9 +18,7 @@ package com.figure.gradle.semver.gradle
 import com.figure.gradle.semver.kit.render.Element
 import com.figure.gradle.semver.kit.render.Scribe
 
-fun settingsGradle(
-    fn: SettingsConfiguration.Builder.() -> Unit,
-): SettingsConfiguration {
+fun settingsGradle(fn: SettingsConfiguration.Builder.() -> Unit): SettingsConfiguration {
     val builder = SettingsConfiguration.Builder()
     builder.fn()
     return builder.build()
@@ -30,17 +28,18 @@ class SettingsConfiguration(
     private var buildCache: BuildCache? = null,
     private var semver: SemverConfiguration? = null,
 ) : Element.Line {
-    override fun render(scribe: Scribe): String = buildString {
-        semver?.let { sv ->
-            append(scribe.use { s -> sv.render(s) })
-            appendLine()
-        }
+    override fun render(scribe: Scribe): String =
+        buildString {
+            semver?.let { sv ->
+                append(scribe.use { s -> sv.render(s) })
+                appendLine()
+            }
 
-        buildCache?.let { bc ->
-            append(scribe.use { s -> bc.render(s) })
-            appendLine()
+            buildCache?.let { bc ->
+                append(scribe.use { s -> bc.render(s) })
+                appendLine()
+            }
         }
-    }
 
     class Builder {
         var buildCache: BuildCache? = null

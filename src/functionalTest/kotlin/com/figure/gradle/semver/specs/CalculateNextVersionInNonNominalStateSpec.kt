@@ -28,13 +28,14 @@ import io.kotest.datatest.withData
 import org.gradle.util.GradleVersion
 
 class CalculateNextVersionInNonNominalStateSpec : FunSpec({
-    val projects = install(
-        GradleProjectsExtension(
-            RegularProject(projectName = "regular-project"),
-            SettingsProject(projectName = "settings-project"),
-            SubprojectProject(projectName = "subproject-project"),
-        ),
-    )
+    val projects =
+        install(
+            GradleProjectsExtension(
+                RegularProject(projectName = "regular-project"),
+                SettingsProject(projectName = "settings-project"),
+                SubprojectProject(projectName = "subproject-project"),
+            ),
+        )
 
     val mainBranch = "main"
     val featureBranch = "feature-branch"
@@ -52,10 +53,11 @@ class CalculateNextVersionInNonNominalStateSpec : FunSpec({
             // Given
             projects.git {
                 initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "0.2.5")
-                    runScript(it.script, mainBranch, featureBranch)
-                }
+                actions =
+                    actions {
+                        commit(message = "1 commit on $mainBranch", tag = "0.2.5")
+                        runScript(it.script, mainBranch, featureBranch)
+                    }
             }
 
             // When

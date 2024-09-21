@@ -69,9 +69,7 @@ public class Scribe @JvmOverloads constructor(
         return buffer.toString()
     }
 
-    public fun line(
-        block: (Scribe) -> Unit,
-    ): String {
+    public fun line(block: (Scribe) -> Unit): String {
         indent()
         block(this)
         buffer.appendLine()

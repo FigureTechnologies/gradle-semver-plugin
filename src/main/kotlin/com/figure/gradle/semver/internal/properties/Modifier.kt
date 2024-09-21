@@ -24,12 +24,13 @@ enum class Modifier(val value: String) {
     Auto("auto"),
     ;
 
-    fun toInc(): Inc = when (this) {
-        Major -> Inc.MAJOR
-        Minor -> Inc.MINOR
-        Patch -> Inc.PATCH
-        Auto -> Inc.PATCH
-    }
+    fun toInc(): Inc =
+        when (this) {
+            Major -> Inc.MAJOR
+            Minor -> Inc.MINOR
+            Patch -> Inc.PATCH
+            Auto -> Inc.PATCH
+        }
 
     companion object {
         fun fromValue(value: String): Modifier =
