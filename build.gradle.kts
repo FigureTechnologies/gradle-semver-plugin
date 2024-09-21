@@ -188,7 +188,7 @@ apiValidation {
 class PublishingConstants {
     val name = "Gradle Semver Plugin"
     val description = "Gradle Plugin for Automatic Semantic Versioning"
-    val pluginImplementation = "$group.SemverPlugin"
+    val pluginImplementation = "$group.semver.SemverPlugin"
     val tags = listOf("semver", "versioning", "git")
 
     val website = "https://figuretechnologies.github.io/gradle-semver-plugin"
