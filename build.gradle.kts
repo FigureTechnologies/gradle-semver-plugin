@@ -41,8 +41,9 @@ plugins {
     }
 }
 
-group = "com.figure.gradle.semver"
+group = "com.figure.gradle"
 version = "2.0.0"
+description = "Gradle Plugin for Automated Semantic Versioning"
 
 val testImplementation: Configuration by configurations.getting
 
@@ -202,7 +203,7 @@ gradlePlugin {
     vcsUrl = info.vcsUrl
     plugins {
         register("semver") {
-            id = group.toString()
+            id = "$group.semver-plugin"
             displayName = info.name
             description = info.description
             implementationClass = info.pluginImplementation
