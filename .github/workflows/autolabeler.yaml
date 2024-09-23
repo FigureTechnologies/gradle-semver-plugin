@@ -2,7 +2,7 @@ name: PR Autolabeler
 
 on:
   pull_request:
-    types: [opened, edited, reopened, synchronize]
+    types: [ opened, edited, reopened, synchronize ]
     branches-ignore:
       - 'renovate/**'
 

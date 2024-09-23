@@ -12,6 +12,9 @@ tab_width = 4
 [*.md]
 max_line_length = 80
 
+[{*.bash,*.sh,*.zsh}]
+indent_size = 2
+
 [{*.yaml,*.yml}]
 indent_size = 2
 

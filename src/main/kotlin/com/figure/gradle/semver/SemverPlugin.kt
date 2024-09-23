@@ -1,47 +1,90 @@
-/**
- * Copyright (c) 2024 Figure Technologies and its affiliates.
+/*
+ * Copyright (C) 2024 Figure Technologies
  *
- * This source code is licensed under the Apache 2.0 license found in the
- * LICENSE.md file in the root directory of this source tree.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package com.figure.gradle.semver
 
-import com.figure.gradle.semver.internal.tasks.CreateAndPushVersionTagTask
-import com.figure.gradle.semver.internal.tasks.CurrentSemverTask
-import com.figure.gradle.semver.internal.tasks.GenerateVersionFileTask
+import com.figure.gradle.semver.internal.calculator.VersionFactoryContext
+import com.figure.gradle.semver.internal.calculator.versionFactory
+import com.figure.gradle.semver.internal.extensions.extensions
+import com.figure.gradle.semver.internal.extensions.providers
+import com.figure.gradle.semver.internal.extensions.rootDir
+import com.figure.gradle.semver.internal.logging.registerPostBuildVersionLogMessage
+import com.figure.gradle.semver.internal.properties.BuildMetadataOptions
+import com.figure.gradle.semver.internal.properties.appendBuildMetadata
+import com.figure.gradle.semver.internal.properties.forMajorVersion
+import com.figure.gradle.semver.internal.properties.forTesting
+import com.figure.gradle.semver.internal.properties.modifier
+import com.figure.gradle.semver.internal.properties.overrideVersion
+import com.figure.gradle.semver.internal.properties.stage
+import com.figure.gradle.semver.internal.properties.tagPrefix
+import com.figure.gradle.semver.internal.writer.writeVersionToPropertiesFile
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.initialization.Settings
+import org.gradle.api.plugins.PluginAware
 import org.gradle.kotlin.dsl.create
-import org.gradle.kotlin.dsl.register
-import java.io.File
-import java.nio.file.Files
 
-class SemverPlugin : Plugin<Project> {
-    override fun apply(project: Project) {
-        val semver = project.extensions.create<SemverExtension>("semver")
-
-        project.tasks.register<CurrentSemverTask>("currentSemver") {
-            version.set(semver.version)
-            versionTagName.set(semver.versionTagName)
+class SemverPlugin : Plugin<PluginAware> {
+    override fun apply(target: PluginAware) {
+        val semverExtension = target.extensions.create<SemverExtension>("semver").apply {
+            initialVersion.convention("0.0.0")
+            appendBuildMetadata.convention("")
         }
 
-        project.tasks.register<GenerateVersionFileTask>("generateVersionFile") {
-            // Ensure the build directory exists first
-            if (!project.buildDir.exists()) {
-                Files.createDirectory(project.buildDir.toPath())
+        when (target) {
+            is Settings -> {
+                target.gradle.settingsEvaluated {
+                    val nextVersion = target.calculateVersion(semverExtension)
+                    target.gradle.beforeProject {
+                        it.version = nextVersion
+                    }
+                }
             }
 
-            val versionFile = File("${project.buildDir}/semver/version.txt")
+            is Project -> {
+                target.afterEvaluate {
+                    val nextVersion = target.calculateVersion(semverExtension)
+                    target.version = nextVersion
+                }
+            }
 
-            destination.fileValue(versionFile)
-            version.set(semver.version)
-            versionTagName.set(semver.versionTagName)
+            else -> error("Not a project or settings")
         }
+    }
 
-        project.tasks.register<CreateAndPushVersionTagTask>("createAndPushVersionTag") {
-            this.versionTagName.set(semver.versionTagName)
-            this.gitDir.set(project.file(semver.gitDir.get()))
-        }
+    private fun PluginAware.calculateVersion(semverExtension: SemverExtension): String {
+        val versionFactoryContext = VersionFactoryContext(
+            initialVersion = semverExtension.initialVersion.get(),
+            stage = this.stage.get(),
+            modifier = this.modifier.get(),
+            forTesting = this.forTesting.get(),
+            overrideVersion = this.overrideVersion.orNull,
+            forMajorVersion = this.forMajorVersion.orNull,
+            rootDir = semverExtension.rootProjectDir.getOrElse { this.rootDir }.asFile,
+            mainBranch = semverExtension.mainBranch.orNull,
+            developmentBranch = semverExtension.developmentBranch.orNull,
+            appendBuildMetadata = (appendBuildMetadata.takeIf { it.isPresent } ?: semverExtension.appendBuildMetadata)
+                .map { BuildMetadataOptions.from(it, BuildMetadataOptions.NEVER) }
+                .get(),
+        )
+
+        val nextVersion = this.providers.versionFactory(versionFactoryContext).get()
+
+        this.registerPostBuildVersionLogMessage(nextVersion)
+        this.writeVersionToPropertiesFile(nextVersion, tagPrefix.get())
+
+        return nextVersion
     }
 }

@@ -1,0 +1,29 @@
+public final class com/figure/gradle/semver/Constants {
+	public static final field INSTANCE Lcom/figure/gradle/semver/Constants;
+	public static final field SEMVER_PROPERTY_PATH Ljava/lang/String;
+}
+
+public abstract interface class com/figure/gradle/semver/SemverExtension {
+	public static final field Companion Lcom/figure/gradle/semver/SemverExtension$Companion;
+	public static final field NAME Ljava/lang/String;
+	public abstract fun getAppendBuildMetadata ()Lorg/gradle/api/provider/Property;
+	public abstract fun getDevelopmentBranch ()Lorg/gradle/api/provider/Property;
+	public abstract fun getInitialVersion ()Lorg/gradle/api/provider/Property;
+	public abstract fun getMainBranch ()Lorg/gradle/api/provider/Property;
+	public abstract fun getRootProjectDir ()Lorg/gradle/api/file/RegularFileProperty;
+}
+
+public final class com/figure/gradle/semver/SemverExtension$Companion {
+	public static final field NAME Ljava/lang/String;
+}
+
+public final class com/figure/gradle/semver/SemverExtensionKt {
+	public static final fun semver (Lorg/gradle/api/initialization/Settings;Lkotlin/jvm/functions/Function1;)V
+}
+
+public final class com/figure/gradle/semver/SemverPlugin : org/gradle/api/Plugin {
+	public fun <init> ()V
+	public synthetic fun apply (Ljava/lang/Object;)V
+	public fun apply (Lorg/gradle/api/plugins/PluginAware;)V
+}
+
