@@ -36,9 +36,7 @@ plugins {
     alias(libs.plugins.gradle.testkit)
 
     idea
-    // if (System.getenv("CI") == "true") {
-    //     signing
-    // }
+    signing
 }
 
 group = "com.figure.gradle.semver"
@@ -73,7 +71,7 @@ dependencies {
 tasks {
     withType<KotlinCompile>().configureEach {
         compilerOptions {
-            freeCompilerArgs.addAll("-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
+            freeCompilerArgs.addAll("-version", "-Xjsr305=strict", "-opt-in=kotlin.RequiresOptIn")
         }
     }
 
@@ -255,6 +253,15 @@ publishing {
             }
         }
     }
+}
+
+/**
+ * Skip signing if the signing.enabled property is not set
+ */
+tasks.withType<Sign>().configureEach {
+    // Must be done outside the onlyIf block for configuration cache compatibility
+    val shouldSign = providers.gradleProperty("signing.enabled").isPresent
+    onlyIf("signing.enabled") { shouldSign }
 }
 
 githubRelease {

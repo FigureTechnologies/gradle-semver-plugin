@@ -86,6 +86,7 @@ jobs:
             -Psigning.secretKeyRingFile=release.gpg \
             -Pgradle.publish.key=${{ secrets.OSS_GRADLE_PUBLISH_KEY }} \
             -Pgradle.publish.secret=${{ secrets.OSS_GRADLE_PUBLISH_SECRET }} \
+            -Psigning.enabled=true \
             --stacktrace \
             --parallel \
             --build-cache
