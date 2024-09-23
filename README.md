@@ -12,7 +12,7 @@ At a glance, this plugin provides the following features:
 - Support for overriding the version
 - Support for setting an alternate initial version
 - Support for specifying alternate main and development branch names
-- Support for appending build metadata (format: `+<yyyyMMddHHmm>`)
+- Support for appending build metadata (format: `+<yyyyMMddHHmmss>`)
 - Build support when
     - No git repository is present
     - No git tags are present

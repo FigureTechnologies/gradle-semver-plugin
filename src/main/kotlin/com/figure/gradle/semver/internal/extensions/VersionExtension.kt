@@ -80,7 +80,7 @@ fun Version.appendBuildMetadata(buildMetadataOptions: BuildMetadataOptions): Ver
 }
 
 private fun LocalDateTime.toBuildMetadata(): String {
-    val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm")
+    val formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
     return this.format(formatter)
 }
 

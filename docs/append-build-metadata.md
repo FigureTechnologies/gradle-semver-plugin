@@ -1,6 +1,6 @@
 # Append Build Metadata
 
-Build metadata is a string of characters in the format: `+<yyyyMMddHHmm>`
+Build metadata is a string of characters in the format: `+<yyyyMMddHHmmss>`
 
 To conditionally append build metadata to the next version, use the Gradle
 property:
