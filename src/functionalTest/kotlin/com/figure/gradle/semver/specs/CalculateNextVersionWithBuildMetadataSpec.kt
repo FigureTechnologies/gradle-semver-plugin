@@ -173,7 +173,7 @@ class CalculateNextVersionWithBuildMetadataSpec : FunSpec({
                 projects.build(GradleVersion.current())
 
                 // Then
-                projects.versions shouldOnlyMatch """1.0.1\+[0-9]{12}""".toRegex()
+                projects.versions shouldOnlyMatch """1.0.1\+[0-9]{14}""".toRegex()
             }
 
             test("and on $developmentBranch branch") {
@@ -192,7 +192,7 @@ class CalculateNextVersionWithBuildMetadataSpec : FunSpec({
                 projects.build(GradleVersion.current())
 
                 // Then
-                projects.versions shouldOnlyMatch """1.0.1-$developmentBranch.1\+[0-9]{12}""".toRegex()
+                projects.versions shouldOnlyMatch """1.0.1-$developmentBranch.1\+[0-9]{14}""".toRegex()
             }
 
             test("and on $featureBranch branch") {
@@ -211,7 +211,7 @@ class CalculateNextVersionWithBuildMetadataSpec : FunSpec({
                 projects.build(GradleVersion.current())
 
                 // Then
-                projects.versions shouldOnlyMatch """1.0.1-${featureBranch.replace("/", "-")}.1\+[0-9]{12}""".toRegex()
+                projects.versions shouldOnlyMatch """1.0.1-${featureBranch.replace("/", "-")}.1\+[0-9]{14}""".toRegex()
             }
         }
 
@@ -242,7 +242,7 @@ class CalculateNextVersionWithBuildMetadataSpec : FunSpec({
                     projects.build(GradleVersion.current())
 
                     // Then
-                    projects.versions shouldOnlyMatch """1.0.1\+[0-9]{12}""".toRegex()
+                    projects.versions shouldOnlyMatch """1.0.1\+[0-9]{14}""".toRegex()
                 }
             }
 
@@ -263,7 +263,7 @@ class CalculateNextVersionWithBuildMetadataSpec : FunSpec({
                     projects.build(GradleVersion.current())
 
                     // Then
-                    projects.versions shouldOnlyMatch """1.0.1-$developmentBranch.1\+[0-9]{12}""".toRegex()
+                    projects.versions shouldOnlyMatch """1.0.1-$developmentBranch.1\+[0-9]{14}""".toRegex()
                 }
             }
 
@@ -284,7 +284,7 @@ class CalculateNextVersionWithBuildMetadataSpec : FunSpec({
                     projects.build(GradleVersion.current())
 
                     // Then
-                    projects.versions shouldOnlyMatch """1.0.1-${featureBranch.replace("/", "-")}.1\+[0-9]{12}""".toRegex()
+                    projects.versions shouldOnlyMatch """1.0.1-${featureBranch.replace("/", "-")}.1\+[0-9]{14}""".toRegex()
                 }
             }
         }
