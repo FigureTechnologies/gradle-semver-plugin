@@ -180,7 +180,7 @@ testlogger {
 apiValidation {
     ignoredPackages += listOf(
         // Internal package is not part of the public API
-        "com.figure.gradle.semver.internal",
+        "$group.internal",
     )
 }
 
@@ -210,30 +210,47 @@ gradlePlugin {
     }
 }
 
-afterEvaluate {
-    publishing {
-        publications.filterIsInstance<MavenPublication>().forEach {
-            it.pom {
-                name = info.name
-                description = info.description
-                licenses {
-                    license {
-                        name = "The Apache Software License, Version 2.0"
-                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
-                        distribution = "repo"
+publishing {
+    afterEvaluate {
+        publications {
+            withType<MavenPublication> {
+                pom {
+                    name = info.name
+                    description = info.description
+                    licenses {
+                        license {
+                            name = "The Apache Software License, Version 2.0"
+                            url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                            distribution = "repo"
+                        }
                     }
-                }
-                developers {
-                    developer {
-                        id = "tcrawford-figure"
-                        name = "Tyler Crawford"
-                        email = "tcrawford@figure.com"
+                    developers {
+                        developer {
+                            id.set("figure-oss")
+                            name.set("Figure OSS Engineers")
+                            email.set("oss@figure.com")
+                        }
+                        developer {
+                            id = "tcrawford-figure"
+                            name = "Tyler Crawford"
+                            email = "tcrawford@figure.com"
+                        }
+                        developer {
+                            id.set("ahatzz11")
+                            name.set("Alex Hatzenbuhler")
+                            email.set("ahatzenbuhler@figure.com")
+                        }
+                        developer {
+                            id.set("jonasg13")
+                            name.set("Jonas Gorauskas")
+                            email.set("jgorauskas@figure.com")
+                        }
                     }
-                }
-                scm {
-                    connection = info.scmUrl
-                    developerConnection = info.scmUrl
-                    url = info.website
+                    scm {
+                        connection = info.scmUrl
+                        developerConnection = info.scmUrl
+                        url = info.website
+                    }
                 }
             }
         }
