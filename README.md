@@ -4,16 +4,16 @@ This Semver Gradle plugin provides a simple approach to
 adding semantic versioning to your gradle project using git
 history regardless of git strategies.
 
-At a glance, this plugin provides the following features:
+At a glance, this plugin provides support for the following features:
 
-- Support for stages (`rc`, `beta`, `stable`, `snapshot`, etc. - see below)
-- Support for modifiers (`auto`, `patch`, `minor`, `major`)
-- Support for branch-based version calculations
-- Support for overriding the version
-- Support for setting an alternate initial version
-- Support for specifying alternate main and development branch names
-- Support for appending build metadata (format: `+<yyyyMMddHHmmss>`)
-- Build support when
+- Stages (`rc`, `beta`, `stable`, `snapshot`, etc.)
+- Modifiers (`auto`, `patch`, `minor`, `major`)
+- Branch-based version calculations
+- Overriding the version
+- Setting an alternate initial version
+- Specifying alternate main and development branch names
+- Appending build metadata (format: `+<yyyyMMddHHmmss>`)
+- Building when
     - No git repository is present
     - No git tags are present
     - No remote branch is present
