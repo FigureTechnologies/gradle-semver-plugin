@@ -15,7 +15,7 @@ theme:
   favicon: 'assets/package-white.svg'
   logo: 'assets/package-white.svg'
   font:
-    code: 'Robot Mono'
+    code: 'Roboto Mono'
   palette:
     - media: '(prefers-color-scheme: light)'
       scheme: default
