@@ -1,4 +1,4 @@
-name: Release
+name: Gradle Release
 
 on:
   workflow_dispatch:
@@ -75,7 +75,7 @@ jobs:
             jdks
             wrapper
 
-      - name: Build and Release Main
+      - name: Build, Publish, and Release
         run: |
           ./gradlew \
             -Psemver.modifier=${{ github.event.inputs.version-modifier }} \
