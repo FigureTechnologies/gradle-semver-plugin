@@ -269,5 +269,5 @@ tasks.withType<Sign>().configureEach {
 githubRelease {
     generateReleaseNotes = true
     owner = "FigureTechnologies"
-    providers.environmentVariable("GITHUB_TOKEN").map { token(it) }
+    token(providers.environmentVariable("GITHUB_TOKEN"))
 }

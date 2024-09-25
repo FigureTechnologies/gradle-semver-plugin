@@ -1,4 +1,4 @@
-name: Gradle Release
+name: Build, Publish, and Release
 
 on:
   workflow_dispatch:
