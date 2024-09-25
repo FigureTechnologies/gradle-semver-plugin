@@ -182,7 +182,8 @@ apiValidation {
     )
 }
 
-class PublishingConstants {
+inner class PublishingConstants {
+    val group = "com.figure.gradle.semver"
     val name = "Gradle Semver Plugin"
     val description = "Gradle Plugin for Automatic Semantic Versioning"
     val pluginImplementation = "$group.SemverPlugin"
@@ -200,7 +201,7 @@ gradlePlugin {
     vcsUrl = info.vcsUrl
     plugins {
         register("semver") {
-            id = group.toString()
+            id = info.group
             displayName = info.name
             description = info.description
             implementationClass = info.pluginImplementation
@@ -208,8 +209,8 @@ gradlePlugin {
     }
 }
 
-publishing {
-    afterEvaluate {
+afterEvaluate {
+    publishing {
         publications {
             withType<MavenPublication> {
                 pom {
