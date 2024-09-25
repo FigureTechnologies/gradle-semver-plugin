@@ -40,7 +40,7 @@ plugins {
 }
 
 group = "com.figure.gradle.semver"
-version = "2.0.0"
+version = "2.0.1-SNAPSHOT"
 
 val testImplementation: Configuration by configurations.getting
 
@@ -212,45 +212,43 @@ gradlePlugin {
 
 afterEvaluate {
     publishing {
-        publications {
-            withType<MavenPublication> {
-                pom {
-                    name = info.name
-                    description = info.description
-                    licenses {
-                        license {
-                            name = "The Apache Software License, Version 2.0"
-                            url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
-                            distribution = "repo"
-                        }
+        publications.filterIsInstance<MavenPublication>().forEach {
+            it.pom {
+                name = info.name
+                description = info.description
+                licenses {
+                    license {
+                        name = "The Apache Software License, Version 2.0"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                        distribution = "repo"
                     }
-                    developers {
-                        developer {
-                            id.set("figure-oss")
-                            name.set("Figure OSS Engineers")
-                            email.set("oss@figure.com")
-                        }
-                        developer {
-                            id = "tcrawford-figure"
-                            name = "Tyler Crawford"
-                            email = "tcrawford@figure.com"
-                        }
-                        developer {
-                            id.set("ahatzz11")
-                            name.set("Alex Hatzenbuhler")
-                            email.set("ahatzenbuhler@figure.com")
-                        }
-                        developer {
-                            id.set("jonasg13")
-                            name.set("Jonas Gorauskas")
-                            email.set("jgorauskas@figure.com")
-                        }
+                }
+                developers {
+                    developer {
+                        id.set("figure-oss")
+                        name.set("Figure OSS Engineers")
+                        email.set("oss@figure.com")
                     }
-                    scm {
-                        connection = info.scmUrl
-                        developerConnection = info.scmUrl
-                        url = info.website
+                    developer {
+                        id = "tcrawford-figure"
+                        name = "Tyler Crawford"
+                        email = "tcrawford@figure.com"
                     }
+                    developer {
+                        id.set("ahatzz11")
+                        name.set("Alex Hatzenbuhler")
+                        email.set("ahatzenbuhler@figure.com")
+                    }
+                    developer {
+                        id.set("jonasg13")
+                        name.set("Jonas Gorauskas")
+                        email.set("jgorauskas@figure.com")
+                    }
+                }
+                scm {
+                    connection = info.scmUrl
+                    developerConnection = info.scmUrl
+                    url = info.website
                 }
             }
         }
