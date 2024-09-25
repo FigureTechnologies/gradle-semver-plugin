@@ -1,242 +1,82 @@
-# Gradle Semver Plugin
+# Semver Gradle Plugin
 
-This plugin adds a flexible approach to adding semantic versioning to your gradle project using git history.
-It supports multi-module gradle projects, running in CI, and multiple types of git strategies.
+This Semver Gradle plugin provides a simple approach to
+adding semantic versioning to your gradle project using git
+history regardless of git strategies.
 
-- [Usage](#usage)
-- [Overview](#overview)
-- [Using with CI](#using-with-ci)
-- [Version Calculation](#version-calculation)
-- [Branch Matching Strategy](#branch-matching-strategy)
-- [Unsupported](#not-supported)
+At a glance, this plugin provides support for the following features:
 
-## Usage
+- Stages (`rc`, `beta`, `stable`, `snapshot`, etc.)
+- Modifiers (`auto`, `patch`, `minor`, `major`)
+- Branch-based version calculations
+- Overriding the version
+- Setting an alternate initial version
+- Specifying alternate main and development branch names
+- Appending build metadata (format: `+<yyyyMMddHHmmss>`)
+- Building when
+    - No git repository is present
+    - No git tags are present
+    - No remote branch is present
+    - Merging, rebasing, cherry-picking, bisecting, reverting, or in a detached
+      head state
 
-```kotlin
-plugins {
-    id("com.figure.gradle.semver-plugin") version "<latest version>"
-}
+## Installation
 
-// The semver extension must be declared before invoking semver.version
-semver {
-    // All properties are optional, but it's a good idea to declare those that you would want
-    // to override with Gradle properties or environment variables, e.g. "overrideVersion" below
-    tagPrefix("v")
-    initialVersion("0.0.1")
-    findProperty("semver.overrideVersion")?.toString()?.let { overrideVersion(it) }
-}
+The following can be added to any of the following:
 
-// must be called after semver {}
-version = semver.version
-```
+- `settings.gradle.kts` (recommended)
+    - This will automatically apply the version to all projects
+- `build.gradle.kts` (root project)
+    - This will only automatically apply the version to the root project
+- `build.gradle.kts` (subproject)
+    - This will only automatically apply the version to the subproject
 
-If you're using a Gradle Version Catalog, feel free to use these entries:
-
-```toml
-[versions]
-figure-gradle-semver = "<latest version>"
-
-[plugins]
-gradle-semver = { id = "com.figure.gradle.semver-plugin", version.ref = "figure-gradle-semver" }
-```
+If the semantic version is targeting the entire project, it's recommended to add
+this to the `settings.gradle.kts` file.
 
 ```kotlin
 plugins {
-    alias(libs.plugins.gradle.semver)
+    id("com.figure.gradle.semver") version "<current_version>"
 }
 ```
 
-## Overview
+## Configuration
 
-Whenever a gradle task is ran, such as `./gradlew clean build`, the semver plugin will calculate the current semantic
-version based on git history.
-This calculation is done using:
-
-- The version of the target branch
-- The current branch
-- The branch matching strategy
-
-This calculated semantic version is then available as an output with the extension properties `semver.version`
-and `semver.versionTagName`.
-
-### Glossary
-
-| Item                           | Definition                                                                             | Example                     |
-|--------------------------------|----------------------------------------------------------------------------------------|-----------------------------|
-| _current branch_               | The branch you are working on.                                                         | `fix-bug`                   |
-| _target branch_                | The branch that the current branch targets, often the default branch.                  | `main`, `master`, `develop` |
-| _latest version_               | The latest published git tag on the target branch.                                     | `1.0.2`                     |
-| _current / calculated version_ | The version that is calculated when it runs. This will be ahead of the latest version. | `1.0.3`                     |
-
-### Plugin Extension Properties
-
-These variables come from the plugin extension, and are only available after the `semver {}` extension is configured.
-
-| Variable         | Type     | Description                                                                                  |
-|------------------|----------|----------------------------------------------------------------------------------------------|
-| `version`        | `String` | The current version, e.g. `1.0.1`                                                            |
-| `versionTagName` | `String` | The tag name for the current calculated version, i.e. `tagPrefix` + `version`, e.g. `v1.0.1` |
-
-Example:
+> [!IMPORTANT]
+> The most minimal configuration is to not provide any configuration at all.
+> This will use the default settings and will generate a version based on the
+> git history.
+>
+> However, configurations exist to allow for more control over the versioning
+> calculation process.
 
 ```kotlin
+// For older versions of gradle, you may need to import the configuration method
+import com.figure.gradle.semver.semver
+
+// This is purely for example purposes
 semver {
-    // ...
-}
-version = semver.version
+    // Default: `settings.settingsDir`
+    rootProjectDir = settingsDir.parent
 
-```
+    // Default: `0.0.0` (first build will generate `0.0.1`)
+    initialVersion = "1.0.0"
 
-### Plugin Tasks
+    // No "default", but the plugin will search in order for:
+    // `main`, `master
+    mainBranch = "trunk"
 
-| Task Name                 | Description                                                                                                                                                                                                              |
-|---------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `currentSemver`           | Print the current `version` and `versionTagName`                                                                                                                                                                         |
-| `generateVersionFile`     | Generate the `build/semver/version.txt` file containing the raw version and the tag version, often used in CI                                                                                                            |
-| `createAndPushVersionTag` | Create a git tag from `semver.versionTagName` and push the tag to the remote repo.   Be careful using `:createAndPushVersionTag` in a multi module project as it will attempt to create duplicate tags for each project. |
+    // No "default", but the plugin will search in order for:
+    // `develop`, `devel`, `dev`
+    developmentBranch = "development"
 
-## Using with CI
-
-When using this plugin in CI, ensure that all branches & tags are checked out to get an accurate version calculation.
-By default, the `actions/checkout` action only pulls the latest commit, which can cause some issues with this plugin.
-
-GitHub Actions Example:
-
-```yaml
-- name: Checkout
-  uses: actions/checkout@v3
-  with:
-    fetch-depth: 0 # <-- This config is the most important part, and checks out the entire history of the repo
-```
-
-## Version Calculation
-
-This plugin comes bundled with a single Version Calculator that implements a target branch calculator - the version of
-the current
-branch is based on the latest version of the branch it targets, e.g. `develop` is branched from `main`, so the version
-of `develop` is based on the current version of `main`.
-
-The Target Branch Version Calculator includes two Branch Matching strategies, based on the git strategy that is being
-used.
-By default, the `Flow` strategy is selected if a `develop` branch is present, otherwise the `Flat` strategy will be
-used.
-
-- `Flat` - Ideal for projects using a single branch strategy with `main` or `master`.
-
-| branch                    | pre release label | target branch  | example      |
-|---------------------------|-------------------|----------------|--------------|
-| `main` or `master`        |                   | main or master | 1.2.3        |
-| `rc/my-release-candidate` | rc                | main or master | 1.2.4-rc.2   |
-| `xxx`                     | xxx               | main or master | 1.2.4-xxx.13 |
-
-- `Flow` - Broadly based on a [Git Flow workflow](https://nvie.com/posts/a-successful-git-branching-model/) without
-  release branches, the following branches are supported:
-
-| branch                    | pre release label | target branch  | example       |
-|---------------------------|-------------------|----------------|---------------|
-| `main` or `master`        | ''                | main or master | 1.2.3         |
-| `develop`                 | beta              | main or master | 1.2.4-beta.13 |
-| `rc/my-release-candidate` | rc                | main or master | 1.2.4-rc.2    |
-| `xxx`                     | xxx               | develop        | 1.2.5-xxx.13  |
-
-### Branch Matching Detection Order
-
-The following outlines the branch matching detection order from first matched to last matched:
-
-1. Custom version strategy
-2. `main` and `develop` exist
-3. `master` and `develop` exist
-4. `main` only exists
-5. `master` only exists
-6. Throw unsupported branching strategy
-
-## Branch Matching Strategy
-
-A Strategy contains a list of `BranchMatchingConfiguration` instances which are applied in order until the first match
-is reached, it contains the following properties:
-
-- Branch name regex
-- Target branch
-- Version modifier: modifies the major, minor or patch components of the semver
-- Version qualifier: optionally qualifies the semver with a prerelease label and build metadata
-
-The `VersionModifier` can be set for all `BranchMatchingConfiguration` instances in the strategy with the plugin
-extension:
-
-```kotlin
-semver {
-    versionModifier { nextPatch() }
-    // OR
-    versionModifier("patch")
+    // Default: `never`
+    // Options: `never`, `always`, `locally`
+    appendBuildMetadata = "locally"
 }
 ```
 
-Only a single `BranchMatchingConfiguration` whose regex matches the current branch will be applied, so effectively this
-sets the `VersionModifier` for the current branch.
+## Documentation
 
-The supported values are `major`, `minor` and `patch`.
-
-## Advanced Usage
-
-```kotlin
-plugins {
-    id("com.figure.gradle.semver-plugin") version "<latest version>"
-}
-
-// The semver extension must be declared before invoking semver.version
-semver {
-    // All properties are optional, but it's a good idea to declare those that you would want
-    // to override with Gradle properties or environment variables, e.g. "overrideVersion" below
-    tagPrefix("v")
-    initialVersion("0.0.3")
-    findProperty("semver.overrideVersion")?.toString()?.let { overrideVersion(it) }
-
-    // This is only used for non-user defined strategies, i.e. predefined Flow or Flat
-    findProperty("semver.modifier")?.toString()
-        ?.let { versionModifier(buildVersionModifier(it)) }
-
-    // Manually specifying the gitDir location is typically not necessary. However, in cases where you have a composite
-    // gradle build, it will become necessary to define where your .git directory is in correlation to your composite
-    // build. In the following example, you may have a build at `parent/child`. `child` specifies that the parent
-    // directory to its projectDir should contain the `.git` directory.
-    gitDir("${rootProject.projectDir.parent}/.git")
-}
-
-version = semver.version
-```
-
-Using a custom Strategy (not currently supported by the configuration cache):
-
-```kotlin
-semver {
-    // All properties are optional, but it's a good idea to declare those that you would want
-    // to override with Gradle properties or environment variables, e.g. "overrideVersion" below
-    tagPrefix("v")
-    initialVersion("0.0.3")
-    findProperty("semver.overrideVersion")?.toString()?.let { overrideVersion(it) }
-    val semVerModifier = findProperty("semver.modifier")?.toString()
-        ?.let { buildVersionModifier(it) } ?: { nextMinor() }
-
-    versionCalculatorStrategy(
-        FlatVersionCalculatorStrategy(semVerModifier)
-    )
-    // OR from scratch - this is rarely used now that Flat and Flow support anything - .*
-    versionCalculatorStrategy(
-        listOf(
-            BranchMatchingConfiguration("""^main$""".toRegex(), GitRef.Branch.Main, { "" to "" }, semVerModifier),
-            BranchMatchingConfiguration(
-                """.*""".toRegex(),
-                GitRef.Branch.Main,
-                { preReleaseWithCommitCount(it, GitRef.Branch.Main, it.sanitizedNameWithoutPrefix()) to "" },
-                semVerModifier
-            ),
-        )
-    )
-}
-```
-
-_**PLEASE NOTE:**_ the `semver` extension should be declared **before** the `semver` extension functions are used.
-
-## Not Supported
-
-- Separate versions for subprojects - all subprojects are calculated with the same version
+For more detailed documentation, please
+visit [figuretechnologies.github.io/gradle-semver-plugin](https://figuretechnologies.github.io/gradle-semver-plugin).

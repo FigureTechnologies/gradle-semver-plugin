@@ -1,12 +1,5 @@
 style:
-  ReturnCount:
-    active: false
-  MagicNumber:
+  MaxLineLength: # defer to ktlint
     active: false
   ForbiddenComment:
     active: false
-  ThrowsCount:
-    active: true
-    excludeGuardClauses: true
-  MaxLineLength:
-    excludeCommentStatements: true
