@@ -205,6 +205,7 @@ gradlePlugin {
             displayName = info.name
             description = info.description
             implementationClass = info.pluginImplementation
+            tags = info.tags
         }
     }
 }
