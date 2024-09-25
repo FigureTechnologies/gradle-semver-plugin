@@ -201,7 +201,7 @@ gradlePlugin {
     vcsUrl = info.vcsUrl
     plugins {
         register("semver") {
-            id =  info.group
+            id = info.group
             displayName = info.name
             description = info.description
             implementationClass = info.pluginImplementation
