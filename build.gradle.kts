@@ -183,6 +183,7 @@ apiValidation {
 }
 
 inner class PublishingConstants {
+    val group = "com.figure.gradle.semver"
     val name = "Gradle Semver Plugin"
     val description = "Gradle Plugin for Automatic Semantic Versioning"
     val pluginImplementation = "$group.SemverPlugin"
@@ -200,7 +201,7 @@ gradlePlugin {
     vcsUrl = info.vcsUrl
     plugins {
         register("semver") {
-            id = "com.figure.gradle.semver"
+            id =  info.group
             displayName = info.name
             description = info.description
             implementationClass = info.pluginImplementation
