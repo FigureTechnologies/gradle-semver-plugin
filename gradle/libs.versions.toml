@@ -8,7 +8,7 @@ kotlin-semver = "2.0.0"
 
 best-practices = "0.10"
 binary-compatibility-validator = "0.16.3"
-dependency-analysis = "2.0.2"
+dependency-analysis = "2.1.0"
 detekt = "1.23.7"
 github-release = "2.5.2"
 gradle-testkit = "0.10"
