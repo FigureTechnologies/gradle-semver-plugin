@@ -30,6 +30,7 @@ dependencyResolutionManagement {
 
 plugins {
     id("com.gradle.develocity") version "3.18.1"
+    id("com.figure.gradle.semver") version "2.0.0"
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
 }
 
