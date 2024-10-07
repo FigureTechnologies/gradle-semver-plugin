@@ -210,9 +210,23 @@ gradlePlugin {
     }
 }
 
+val isStable = version.toString().matches("^\\d.\\d.\\d\$".toRegex())
+
 afterEvaluate {
     publishing {
         publications.filterIsInstance<MavenPublication>().forEach {
+            if (!isStable) {
+                repositories {
+                    maven {
+                        url = uri("https://nexus.figure.com/repository/figure")
+                        credentials {
+                            username = System.getenv("NEXUS_USER")
+                            password = System.getenv("NEXUS_PASS")
+                        }
+                    }
+                }
+            }
+
             it.pom {
                 name = info.name
                 description = info.description
