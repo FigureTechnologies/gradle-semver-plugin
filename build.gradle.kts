@@ -40,7 +40,7 @@ plugins {
 }
 
 group = "com.figure.gradle.semver"
-version = "2.0.0"
+version = "2.0.1-rc.1"
 
 val testImplementation: Configuration by configurations.getting
 
@@ -210,8 +210,21 @@ gradlePlugin {
     }
 }
 
+val isStable = providers.provider { version.toString().matches("^\\d.\\d.\\d\$".toRegex()) }
+
 afterEvaluate {
     publishing {
+        if (!isStable.get()) {
+            repositories {
+                maven {
+                    url = uri("https://nexus.figure.com/repository/figure")
+                    credentials {
+                        username = System.getenv("NEXUS_USER")
+                        password = System.getenv("NEXUS_PASS")
+                    }
+                }
+            }
+        }
         publications.filterIsInstance<MavenPublication>().forEach {
             it.pom {
                 name = info.name
