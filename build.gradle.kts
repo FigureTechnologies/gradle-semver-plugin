@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.publish.plugin)
+    alias(libs.plugins.publish.base)
 
     alias(libs.plugins.detekt)
     alias(libs.plugins.spotless)
@@ -40,7 +41,7 @@ plugins {
 }
 
 group = "com.figure.gradle.semver"
-version = "2.0.1-rc.1"
+version = "2.0.1-rc.2"
 
 val testImplementation: Configuration by configurations.getting
 
@@ -66,6 +67,24 @@ dependencies {
     testImplementation(libs.kotest.datatest)
 
     functionalTestImplementation(libs.testkit.support)
+}
+
+@DisableCachingByDefault
+abstract class WriteVersionToFile : DefaultTask() {
+    @get:Input
+    abstract val versionProperty: Property<String>
+
+    init {
+        group = "build"
+        description = "Writes the project version to build/semver/semver.properties"
+    }
+
+    @TaskAction
+    fun writeVersion() {
+        val versionFile = File("build/semver/semver.properties")
+        versionFile.parentFile.mkdirs()
+        versionFile.writeText("version=${versionProperty.get()}")
+    }
 }
 
 tasks {
@@ -94,6 +113,7 @@ tasks {
 
     check {
         dependsOn("detekt")
+        dependsOn("writeVersionToFile")
     }
 
     withType<Detekt>().configureEach {
@@ -116,6 +136,11 @@ tasks {
         description = "Check all code using configured linters. Runs 'spotlessCheck'"
         dependsOn("spotlessCheck")
     }
+
+    // Temporary solution until this plugin can be bootstrapped with itself
+    register<WriteVersionToFile>("writeVersionToFile") {
+        versionProperty = project.version.toString()
+    }
 }
 
 idea {
@@ -127,11 +152,6 @@ idea {
 
 kotlin {
     jvmToolchain(17)
-}
-
-java {
-    withSourcesJar()
-    withJavadocJar()
 }
 
 detekt {
@@ -210,71 +230,83 @@ gradlePlugin {
     }
 }
 
-val isStable = providers.provider { version.toString().matches("^\\d.\\d.\\d\$".toRegex()) }
+fun Project.mavenPublications(action: Action<MavenPublication>) {
+    project.publishing.publications.withType(MavenPublication::class.java).configureEach(action)
+}
 
-afterEvaluate {
-    publishing {
-        if (!isStable.get()) {
-            repositories {
-                maven {
-                    url = uri("https://nexus.figure.com/repository/figure")
-                    credentials {
-                        username = System.getenv("NEXUS_USER")
-                        password = System.getenv("NEXUS_PASS")
-                    }
-                }
-            }
-        }
-        publications.filterIsInstance<MavenPublication>().forEach {
-            it.pom {
-                name = info.name
-                description = info.description
-                licenses {
-                    license {
-                        name = "The Apache Software License, Version 2.0"
-                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
-                        distribution = "repo"
-                    }
-                }
-                developers {
-                    developer {
-                        id.set("figure-oss")
-                        name.set("Figure OSS Engineers")
-                        email.set("oss@figure.com")
-                    }
-                    developer {
-                        id = "tcrawford-figure"
-                        name = "Tyler Crawford"
-                        email = "tcrawford@figure.com"
-                    }
-                    developer {
-                        id.set("ahatzz11")
-                        name.set("Alex Hatzenbuhler")
-                        email.set("ahatzenbuhler@figure.com")
-                    }
-                    developer {
-                        id.set("jonasg13")
-                        name.set("Jonas Gorauskas")
-                        email.set("jgorauskas@figure.com")
-                    }
-                }
-                scm {
-                    connection = info.scmUrl
-                    developerConnection = info.scmUrl
-                    url = info.website
-                }
+signing {
+    // Only required when publishing a stable version
+    isRequired = version.toString().matches("^\\d+\\.\\d+\\.\\d+$".toRegex())
+}
+
+mavenPublications {
+    val publication: MavenPublication = this
+    signing.sign(publication)
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "FigureNexus"
+            url = uri("https://nexus.figure.com/repository/figure")
+            credentials {
+                username = providers.environmentVariable("NEXUS_USER").orNull
+                password = providers.environmentVariable("NEXUS_PASS").orNull
             }
         }
     }
 }
 
-/**
- * Skip signing if the signing.enabled property is not set
- */
-tasks.withType<Sign>().configureEach {
-    // Must be done outside the onlyIf block for configuration cache compatibility
-    val shouldSign = providers.gradleProperty("signing.enabled").isPresent
-    onlyIf("signing.enabled") { shouldSign }
+mavenPublishing {
+    configureBasedOnAppliedPlugins()
+
+    // Maven-specific artifact configuration. This does not affect the Gradle plugin artifact.
+    coordinates(
+        groupId = info.group,
+        artifactId = "gradle-semver-plugin",
+        version = version.toString(),
+    )
+
+    pom {
+        name = info.name
+        description = info.description
+        inceptionYear = "2021"
+        url = info.website
+        licenses {
+            license {
+                name = "The Apache Software License, Version 2.0"
+                url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                distribution = "https://www.apache.org/licenses/LICENSE-2.0.txt\""
+            }
+        }
+        developers {
+            developer {
+                id = "figure-oss"
+                name = "Figure OSS Engineers"
+                email = "oss@figure.com"
+            }
+            developer {
+                id = "tcrawford-figure"
+                name = "Tyler Crawford"
+                email = "tcrawford@figure.com"
+            }
+            developer {
+                id = "ahatzz11"
+                name = "Alex Hatzenbuhler"
+                email = "ahatzenbuhler@figure.com"
+            }
+            developer {
+                id = "jonasg13"
+                name = "Jonas Gorauskas"
+                email = "jgorauskas@figure.com"
+            }
+        }
+        scm {
+            url = info.website
+            connection = info.scmUrl
+            developerConnection = info.scmUrl
+        }
+    }
 }
 
 githubRelease {

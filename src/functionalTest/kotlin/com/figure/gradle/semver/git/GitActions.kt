@@ -36,7 +36,7 @@ data class CheckoutAction(
     val branch: String,
 ) : Action {
     override fun execute(git: KGit) {
-        if (git.branch.headRef?.objectId?.name == null) {
+        if (git.branch.headRef.objectId?.name == null) {
             git.commit("Initial commit", allowEmptyCommit = true)
         }
 

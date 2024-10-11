@@ -12,11 +12,6 @@ on:
           - "patch"
           - "minor"
           - "major"
-      skip-publishing:
-        description: "Skip artifact publishing"
-        required: false
-        type: boolean
-        default: false
 
 env:
   GITHUB_TOKEN: ${{ secrets.PAT }}
@@ -37,26 +32,6 @@ jobs:
           java-version: '17'
           distribution: 'zulu'
 
-      - name: Set defaults for Build Parameters
-        id: build_parameters
-        shell: bash
-        run: |
-          if [ "$SKIP_PUBLISH" = "true" ]; then
-            echo 'SKIPPING publish'
-          else
-            echo 'publishing!'
-            echo "publishCommand=publishPlugins" >> $GITHUB_OUTPUT
-          fi
-
-          if [ ${{ github.ref }} != 'refs/heads/main' ]; then
-            echo 'SKIPPING github release since this is a branch release'
-          else
-            echo 'not skipping github release'
-            echo "githubReleaseCommand=githubRelease" >> $GITHUB_OUTPUT
-          fi
-        env:
-          SKIP_PUBLISH: ${{ github.event.inputs.skip-publishing }}
-
       - name: Install gpg secret key
         run: |
           export GPG_TTY=$(tty)
@@ -75,18 +50,56 @@ jobs:
             jdks
             wrapper
 
-      - name: Build, Publish, and Release
+      - name: Gradle Build
+        run: >-
+          ./gradlew build
+          -Psemver.modifier=${{ github.event.inputs.version-modifier }}
+          --stacktrace
+          --parallel
+          --build-cache
+
+      - name: Set Version Outputs
+        id: version-outputs
         run: |
-          ./gradlew \
-            -Psemver.modifier=${{ github.event.inputs.version-modifier }} \
-            build ${{ steps.build_parameters.outputs.publishCommand }} \
-            ${{ steps.build_parameters.outputs.githubReleaseCommand }} \
-            -Psigning.keyId=${{ secrets.OSSRH_GPG_SECRET_KEY_ID }} \
-            -Psigning.password=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \
-            -Psigning.secretKeyRingFile=release.gpg \
-            -Pgradle.publish.key=${{ secrets.OSS_GRADLE_PUBLISH_KEY }} \
-            -Pgradle.publish.secret=${{ secrets.OSS_GRADLE_PUBLISH_SECRET }} \
-            -Psigning.enabled=true \
-            --stacktrace \
-            --parallel \
+          sem_version=$(grep '^version=' build/semver/semver.properties | cut -d'=' -f2)
+          sem_version_tag=$(grep '^versionTag=' build/semver/semver.properties | cut -d'=' -f2)
+
+          echo "sem-version=$sem_version" >> $GITHUB_OUTPUT
+          echo "sem-version-tag=$sem_version_tag" >> $GITHUB_OUTPUT
+         
+          # Publish to gradle plugin portal only if stable version
+          # Create github release only if stable version
+          if [[ "$sem_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "publishCommand=publishPlugins" >> $GITHUB_OUTPUT
+            echo "githubReleaseCommand=githubRelease" >> $GITHUB_OUTPUT
+          else
+            echo "publishCommand=publishAllPublicationsToFigureNexusRepository" >> $GITHUB_OUTPUT
+            echo "githubReleaseCommand=" >> $GITHUB_OUTPUT
+          fi
+
+          echo "### Semantic Version" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
+          echo "| version | ${sem_version} |" >> $GITHUB_STEP_SUMMARY
+          echo "| tag | ${sem_version_tag} |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Gradle Publish
+        run: >-
+          ./gradlew ${{ steps.version-outputs.outputs.publishCommand }}
+          -Psemver.overrideVersion=${{ steps.version-outputs.outputs.sem-version }}
+          -Psigning.keyId=${{ secrets.OSSRH_GPG_SECRET_KEY_ID }}
+          -Psigning.password=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }}
+          -Psigning.secretKeyRingFile=release.gpg
+          -Pgradle.publish.key=${{ secrets.OSS_GRADLE_PUBLISH_KEY }}
+          -Pgradle.publish.secret=${{ secrets.OSS_GRADLE_PUBLISH_SECRET }}
+          --stacktrace
+          --parallel
+          --build-cache
+
+      - name: Gradle Release
+        run: >-
+          ./gradlew ${{ steps.version-outputs.outputs.githubReleaseCommand }}
+            -Psemver.overrideVersion=${{ steps.version-outputs.outputs.sem-verion }}
+            --stacktrace
+            --parallel
             --build-cache
