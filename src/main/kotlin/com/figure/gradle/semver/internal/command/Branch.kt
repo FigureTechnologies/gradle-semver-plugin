@@ -39,8 +39,8 @@ class Branch(
         if (forTesting) {
             branchRef
         } else {
-            val refName = System.getenv(githubHeadRef)
-                ?: System.getenv(githubRefName)
+            val refName = System.getenv(githubHeadRef).takeIf { !it.isNullOrBlank() }
+                ?: System.getenv(githubRefName).takeIf { !it.isNullOrBlank() }
                 ?: shortName
             git.repository.findRef(refName)
         }
