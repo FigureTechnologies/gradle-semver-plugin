@@ -40,7 +40,7 @@ plugins {
 }
 
 group = "com.figure.gradle.semver"
-version = "2.0.0"
+version = "2.0.0-rc.3"
 
 val testImplementation: Configuration by configurations.getting
 
@@ -66,6 +66,24 @@ dependencies {
     testImplementation(libs.kotest.datatest)
 
     functionalTestImplementation(libs.testkit.support)
+}
+
+@DisableCachingByDefault
+abstract class WriteVersionToFile : DefaultTask() {
+    @get:Input
+    abstract val versionProperty: Property<String>
+
+    init {
+        group = "build"
+        description = "Writes the project version to build/semver/semver.properties"
+    }
+
+    @TaskAction
+    fun writeVersion() {
+        val versionFile = File("build/semver/semver.properties")
+        versionFile.parentFile.mkdirs()
+        versionFile.writeText("version=${versionProperty.get()}")
+    }
 }
 
 tasks {
@@ -94,6 +112,7 @@ tasks {
 
     check {
         dependsOn("detekt")
+        dependsOn("writeVersionToFile")
     }
 
     withType<Detekt>().configureEach {
@@ -115,6 +134,11 @@ tasks {
         group = "verification"
         description = "Check all code using configured linters. Runs 'spotlessCheck'"
         dependsOn("spotlessCheck")
+    }
+
+    // Temporary solution until this plugin can be bootstrapped with itself
+    register<WriteVersionToFile>("writeVersionToFile") {
+        versionProperty = project.version.toString()
     }
 }
 
@@ -210,46 +234,55 @@ gradlePlugin {
     }
 }
 
-afterEvaluate {
-    publishing {
-        publications.filterIsInstance<MavenPublication>().forEach {
-            it.pom {
-                name = info.name
-                description = info.description
-                licenses {
-                    license {
-                        name = "The Apache Software License, Version 2.0"
-                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
-                        distribution = "repo"
-                    }
+publishing {
+    repositories {
+        maven {
+            name = "FigureNexus"
+            url = uri("https://nexus.figure.com/repository/figure")
+            credentials {
+                username = providers.environmentVariable("NEXUS_USER").orNull
+                password = providers.environmentVariable("NEXUS_PASS").orNull
+            }
+        }
+    }
+
+    publications.withType<MavenPublication>().configureEach {
+        pom {
+            name = info.name
+            description = info.description
+            licenses {
+                license {
+                    name = "The Apache Software License, Version 2.0"
+                    url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                    distribution = "repo"
                 }
-                developers {
-                    developer {
-                        id.set("figure-oss")
-                        name.set("Figure OSS Engineers")
-                        email.set("oss@figure.com")
-                    }
-                    developer {
-                        id = "tcrawford-figure"
-                        name = "Tyler Crawford"
-                        email = "tcrawford@figure.com"
-                    }
-                    developer {
-                        id.set("ahatzz11")
-                        name.set("Alex Hatzenbuhler")
-                        email.set("ahatzenbuhler@figure.com")
-                    }
-                    developer {
-                        id.set("jonasg13")
-                        name.set("Jonas Gorauskas")
-                        email.set("jgorauskas@figure.com")
-                    }
+            }
+            developers {
+                developer {
+                    id.set("figure-oss")
+                    name.set("Figure OSS Engineers")
+                    email.set("oss@figure.com")
                 }
-                scm {
-                    connection = info.scmUrl
-                    developerConnection = info.scmUrl
-                    url = info.website
+                developer {
+                    id = "tcrawford-figure"
+                    name = "Tyler Crawford"
+                    email = "tcrawford@figure.com"
                 }
+                developer {
+                    id.set("ahatzz11")
+                    name.set("Alex Hatzenbuhler")
+                    email.set("ahatzenbuhler@figure.com")
+                }
+                developer {
+                    id.set("jonasg13")
+                    name.set("Jonas Gorauskas")
+                    email.set("jgorauskas@figure.com")
+                }
+            }
+            scm {
+                connection = info.scmUrl
+                developerConnection = info.scmUrl
+                url = info.website
             }
         }
     }
@@ -258,10 +291,9 @@ afterEvaluate {
 /**
  * Skip signing if the signing.enabled property is not set
  */
-tasks.withType<Sign>().configureEach {
-    // Must be done outside the onlyIf block for configuration cache compatibility
-    val shouldSign = providers.gradleProperty("signing.enabled").isPresent
-    onlyIf("signing.enabled") { shouldSign }
+signing {
+    // Only required when publishing a stable version
+    isRequired = version.toString().matches("^\\d+\\.\\d+\\.\\d+$".toRegex())
 }
 
 githubRelease {
