@@ -23,6 +23,9 @@ class Branch(
     private val git: Git,
     private val branchList: BranchList,
 ) {
+    private val githubHeadRef: String = "GITHUB_HEAD_REF" // Used for PRs
+    private val githubRefName: String = "GITHUB_REF_NAME" // Used for on push events
+
     private val shortName: String
         get() = git.repository.branch
 
@@ -33,7 +36,14 @@ class Branch(
         get() = git.repository.exactRef(Constants.HEAD)
 
     fun currentRef(forTesting: Boolean = false): Ref =
-        if (forTesting) branchRef else headRef
+        if (forTesting) {
+            branchRef
+        } else {
+            val refName = System.getenv(githubHeadRef)
+                ?: System.getenv(githubRefName)
+                ?: shortName
+            git.repository.findRef(refName)
+        }
 
     fun isOnMainBranch(providedMainBranch: String? = null, forTesting: Boolean = false): Boolean =
         currentRef(forTesting).name == branchList.findMainBranch(providedMainBranch).name
