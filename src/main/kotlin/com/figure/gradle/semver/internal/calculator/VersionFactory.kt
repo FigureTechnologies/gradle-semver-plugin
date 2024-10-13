@@ -81,7 +81,7 @@ abstract class VersionFactory : ValueSource<String, VersionFactory.Params> {
             val latestVersion = kgit.tags.latestOrInitial(factoryContext.initialVersion, factoryContext.forMajorVersion)
             val latestNonPreReleaseVersion = kgit.tags.latestNonPreReleaseOrInitial(factoryContext.initialVersion)
 
-             return when {
+            return when {
                 context.gitState != GitState.NOMINAL -> {
                     GitStateVersionCalculator.calculate(latestNonPreReleaseVersion, context)
                 }
