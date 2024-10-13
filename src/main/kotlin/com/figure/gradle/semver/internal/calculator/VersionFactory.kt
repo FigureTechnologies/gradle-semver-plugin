@@ -74,42 +74,40 @@ abstract class VersionFactory : ValueSource<String, VersionFactory.Params> {
             error("forMajorVersion cannot be used with the 'major' modifier")
         }
 
-        val kgit = KGit(directory = factoryContext.rootDir)
+        KGit(directory = factoryContext.rootDir).use { kgit ->
+            val context = parameters.toVersionCalculatorContext(kgit.state())
 
-        val context = parameters.toVersionCalculatorContext(kgit.state())
+            val overrideVersion = factoryContext.overrideVersion
+            val latestVersion = kgit.tags.latestOrInitial(factoryContext.initialVersion, factoryContext.forMajorVersion)
+            val latestNonPreReleaseVersion = kgit.tags.latestNonPreReleaseOrInitial(factoryContext.initialVersion)
 
-        val overrideVersion = factoryContext.overrideVersion
-        val latestVersion = kgit.tags.latestOrInitial(factoryContext.initialVersion, factoryContext.forMajorVersion)
-        val latestNonPreReleaseVersion = kgit.tags.latestNonPreReleaseOrInitial(factoryContext.initialVersion)
+             return when {
+                context.gitState != GitState.NOMINAL -> {
+                    GitStateVersionCalculator.calculate(latestNonPreReleaseVersion, context)
+                }
 
-        val version = when {
-            context.gitState != GitState.NOMINAL -> {
-                GitStateVersionCalculator.calculate(latestNonPreReleaseVersion, context)
-            }
+                overrideVersion != null -> {
+                    runCatching {
+                        overrideVersion.toVersion()
+                    }.getOrElse {
+                        throw InvalidOverrideVersionError(overrideVersion)
+                    }.toString()
+                }
 
-            overrideVersion != null -> {
-                runCatching {
-                    overrideVersion.toVersion()
-                }.getOrElse {
-                    throw InvalidOverrideVersionError(overrideVersion)
-                }.toString()
-            }
-
-            kgit.branch.isOnMainBranch(context.mainBranch, context.forTesting) -> {
-                StageVersionCalculator.calculate(latestVersion, context)
-            }
-
-            // Works for any branch
-            else -> {
-                // Compute based on the branch name, otherwise, use the stage to compute the next version
-                if (context.stage == Stage.Auto) {
-                    BranchVersionCalculator(kgit).calculate(latestNonPreReleaseVersion, context)
-                } else {
+                kgit.branch.isOnMainBranch(context.mainBranch, context.forTesting) -> {
                     StageVersionCalculator.calculate(latestVersion, context)
+                }
+
+                // Works for any branch
+                else -> {
+                    // Compute based on the branch name, otherwise, use the stage to compute the next version
+                    if (context.stage == Stage.Auto) {
+                        BranchVersionCalculator(kgit).calculate(latestNonPreReleaseVersion, context)
+                    } else {
+                        StageVersionCalculator.calculate(latestVersion, context)
+                    }
                 }
             }
         }
-
-        return version
     }
 }

@@ -51,8 +51,11 @@ class State(
     private val bisecting: Boolean
         get() = git.repository.directory.resolve("BISECT_LOG").exists()
 
+    // At least for GitHub actions, an on-push event will cause a detached head state
+    // However, we have information about the branch we're actually building so it is an
+    // exception to this and not something we consider non-nominal
     private val detachedHead: Boolean
-        get() = git.repository.exactRef(Constants.HEAD).target.objectId.name == git.repository.branch
+        get() = git.repository.exactRef(Constants.HEAD).target.objectId.name == git.repository.branch && System.getenv("CI") == null
 }
 
 enum class GitState(val description: String) {

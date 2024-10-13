@@ -17,14 +17,24 @@ package com.figure.gradle.semver.internal.command
 
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.lib.Constants.DEFAULT_REMOTE_NAME
+import org.eclipse.jgit.lib.Constants.R_REMOTES
 import org.eclipse.jgit.lib.Ref
 
 class Branch(
     private val git: Git,
     private val branchList: BranchList,
 ) {
-    private val githubHeadRef: String = "GITHUB_HEAD_REF" // Used for PRs
-    private val githubRefName: String = "GITHUB_REF_NAME" // Used for on push events
+    private val isCI: Boolean
+        get() = System.getenv("CI")?.toBoolean() ?: false
+
+    // Used for PRs
+    private val githubHeadRef: String?
+        get() = System.getenv("GITHUB_HEAD_REF")
+
+    // Used for on push events
+    private val githubRefName: String?
+        get() = System.getenv("GITHUB_REF_NAME")
 
     private val shortName: String
         get() = git.repository.branch
@@ -39,9 +49,10 @@ class Branch(
         if (forTesting) {
             branchRef
         } else {
-            val refName = System.getenv(githubHeadRef).takeIf { !it.isNullOrBlank() }
-                ?: System.getenv(githubRefName).takeIf { !it.isNullOrBlank() }
-                ?: shortName
+            val refName = when {
+                isCI -> "$R_REMOTES$DEFAULT_REMOTE_NAME/${githubHeadRef ?: githubRefName}"
+                else -> shortName
+            }
             git.repository.findRef(refName)
         }
 
