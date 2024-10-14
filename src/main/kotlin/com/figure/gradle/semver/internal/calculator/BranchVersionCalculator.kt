@@ -28,7 +28,7 @@ class BranchVersionCalculator(
     private val kGit: KGit,
 ) : VersionCalculator {
     override fun calculate(latestVersion: Version, context: VersionCalculatorContext): String = with(context) {
-        val currentBranch = kGit.branch.currentRef(forTesting)
+        val currentBranch = kGit.branch.currentRef
         val developmentBranch = kGit.branches.findDevelopmentBranch(developmentBranch, mainBranch)
         val mainBranch = kGit.branches.findMainBranch(mainBranch)
 

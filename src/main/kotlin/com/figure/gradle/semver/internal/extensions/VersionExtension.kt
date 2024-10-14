@@ -15,6 +15,7 @@
  */
 package com.figure.gradle.semver.internal.extensions
 
+import com.figure.gradle.semver.internal.environment.Env
 import com.figure.gradle.semver.internal.properties.BuildMetadataOptions
 import com.figure.gradle.semver.internal.properties.BuildMetadataOptions.ALWAYS
 import com.figure.gradle.semver.internal.properties.BuildMetadataOptions.LOCALLY
@@ -75,7 +76,7 @@ fun Version.appendBuildMetadata(buildMetadataOptions: BuildMetadataOptions): Ver
     return when (buildMetadataOptions) {
         ALWAYS -> withBuildMetadata
         NEVER -> this
-        LOCALLY -> withBuildMetadata.takeIf { System.getenv("CI") == null } ?: this
+        LOCALLY -> withBuildMetadata.takeIf { !Env.isCI } ?: this
     }
 }
 

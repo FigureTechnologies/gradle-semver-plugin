@@ -52,7 +52,6 @@ abstract class VersionFactory : ValueSource<String, VersionFactory.Params> {
             VersionCalculatorContext(
                 stage = stage,
                 modifier = modifier,
-                forTesting = forTesting,
                 gitState = gitState,
                 mainBranch = mainBranch,
                 developmentBranch = developmentBranch,
@@ -94,7 +93,7 @@ abstract class VersionFactory : ValueSource<String, VersionFactory.Params> {
                     }.toString()
                 }
 
-                kgit.branch.isOnMainBranch(context.mainBranch, context.forTesting) -> {
+                kgit.branch.isOnMainBranch(context.mainBranch) -> {
                     StageVersionCalculator.calculate(latestVersion, context)
                 }
 

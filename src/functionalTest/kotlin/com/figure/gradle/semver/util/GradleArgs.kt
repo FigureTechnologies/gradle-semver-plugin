@@ -32,9 +32,6 @@ internal object GradleArgs {
     fun semverTagPrefix(tagPrefix: String) =
         "-P${SemverProperty.TagPrefix.property}=$tagPrefix"
 
-    fun semverForTesting(forTesting: Boolean) =
-        "-P${SemverProperty.ForTesting.property}=$forTesting"
-
     fun semverOverrideVersion(overrideVersion: String) =
         "-P${SemverProperty.OverrideVersion.property}=$overrideVersion"
 

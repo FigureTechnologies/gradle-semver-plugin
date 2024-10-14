@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.figure.gradle.semver.internal.properties
+package com.figure.gradle.semver.kotest
 
-enum class SemverProperty(val property: String) {
-    Stage("semver.stage"),
-    Modifier("semver.modifier"),
-    TagPrefix("semver.tagPrefix"),
-    OverrideVersion("semver.overrideVersion"),
-    ForMajorVersion("semver.forMajorVersion"),
-    AppendBuildMetadata("semver.appendBuildMetadata"),
+import io.kotest.core.config.AbstractProjectConfig
+import io.kotest.core.extensions.Extension
+import io.kotest.extensions.system.OverrideMode
+
+class KotestProjectConfig : AbstractProjectConfig() {
+    // Tells Kotest that it's never running in CI
+    // If we need tests specifically for CI, we'll need to manually add it via withEnvironment
+    override fun extensions(): List<Extension> =
+        listOf(SystemEnvironmentProjectListener(mapOf("CI" to null), OverrideMode.SetOrOverride))
 }

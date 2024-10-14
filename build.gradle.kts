@@ -187,7 +187,7 @@ spotless {
         licenseHeaderFile(
             rootProject.file("spotless/license.kt"),
             "(import|plugins|buildscript|dependencies|pluginManagement|dependencyResolutionManagement)",
-        )
+        ).updateYearWithLatest(true)
     }
 }
 

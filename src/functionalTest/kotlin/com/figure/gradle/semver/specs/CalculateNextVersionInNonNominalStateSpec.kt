@@ -25,8 +25,6 @@ import com.figure.gradle.semver.projects.SubprojectProject
 import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.datatest.withData
-import io.kotest.extensions.system.OverrideMode
-import io.kotest.extensions.system.withEnvironment
 import org.gradle.util.GradleVersion
 
 class CalculateNextVersionInNonNominalStateSpec : FunSpec({
@@ -42,31 +40,29 @@ class CalculateNextVersionInNonNominalStateSpec : FunSpec({
     val featureBranch = "feature-branch"
 
     context("should calculate next version in non nominal state when") {
-        withEnvironment("CI", null, OverrideMode.SetOrOverride) {
-            withData(
-                nameFn = { "running ${it.script.scriptFileName}" },
-                TestData(Script.CREATE_BISECTING_STATE, "0.2.6-${GitState.BISECTING.description}"),
-                TestData(Script.CREATE_CHERRY_PICKING_STATE, "0.2.6-${GitState.CHERRY_PICKING.description}"),
-                TestData(Script.CREATE_MERGING_STATE, "0.2.6-${GitState.MERGING.description}"),
-                TestData(Script.CREATE_REBASING_STATE, "0.2.6-${GitState.REBASING.description}"),
-                TestData(Script.CREATE_REVERTING_STATE, "0.2.6-${GitState.REVERTING.description}"),
-                TestData(Script.CREATE_DETACHED_HEAD_STATE, "0.2.6-${GitState.DETACHED_HEAD.description}"),
-            ) {
-                // Given
-                projects.git {
-                    initialBranch = mainBranch
-                    actions = actions {
-                        commit(message = "1 commit on $mainBranch", tag = "0.2.5")
-                        runScript(it.script, mainBranch, featureBranch)
-                    }
+        withData(
+            nameFn = { "running ${it.script.scriptFileName}" },
+            TestData(Script.CREATE_BISECTING_STATE, "0.2.6-${GitState.BISECTING.description}"),
+            TestData(Script.CREATE_CHERRY_PICKING_STATE, "0.2.6-${GitState.CHERRY_PICKING.description}"),
+            TestData(Script.CREATE_MERGING_STATE, "0.2.6-${GitState.MERGING.description}"),
+            TestData(Script.CREATE_REBASING_STATE, "0.2.6-${GitState.REBASING.description}"),
+            TestData(Script.CREATE_REVERTING_STATE, "0.2.6-${GitState.REVERTING.description}"),
+            TestData(Script.CREATE_DETACHED_HEAD_STATE, "0.2.6-${GitState.DETACHED_HEAD.description}"),
+        ) {
+            // Given
+            projects.git {
+                initialBranch = mainBranch
+                actions = actions {
+                    commit(message = "1 commit on $mainBranch", tag = "0.2.5")
+                    runScript(it.script, mainBranch, featureBranch)
                 }
-
-                // When
-                projects.build(GradleVersion.current())
-
-                // Then
-                projects.versions shouldOnlyHave it.expectedVersion
             }
+
+            // When
+            projects.build(GradleVersion.current())
+
+            // Then
+            projects.versions shouldOnlyHave it.expectedVersion
         }
     }
 })
