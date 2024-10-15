@@ -15,6 +15,7 @@
  */
 package com.figure.gradle.semver.kotest
 
+import com.figure.gradle.semver.internal.environment.Env
 import io.kotest.core.config.AbstractProjectConfig
 import io.kotest.core.extensions.Extension
 import io.kotest.extensions.system.OverrideMode
@@ -23,5 +24,14 @@ class KotestProjectConfig : AbstractProjectConfig() {
     // Tells Kotest that it's never running in CI
     // If we need tests specifically for CI, we'll need to manually add it via withEnvironment
     override fun extensions(): List<Extension> =
-        listOf(SystemEnvironmentProjectListener(mapOf("CI" to null), OverrideMode.SetOrOverride))
+        listOf(
+            SystemEnvironmentProjectListener(
+                environment = mapOf(
+                    Env.CI to null,
+                    Env.GITHUB_REF_NAME to null,
+                    Env.GITHUB_HEAD_REF to null,
+                ),
+                mode = OverrideMode.SetOrOverride,
+            ),
+        )
 }
