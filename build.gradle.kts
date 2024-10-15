@@ -40,7 +40,7 @@ plugins {
 }
 
 group = "com.figure.gradle.semver"
-version = "2.0.0-rc.3"
+version = "2.0.1-rc.32"
 
 val testImplementation: Configuration by configurations.getting
 
@@ -187,7 +187,7 @@ spotless {
         licenseHeaderFile(
             rootProject.file("spotless/license.kt"),
             "(import|plugins|buildscript|dependencies|pluginManagement|dependencyResolutionManagement)",
-        )
+        ).updateYearWithLatest(true)
     }
 }
 
@@ -288,9 +288,6 @@ publishing {
     }
 }
 
-/**
- * Skip signing if the signing.enabled property is not set
- */
 signing {
     // Only required when publishing a stable version
     isRequired = version.toString().matches("^\\d+\\.\\d+\\.\\d+$".toRegex())

@@ -49,9 +49,6 @@ val PluginAware.forMajorVersion: Provider<Int>
 val PluginAware.appendBuildMetadata: Provider<String>
     get() = semverProperty(SemverProperty.AppendBuildMetadata)
 
-val PluginAware.forTesting: Provider<Boolean>
-    get() = semverProperty(SemverProperty.ForTesting).map { it.toBoolean() }.orElse(false)
-
 private fun PluginAware.gradlePropertiesProperty(semverProperty: SemverProperty, propertiesDirectory: File): Provider<String> {
     return if (propertiesDirectory.resolve(GRADLE_PROPERTIES).exists()) {
         providers.provider {

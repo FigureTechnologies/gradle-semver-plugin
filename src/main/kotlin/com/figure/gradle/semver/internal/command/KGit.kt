@@ -21,7 +21,7 @@ import java.io.File
 class KGit(
     directory: File? = null,
     initializeRepo: InitializeRepo? = null,
-) {
+) : AutoCloseable {
     val git: Git by lazy {
         when {
             directory != null && initializeRepo != null -> init(
@@ -54,7 +54,7 @@ class KGit(
     val tag = Tag(git)
     val tags = TagList(git)
 
-    fun close() = git.close()
+    override fun close() = git.close()
 }
 
 data class InitializeRepo(

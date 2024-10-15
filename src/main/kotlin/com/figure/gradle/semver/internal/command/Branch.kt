@@ -15,28 +15,32 @@
  */
 package com.figure.gradle.semver.internal.command
 
+import com.figure.gradle.semver.internal.command.extension.shortName
+import com.figure.gradle.semver.internal.environment.Env
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.lib.Constants.DEFAULT_REMOTE_NAME
+import org.eclipse.jgit.lib.Constants.R_REMOTES
 import org.eclipse.jgit.lib.Ref
 
 class Branch(
     private val git: Git,
     private val branchList: BranchList,
 ) {
-    private val shortName: String
-        get() = git.repository.branch
-
-    private val branchRef: Ref
-        get() = git.repository.findRef(shortName)
-
     val headRef: Ref
         get() = git.repository.exactRef(Constants.HEAD)
 
-    fun currentRef(forTesting: Boolean = false): Ref =
-        if (forTesting) branchRef else headRef
+    val currentRef: Ref
+        get() {
+            val refName = when {
+                Env.isCI -> "$R_REMOTES$DEFAULT_REMOTE_NAME/${Env.githubHeadRef ?: Env.githubRefName}"
+                else -> git.repository.branch
+            }
+            return git.repository.findRef(refName)
+        }
 
-    fun isOnMainBranch(providedMainBranch: String? = null, forTesting: Boolean = false): Boolean =
-        currentRef(forTesting).name == branchList.findMainBranch(providedMainBranch).name
+    fun isOnMainBranch(providedMainBranch: String? = null): Boolean =
+        currentRef.shortName == branchList.findMainBranch(providedMainBranch).shortName
 
     fun create(branchName: String): Ref =
         git.branchCreate()

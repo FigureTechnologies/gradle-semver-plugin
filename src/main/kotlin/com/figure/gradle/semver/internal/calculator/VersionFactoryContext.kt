@@ -25,7 +25,6 @@ data class VersionFactoryContext(
     val initialVersion: String,
     val stage: Stage,
     val modifier: Modifier,
-    val forTesting: Boolean,
     val overrideVersion: String?,
     val forMajorVersion: Int?,
     val rootDir: File,

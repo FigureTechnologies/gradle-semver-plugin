@@ -52,7 +52,6 @@ fun runner(
         "--build-cache",
         "--configuration-cache",
         "--stacktrace",
-        "-Psemver.forTesting=true",
     ).toList()
 
     forwardOutput()

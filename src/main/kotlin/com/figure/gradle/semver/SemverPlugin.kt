@@ -24,7 +24,6 @@ import com.figure.gradle.semver.internal.logging.registerPostBuildVersionLogMess
 import com.figure.gradle.semver.internal.properties.BuildMetadataOptions
 import com.figure.gradle.semver.internal.properties.appendBuildMetadata
 import com.figure.gradle.semver.internal.properties.forMajorVersion
-import com.figure.gradle.semver.internal.properties.forTesting
 import com.figure.gradle.semver.internal.properties.modifier
 import com.figure.gradle.semver.internal.properties.overrideVersion
 import com.figure.gradle.semver.internal.properties.stage
@@ -69,7 +68,6 @@ class SemverPlugin : Plugin<PluginAware> {
             initialVersion = semverExtension.initialVersion.get(),
             stage = this.stage.get(),
             modifier = this.modifier.get(),
-            forTesting = this.forTesting.get(),
             overrideVersion = this.overrideVersion.orNull,
             forMajorVersion = this.forMajorVersion.orNull,
             rootDir = semverExtension.rootProjectDir.getOrElse { this.rootDir }.asFile,

@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.figure.gradle.semver.internal.properties
+package com.figure.gradle.semver.internal.command.extension
 
-enum class SemverProperty(val property: String) {
-    Stage("semver.stage"),
-    Modifier("semver.modifier"),
-    TagPrefix("semver.tagPrefix"),
-    OverrideVersion("semver.overrideVersion"),
-    ForMajorVersion("semver.forMajorVersion"),
-    AppendBuildMetadata("semver.appendBuildMetadata"),
-}
+import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.lib.Ref
+
+val Ref.shortName: String
+    get() = name.replace(Constants.R_HEADS, "")
+        .replace("${Constants.R_REMOTES}${Constants.DEFAULT_REMOTE_NAME}/", "")
