@@ -55,7 +55,7 @@ class BranchList(
      * Finds an exact branch by name preferring local branches over remote branches, but will return
      * remote branches if the local branch does not exist.
      */
-    private fun find(branchName: String?): Ref? =
+    fun find(branchName: String?): Ref? =
         branchName
             ?.takeIf { it.isNotBlank() }
             ?.let { nonBlankBranchName ->
