@@ -289,8 +289,7 @@ publishing {
 }
 
 signing {
-    // Only required when publishing a stable version
-    isRequired = version.toString().matches("^\\d+\\.\\d+\\.\\d+$".toRegex())
+    isRequired = providers.gradleProperty("signing.required").orNull == "true"
 }
 
 githubRelease {
