@@ -289,7 +289,7 @@ publishing {
 }
 
 signing {
-    isRequired = providers.gradleProperty("signing.required").orNull == "true"
+    isRequired = providers.gradleProperty("signing.keyId").isPresent
 }
 
 githubRelease {
