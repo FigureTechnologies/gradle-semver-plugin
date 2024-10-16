@@ -40,7 +40,7 @@ plugins {
 }
 
 group = "com.figure.gradle.semver"
-version = "2.0.1-rc.40"
+version = "2.0.1"
 
 val testImplementation: Configuration by configurations.getting
 
