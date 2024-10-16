@@ -19,8 +19,6 @@ import com.figure.gradle.semver.internal.command.extension.shortName
 import com.figure.gradle.semver.internal.environment.Env
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Constants
-import org.eclipse.jgit.lib.Constants.DEFAULT_REMOTE_NAME
-import org.eclipse.jgit.lib.Constants.R_REMOTES
 import org.eclipse.jgit.lib.Ref
 
 class Branch(
