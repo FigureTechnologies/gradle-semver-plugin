@@ -1,6 +1,6 @@
 [versions]
 
-kotlin = "1.9.24" # Goal is to track whatever the latest stable version that is supported by Gradle
+kotlin = "2.0.21" # Goal is to track whatever the latest stable version that is supported by Gradle
 
 jgit = "7.0.0.202409031743-r"
 kotest = "5.9.1"
