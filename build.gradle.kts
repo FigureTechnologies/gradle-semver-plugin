@@ -67,24 +67,6 @@ dependencies {
     functionalTestImplementation(libs.testkit.support)
 }
 
-@DisableCachingByDefault
-abstract class WriteVersionToFile : DefaultTask() {
-    @get:Input
-    abstract val versionProperty: Property<String>
-
-    init {
-        group = "build"
-        description = "Writes the project version to build/semver/semver.properties"
-    }
-
-    @TaskAction
-    fun writeVersion() {
-        val versionFile = File("build/semver/semver.properties")
-        versionFile.parentFile.mkdirs()
-        versionFile.writeText("version=${versionProperty.get()}")
-    }
-}
-
 tasks {
     withType<KotlinCompile>().configureEach {
         compilerOptions {
@@ -111,7 +93,6 @@ tasks {
 
     check {
         dependsOn("detekt")
-        dependsOn("writeVersionToFile")
     }
 
     withType<Detekt>().configureEach {
@@ -133,11 +114,6 @@ tasks {
         group = "verification"
         description = "Check all code using configured linters. Runs 'spotlessCheck'"
         dependsOn("spotlessCheck")
-    }
-
-    // Temporary solution until this plugin can be bootstrapped with itself
-    register<WriteVersionToFile>("writeVersionToFile") {
-        versionProperty = project.version.toString()
     }
 }
 
