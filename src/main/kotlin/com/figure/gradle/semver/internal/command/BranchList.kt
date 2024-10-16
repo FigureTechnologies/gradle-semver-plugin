@@ -38,7 +38,10 @@ class BranchList(
                 buildString {
                     append("Could not determine default branch. ")
                     append("Searched, in order, for: ")
-                    append("$providedDevelopmentBranch, develop, devel, dev, $providedMainBranch, main, master")
+                    if (providedDevelopmentBranch != null) append("$providedDevelopmentBranch, ")
+                    append("develop, devel, dev, ")
+                    if (providedMainBranch != null) append("$providedMainBranch, ")
+                    append("main, master")
                 },
             )
 
@@ -46,7 +49,13 @@ class BranchList(
         find(providedMainBranch)
             ?: find("main")
             ?: find("master")
-            ?: error("Could not determine main branch. Searched, in order, for: $providedMainBranch, main, master")
+            ?: error(
+                buildString {
+                    append("Could not determine main branch. Searched, in order, for: ")
+                    if (providedMainBranch != null) append("$providedMainBranch, ")
+                    append("main, master")
+                },
+            )
 
     fun exists(branchName: String): Boolean =
         find(branchName) != null
