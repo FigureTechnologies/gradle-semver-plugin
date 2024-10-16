@@ -44,6 +44,7 @@ class CalculateNextVersionInGitHubActionsSpec : FunSpec({
         withEnvironment(
             environment = mapOf(
                 Env.CI to "true",
+                Env.GITHUB_HEAD_REF to "",
                 Env.GITHUB_REF_NAME to mainBranch,
             ),
             mode = OverrideMode.SetOrOverride,

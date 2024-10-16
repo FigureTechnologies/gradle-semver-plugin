@@ -19,8 +19,6 @@ import com.figure.gradle.semver.internal.command.extension.shortName
 import com.figure.gradle.semver.internal.environment.Env
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Constants
-import org.eclipse.jgit.lib.Constants.DEFAULT_REMOTE_NAME
-import org.eclipse.jgit.lib.Constants.R_REMOTES
 import org.eclipse.jgit.lib.Ref
 
 class Branch(
@@ -33,10 +31,10 @@ class Branch(
     val currentRef: Ref
         get() {
             val refName = when {
-                Env.isCI -> "$R_REMOTES$DEFAULT_REMOTE_NAME/${Env.githubHeadRef ?: Env.githubRefName}"
+                Env.isCI -> Env.githubHeadRef ?: Env.githubRefName
                 else -> git.repository.branch
             }
-            return git.repository.findRef(refName)
+            return branchList.find(refName) ?: error("Could not find current branch: $refName")
         }
 
     fun isOnMainBranch(providedMainBranch: String? = null): Boolean =

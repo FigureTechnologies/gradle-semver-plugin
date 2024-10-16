@@ -40,7 +40,7 @@ plugins {
 }
 
 group = "com.figure.gradle.semver"
-version = "2.0.1-rc.32"
+version = "2.0.1"
 
 val testImplementation: Configuration by configurations.getting
 
@@ -289,8 +289,7 @@ publishing {
 }
 
 signing {
-    // Only required when publishing a stable version
-    isRequired = version.toString().matches("^\\d+\\.\\d+\\.\\d+$".toRegex())
+    isRequired = providers.gradleProperty("signing.keyId").isPresent
 }
 
 githubRelease {

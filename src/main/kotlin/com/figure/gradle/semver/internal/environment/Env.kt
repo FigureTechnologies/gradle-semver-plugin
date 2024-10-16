@@ -32,7 +32,7 @@ object Env {
      * If we are not in a pull request, then we can check the githubRefName.
      */
     val githubHeadRef: String?
-        get() = System.getenv(GITHUB_HEAD_REF)
+        get() = System.getenv(GITHUB_HEAD_REF).takeIf { it.isNotBlank() }
 
     /**
      * The short ref name of the branch or tag that triggered the workflow run.
@@ -42,5 +42,5 @@ object Env {
      * For pull requests, the format is <pr_number>/merge.
      */
     val githubRefName: String?
-        get() = System.getenv(GITHUB_REF_NAME)
+        get() = System.getenv(GITHUB_REF_NAME).takeIf { it.isNotBlank() }
 }
