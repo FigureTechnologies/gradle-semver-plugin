@@ -15,6 +15,7 @@
  */
 package com.figure.gradle.semver.internal.command
 
+import com.figure.gradle.semver.internal.calculator.stripNonSemverText
 import com.figure.gradle.semver.internal.extensions.isNotPreRelease
 import com.figure.gradle.semver.internal.properties.Stage
 import io.github.z4kn4fein.semver.Version
@@ -34,7 +35,9 @@ class TagList(
         invoke().find { it.name == tagName }
 
     val versionedTags: List<Version>
-        get() = invoke().mapNotNull { it.name.replace(Constants.R_TAGS, "").toVersionOrNull(strict = false) }
+        get() = invoke()
+            .map { it.name.replace(Constants.R_TAGS, "").stripNonSemverText() }
+            .mapNotNull { it.toVersionOrNull() }
 
     private fun latest(forMajorVersion: Int?): Version? {
         val stages = Stage.entries.map { stage -> stage.value.lowercase() }
