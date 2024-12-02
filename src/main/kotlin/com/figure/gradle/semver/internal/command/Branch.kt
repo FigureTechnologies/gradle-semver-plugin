@@ -42,13 +42,8 @@ class Branch(
             return branchList.find(refName) ?: error("Could not find current branch: $refName")
         }
 
-    fun isOnMainBranch(providedMainBranch: String? = null): Boolean {
-        log.info { "Current ref: ${currentRef.shortName}" }
-        val mainBranchShortName = branchList.findMainBranch(providedMainBranch).shortName
-        log.info { "Main branch: $mainBranchShortName" }
-
-        return currentRef.shortName == branchList.findMainBranch(providedMainBranch).shortName
-    }
+    fun isOnMainBranch(providedMainBranch: String? = null): Boolean =
+        currentRef.shortName == branchList.findMainBranch(providedMainBranch).shortName
 
     fun create(branchName: String): Ref =
         git.branchCreate()
