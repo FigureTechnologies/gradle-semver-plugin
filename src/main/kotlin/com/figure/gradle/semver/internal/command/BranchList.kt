@@ -16,7 +16,9 @@
 package com.figure.gradle.semver.internal.command
 
 import com.figure.gradle.semver.internal.command.extension.revWalk
+import com.figure.gradle.semver.internal.command.extension.shortName
 import com.figure.gradle.semver.internal.extensions.R_REMOTES_ORIGIN
+import com.figure.gradle.semver.internal.extensions.shortName
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ListBranchCommand
 import org.eclipse.jgit.lib.Constants
@@ -81,7 +83,7 @@ class BranchList(
         git.branchList()
             .setListMode(ListBranchCommand.ListMode.ALL)
             .call()
-            .filter { branchName.lowercase() in it.name.lowercase() }
+            .filter { branchName.shortName() == it.shortName }
 
     fun commitCountBetween(baseBranchName: String, targetBranchName: String): Int {
         // Try to resolve the remote branch first, then fall back to the local branch

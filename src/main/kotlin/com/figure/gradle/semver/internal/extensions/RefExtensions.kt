@@ -24,10 +24,17 @@ const val R_REMOTES_ORIGIN = "$R_REMOTES$DEFAULT_REMOTE_NAME"
 
 private val validCharacters: Regex = """[^0-9A-Za-z\-_.]+""".toRegex()
 
-fun Ref.sanitizedWithoutPrefix(): String =
+fun Ref.prereleaseLabel(): String =
     name.trim()
         .lowercase()
         .replace(R_HEADS, "")
         .replace("$R_REMOTES_ORIGIN/", "")
         .removePrefix("/")
         .replace(validCharacters, "-")
+
+fun String.shortName(): String =
+    trim()
+        .lowercase()
+        .replace(R_HEADS, "")
+        .replace("$R_REMOTES_ORIGIN/", "")
+        .removePrefix("/")

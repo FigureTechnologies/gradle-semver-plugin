@@ -17,7 +17,9 @@ package com.figure.gradle.semver.internal.calculator
 
 import com.figure.gradle.semver.internal.command.GitState
 import com.figure.gradle.semver.internal.command.KGit
+import com.figure.gradle.semver.internal.command.extension.shortName
 import com.figure.gradle.semver.internal.errors.InvalidOverrideVersionError
+import com.figure.gradle.semver.internal.logging.info
 import com.figure.gradle.semver.internal.logging.warn
 import com.figure.gradle.semver.internal.properties.Modifier
 import com.figure.gradle.semver.internal.properties.Stage
@@ -82,11 +84,13 @@ abstract class VersionFactory : ValueSource<String, VersionFactory.Params> {
 
             return when {
                 context.gitState != GitState.NOMINAL -> {
+                    log.info { "Calculating next version on non-nominal git state: ${context.gitState}" }
                     GitStateVersionCalculator.calculate(latestNonPreReleaseVersion, context)
                 }
 
                 overrideVersion != null -> {
                     runCatching {
+                        log.info { "Using overrideVersion: $overrideVersion" }
                         overrideVersion.toVersion()
                     }.getOrElse {
                         throw InvalidOverrideVersionError(overrideVersion)
@@ -94,11 +98,13 @@ abstract class VersionFactory : ValueSource<String, VersionFactory.Params> {
                 }
 
                 kgit.branch.isOnMainBranch(context.mainBranch) -> {
+                    log.info { "Calculating next version on main branch: ${kgit.branch.currentRef.shortName}" }
                     StageVersionCalculator.calculate(latestVersion, context)
                 }
 
                 // Works for any branch
                 else -> {
+                    log.info { "Calculating next version on non-main branch" }
                     // Compute based on the branch name, otherwise, use the stage to compute the next version
                     if (context.stage == Stage.Auto) {
                         BranchVersionCalculator(kgit).calculate(latestNonPreReleaseVersion, context)
