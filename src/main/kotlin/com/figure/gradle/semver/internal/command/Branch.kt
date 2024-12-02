@@ -17,14 +17,9 @@ package com.figure.gradle.semver.internal.command
 
 import com.figure.gradle.semver.internal.command.extension.shortName
 import com.figure.gradle.semver.internal.environment.Env
-import com.figure.gradle.semver.internal.logging.info
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Ref
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
-
-private val log = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 
 class Branch(
     private val git: Git,
