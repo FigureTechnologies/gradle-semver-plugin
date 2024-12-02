@@ -17,9 +17,14 @@ package com.figure.gradle.semver.internal.command
 
 import com.figure.gradle.semver.internal.command.extension.shortName
 import com.figure.gradle.semver.internal.environment.Env
+import com.figure.gradle.semver.internal.logging.info
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Ref
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
+
+private val log = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 
 class Branch(
     private val git: Git,
@@ -37,8 +42,13 @@ class Branch(
             return branchList.find(refName) ?: error("Could not find current branch: $refName")
         }
 
-    fun isOnMainBranch(providedMainBranch: String? = null): Boolean =
-        currentRef.shortName == branchList.findMainBranch(providedMainBranch).shortName
+    fun isOnMainBranch(providedMainBranch: String? = null): Boolean {
+        log.info { "Current ref: ${currentRef.shortName}" }
+        val mainBranchShortName = branchList.findMainBranch(providedMainBranch).shortName
+        log.info { "Main branch: $mainBranchShortName" }
+
+        return currentRef.shortName == branchList.findMainBranch(providedMainBranch).shortName
+    }
 
     fun create(branchName: String): Ref =
         git.branchCreate()

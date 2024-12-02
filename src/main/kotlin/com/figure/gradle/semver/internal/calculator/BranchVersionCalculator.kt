@@ -17,7 +17,7 @@ package com.figure.gradle.semver.internal.calculator
 
 import com.figure.gradle.semver.internal.command.KGit
 import com.figure.gradle.semver.internal.extensions.appendBuildMetadata
-import com.figure.gradle.semver.internal.extensions.sanitizedWithoutPrefix
+import com.figure.gradle.semver.internal.extensions.prereleaseLabel
 import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.inc
 
@@ -38,7 +38,7 @@ class BranchVersionCalculator(
             kGit.branches.commitCountBetween(mainBranch.name, currentBranch.name)
         }
 
-        val prereleaseLabel = currentBranch.sanitizedWithoutPrefix()
+        val prereleaseLabel = currentBranch.prereleaseLabel()
         val prereleaseLabelWithCommitCount = "$prereleaseLabel.$commitCount"
 
         return latestVersion

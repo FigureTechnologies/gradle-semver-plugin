@@ -15,9 +15,14 @@
  */
 package com.figure.gradle.semver.internal.command.extension
 
-import org.eclipse.jgit.lib.Constants
+import com.figure.gradle.semver.internal.extensions.R_REMOTES_ORIGIN
+import org.eclipse.jgit.lib.Constants.R_HEADS
 import org.eclipse.jgit.lib.Ref
 
 val Ref.shortName: String
-    get() = name.replace(Constants.R_HEADS, "")
-        .replace("${Constants.R_REMOTES}${Constants.DEFAULT_REMOTE_NAME}/", "")
+    get() = name
+        .trim()
+        .lowercase()
+        .replace(R_HEADS, "")
+        .replace("$R_REMOTES_ORIGIN/", "")
+        .removePrefix("/")

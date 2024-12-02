@@ -34,11 +34,12 @@ class CalculateNextVersionWithoutInputsSpec : FunSpec({
     )
 
     val mainBranch = "main"
+    val masterBranch = "master"
     val developmentBranch = "develop"
     val featureBranch = "myname/sc-123456/my-awesome-feature"
 
     context("should calculate next version without inputs") {
-        test("on main branch") {
+        test("on $mainBranch branch") {
             // Given
             projects.git {
                 initialBranch = mainBranch
@@ -57,7 +58,66 @@ class CalculateNextVersionWithoutInputsSpec : FunSpec({
             projects.versions shouldOnlyHave "1.0.1"
         }
 
-        test("on development branch") {
+        test("on $masterBranch branch") {
+            // Given
+            projects.git {
+                initialBranch = masterBranch
+                actions = actions {
+                    commit(message = "1 commit on $masterBranch", tag = "1.0.0")
+                    checkout(developmentBranch)
+                    commit(message = "1 commit on $developmentBranch")
+                    checkout(masterBranch)
+                }
+            }
+
+            // When
+            projects.build(GradleVersion.current())
+
+            // Then
+            projects.versions shouldOnlyHave "1.0.1"
+        }
+
+        test("on $masterBranch branch without tags") {
+            // Given
+            projects.git {
+                initialBranch = masterBranch
+                actions = actions {
+                    commit(message = "1 commit on $masterBranch")
+                    checkout(developmentBranch)
+                    commit(message = "1 commit on $developmentBranch")
+                    checkout(masterBranch)
+                }
+            }
+
+            // When
+            projects.build(GradleVersion.current())
+
+            // Then
+            projects.versions shouldOnlyHave "0.0.1"
+        }
+
+        test("on $masterBranch branch without tags where feature branch contains $masterBranch name") {
+            // Given
+            val masterFeatureBranch = "master-feature"
+
+            projects.git {
+                initialBranch = masterBranch
+                actions = actions {
+                    commit(message = "1 commit on $masterBranch")
+                    checkout(masterFeatureBranch)
+                    commit(message = "1 commit on $masterFeatureBranch")
+                    checkout(masterBranch)
+                }
+            }
+
+            // When
+            projects.build(GradleVersion.current())
+
+            // Then
+            projects.versions shouldOnlyHave "0.0.1"
+        }
+
+        test("on $developmentBranch branch") {
             // Given
             projects.git {
                 initialBranch = mainBranch
@@ -75,7 +135,7 @@ class CalculateNextVersionWithoutInputsSpec : FunSpec({
             projects.versions shouldOnlyHave "1.0.1-develop.1"
         }
 
-        test("on development branch with latest development tag") {
+        test("on $developmentBranch branch with latest development tag") {
             // Given
             projects.git {
                 initialBranch = mainBranch
@@ -95,7 +155,7 @@ class CalculateNextVersionWithoutInputsSpec : FunSpec({
             projects.versions shouldOnlyHave "1.0.1-develop.3"
         }
 
-        test("on feature branch off development branch") {
+        test("on $featureBranch branch off $developmentBranch branch") {
             // Given
             projects.git {
                 initialBranch = mainBranch
@@ -118,7 +178,7 @@ class CalculateNextVersionWithoutInputsSpec : FunSpec({
             projects.versions shouldOnlyHave "1.0.1-myname-sc-123456-my-awesome-feature.2"
         }
 
-        test("on feature branch off main branch") {
+        test("on $featureBranch branch off $mainBranch branch") {
             // Given
             projects.git {
                 initialBranch = mainBranch
@@ -138,7 +198,7 @@ class CalculateNextVersionWithoutInputsSpec : FunSpec({
             projects.versions shouldOnlyHave "1.0.1-myname-sc-123456-my-awesome-feature.2"
         }
 
-        test("for develop branch after committing to feature branch and switching back to develop") {
+        test("for $developmentBranch branch after committing to $featureBranch branch and switching back to $developmentBranch") {
             // Given
             projects.git {
                 initialBranch = mainBranch
