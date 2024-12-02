@@ -19,16 +19,11 @@ import com.figure.gradle.semver.internal.command.extension.revWalk
 import com.figure.gradle.semver.internal.command.extension.shortName
 import com.figure.gradle.semver.internal.extensions.R_REMOTES_ORIGIN
 import com.figure.gradle.semver.internal.extensions.shortName
-import com.figure.gradle.semver.internal.logging.info
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ListBranchCommand
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
-
-private val log = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 
 class BranchList(
     private val git: Git,
@@ -76,7 +71,6 @@ class BranchList(
             ?.takeIf { it.isNotBlank() }
             ?.let { nonBlankBranchName ->
                 findAll(nonBlankBranchName).let { matchingBranches ->
-                    log.info { "Found matching branches: ${matchingBranches.map { it.name }}" }
                     matchingBranches.find { Constants.R_HEADS in it.name }
                         ?: matchingBranches.find { Constants.R_REMOTES in it.name }
                 }
