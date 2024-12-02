@@ -89,7 +89,7 @@ class BranchList(
         git.branchList()
             .setListMode(ListBranchCommand.ListMode.ALL)
             .call()
-            .filter { branchName.shortName() in it.shortName }
+            .filter { branchName.shortName() == it.shortName }
 
     fun commitCountBetween(baseBranchName: String, targetBranchName: String): Int {
         // Try to resolve the remote branch first, then fall back to the local branch
