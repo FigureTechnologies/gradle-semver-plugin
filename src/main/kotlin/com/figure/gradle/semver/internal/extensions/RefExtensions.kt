@@ -22,7 +22,7 @@ import org.eclipse.jgit.lib.Ref
 
 const val R_REMOTES_ORIGIN = "$R_REMOTES$DEFAULT_REMOTE_NAME"
 
-private val invalidSemverCharacters: Regex = """[^0-9A-Za-z\-.]+""".toRegex()
+private val validCharacters: Regex = """[^0-9A-Za-z\-.]+""".toRegex()
 
 fun Ref.prereleaseLabel(): String =
     name.trim()
