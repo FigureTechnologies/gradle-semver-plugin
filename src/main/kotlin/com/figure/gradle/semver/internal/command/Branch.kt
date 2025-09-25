@@ -19,6 +19,7 @@ import com.figure.gradle.semver.internal.command.extension.shortName
 import com.figure.gradle.semver.internal.environment.Env
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
 
 class Branch(
@@ -34,9 +35,20 @@ class Branch(
                 Env.isCI -> Env.githubHeadRef ?: Env.githubRefName
                 else -> git.repository.branch
             }
-            return branchList.find(refName)
-                ?: headRef.takeIf { !it.target.name.startsWith("refs/heads/") }
-                ?: error("Could not find current branch: $refName")
+            val foundRef = branchList.find(refName)
+            if (foundRef != null) {
+                return foundRef
+            }
+
+            // Handle cross-repo PRs where the branch doesn't exist locally
+            // but we still want to use the branch name from GITHUB_HEAD_REF
+            return if (Env.isCI && Env.githubHeadRef != null && refName == Env.githubHeadRef) {
+                // Create a synthetic ref object that preserves the original branch name
+                SyntheticRef(name = "refs/heads/$refName", target = headRef.objectId)
+            } else {
+                headRef.takeIf { !it.target.name.startsWith("refs/heads/") }
+                    ?: headRef
+            }
         }
 
     fun isOnMainBranch(providedMainBranch: String? = null): Boolean =
@@ -52,4 +64,29 @@ class Branch(
             .setBranchNames(*branchNames)
             .setForce(true)
             .call()
+}
+
+/**
+ * Synthetic Ref implementation for cross-repository PRs where the branch doesn't exist locally
+ * but we want to preserve the original branch name for version calculation
+ */
+private class SyntheticRef(
+    private val name: String,
+    private val target: ObjectId,
+) : Ref {
+    override fun getName(): String = name
+
+    override fun isSymbolic(): Boolean = false
+
+    override fun getLeaf(): Ref = this
+
+    override fun getTarget(): Ref? = null
+
+    override fun getObjectId(): ObjectId = target
+
+    override fun isPeeled(): Boolean = true
+
+    override fun getPeeledObjectId(): ObjectId? = target
+
+    override fun getStorage(): Ref.Storage = Ref.Storage.LOOSE
 }

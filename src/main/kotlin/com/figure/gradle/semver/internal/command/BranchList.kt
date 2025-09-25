@@ -93,6 +93,7 @@ class BranchList(
             ?: git.repository.resolve(baseBranchName)
 
         val targetBranch: ObjectId = git.repository.resolve(targetBranchName)
+            ?: git.repository.resolve("HEAD") // Fall back to HEAD for synthetic refs in cross-repo PRs
 
         return git.revWalk { revWalk ->
             revWalk.apply {
