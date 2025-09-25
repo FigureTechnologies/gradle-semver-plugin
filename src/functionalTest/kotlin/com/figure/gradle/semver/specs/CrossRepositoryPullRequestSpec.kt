@@ -71,4 +71,57 @@ class CrossRepositoryPullRequestSpec : FunSpec({
             projects.versions shouldOnlyHave "1.0.1-fix-builds-fail-cross-repo.0"
         }
     }
+
+    test("should handle cross-repo PR with both GITHUB_HEAD_REF and GITHUB_REF_NAME set") {
+        withEnvironment(
+            environment = mapOf(
+                Env.CI to "true",
+                Env.GITHUB_HEAD_REF to forkedFeatureBranch,
+                Env.GITHUB_REF_NAME to "123/merge", // Typical PR merge ref
+            ),
+            mode = OverrideMode.SetOrOverride,
+        ) {
+            // Given: Similar setup but with both environment variables set
+            projects.git {
+                initialBranch = mainBranch
+                actions = actions {
+                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                    checkout(mainBranch) // Stay on main to simulate cross-repo PR checkout
+                }
+            }
+
+            // When: Building should prioritize GITHUB_HEAD_REF over GITHUB_REF_NAME
+            projects.build(GradleVersion.current())
+
+            // Then: Should use the forked branch name, not the merge ref
+            projects.versions shouldOnlyHave "1.0.1-fix-builds-fail-cross-repo.0"
+        }
+    }
+
+    test("should fallback to GITHUB_REF_NAME when GITHUB_HEAD_REF is empty") {
+        withEnvironment(
+            environment = mapOf(
+                Env.CI to "true",
+                Env.GITHUB_HEAD_REF to "", // Empty but present
+                Env.GITHUB_REF_NAME to "feature-branch-fallback",
+            ),
+            mode = OverrideMode.SetOrOverride,
+        ) {
+            // Given: GITHUB_HEAD_REF is empty (not a PR) but GITHUB_REF_NAME is set
+            projects.git {
+                initialBranch = mainBranch
+                actions = actions {
+                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                    checkout("feature-branch-fallback")
+                    commit(message = "1 commit on feature branch")
+                }
+            }
+
+            // When: Building should use GITHUB_REF_NAME since GITHUB_HEAD_REF is empty
+            projects.build(GradleVersion.current())
+
+            // Then: Should use the ref name from GITHUB_REF_NAME with correct commit count
+            projects.versions shouldOnlyHave "1.0.1-feature-branch-fallback.1"
+        }
+    }
 })

@@ -41,13 +41,16 @@ class Branch(
             }
 
             // Handle cross-repo PRs where the branch doesn't exist locally
-            // but we still want to use the branch name from GITHUB_HEAD_REF
-            return if (Env.isCI && Env.githubHeadRef != null && refName == Env.githubHeadRef) {
+            // This happens when GitHub Actions checks out the target repository but the
+            // branch name from GITHUB_HEAD_REF (from forked repo) doesn't exist locally
+            return if (Env.isCI && Env.githubHeadRef != null) {
                 // Create a synthetic ref object that preserves the original branch name
-                SyntheticRef(name = "refs/heads/$refName", target = headRef.objectId)
+                // This ensures version calculation uses the actual feature branch name
+                // instead of falling back to HEAD or the merge ref
+                SyntheticRef(name = "refs/heads/${Env.githubHeadRef}", target = headRef.objectId)
             } else {
-                headRef.takeIf { !it.target.name.startsWith("refs/heads/") }
-                    ?: headRef
+                // For non-CI environments or when not in a PR, use HEAD
+                headRef
             }
         }
 
