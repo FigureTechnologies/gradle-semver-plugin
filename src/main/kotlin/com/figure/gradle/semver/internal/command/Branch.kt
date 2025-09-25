@@ -34,7 +34,9 @@ class Branch(
                 Env.isCI -> Env.githubHeadRef ?: Env.githubRefName
                 else -> git.repository.branch
             }
-            return branchList.find(refName) ?: error("Could not find current branch: $refName")
+            return branchList.find(refName) 
+                ?: headRef.takeIf { !it.target.name.startsWith("refs/heads/") }
+                ?: error("Could not find current branch: $refName")
         }
 
     fun isOnMainBranch(providedMainBranch: String? = null): Boolean =
