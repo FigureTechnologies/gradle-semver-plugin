@@ -22,7 +22,11 @@ import org.eclipse.jgit.lib.Ref
 
 const val R_REMOTES_ORIGIN = "$R_REMOTES$DEFAULT_REMOTE_NAME"
 
-private val validCharacters: Regex = """[^0-9A-Za-z\-_.]+""".toRegex()
+/**
+ * Regex pattern matching any character not allowed in branch names:
+ * excludes all except digits, letters, hyphens, and periods.
+ */
+private val invalidCharacters: Regex = """[^0-9A-Za-z\-.]+""".toRegex()
 
 fun Ref.prereleaseLabel(): String =
     name.trim()
@@ -30,7 +34,7 @@ fun Ref.prereleaseLabel(): String =
         .replace(R_HEADS, "")
         .replace("$R_REMOTES_ORIGIN/", "")
         .removePrefix("/")
-        .replace(validCharacters, "-")
+        .replace(invalidCharacters, "-")
 
 fun String.shortName(): String =
     trim()
