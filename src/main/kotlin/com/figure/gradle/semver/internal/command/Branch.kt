@@ -19,6 +19,7 @@ import com.figure.gradle.semver.internal.command.extension.shortName
 import com.figure.gradle.semver.internal.environment.Env
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
 
 class Branch(
@@ -34,7 +35,23 @@ class Branch(
                 Env.isCI -> Env.githubHeadRef ?: Env.githubRefName
                 else -> git.repository.branch
             }
-            return branchList.find(refName) ?: error("Could not find current branch: $refName")
+            val foundRef = branchList.find(refName)
+            if (foundRef != null) {
+                return foundRef
+            }
+
+            // Handle cross-repo PRs where the branch doesn't exist locally
+            // This happens when GitHub Actions checks out the target repository but the
+            // branch name from GITHUB_HEAD_REF (from forked repo) doesn't exist locally
+            return if (Env.isCI && Env.githubHeadRef != null) {
+                // Create a synthetic ref object that preserves the original branch name
+                // This ensures version calculation uses the actual feature branch name
+                // instead of falling back to HEAD or the merge ref
+                SyntheticRef(name = "refs/heads/${Env.githubHeadRef}", target = headRef.objectId)
+            } else {
+                // For non-CI environments or when not in a PR, use HEAD
+                headRef
+            }
         }
 
     fun isOnMainBranch(providedMainBranch: String? = null): Boolean =
@@ -50,4 +67,29 @@ class Branch(
             .setBranchNames(*branchNames)
             .setForce(true)
             .call()
+}
+
+/**
+ * Synthetic Ref implementation for cross-repository PRs where the branch doesn't exist locally
+ * but we want to preserve the original branch name for version calculation
+ */
+private class SyntheticRef(
+    private val name: String,
+    private val target: ObjectId,
+) : Ref {
+    override fun getName(): String = name
+
+    override fun isSymbolic(): Boolean = false
+
+    override fun getLeaf(): Ref = this
+
+    override fun getTarget(): Ref? = null
+
+    override fun getObjectId(): ObjectId = target
+
+    override fun isPeeled(): Boolean = true
+
+    override fun getPeeledObjectId(): ObjectId? = target
+
+    override fun getStorage(): Ref.Storage = Ref.Storage.LOOSE
 }
