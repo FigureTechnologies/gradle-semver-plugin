@@ -36,28 +36,29 @@ class SubprojectProject(
     private val subprojectName = "subproj"
 
     private fun build(): GradleProject =
-        newGradleProjectBuilder(dslKind).withRootProject {
-            withBuildScript {
-                plugins(GradlePlugins.kotlinNoApply)
-            }
+        newGradleProjectBuilder(dslKind)
+            .withRootProject {
+                withBuildScript {
+                    plugins(GradlePlugins.kotlinNoApply)
+                }
 
-            val settings = settingsGradle {
-                buildCache = buildCache {
-                    local = local {
-                        directory = buildCacheDir
+                val settings = settingsGradle {
+                    buildCache = buildCache {
+                        local = local {
+                            directory = buildCacheDir
+                        }
                     }
                 }
-            }
 
-            settingsScript = SettingsScript(
-                additions = scribe.use { s -> settings.render(s) },
-            )
-        }.withSubproject(subprojectName) {
-            withBuildScript {
-                plugins(GradlePlugins.semverPlugin, GradlePlugins.kotlinNoApply)
-                additions = scribe.use { s -> semver.render(s) }
-            }
-        }.write()
+                settingsScript = SettingsScript(
+                    additions = scribe.use { s -> settings.render(s) },
+                )
+            }.withSubproject(subprojectName) {
+                withBuildScript {
+                    plugins(GradlePlugins.semverPlugin, GradlePlugins.kotlinNoApply)
+                    additions = scribe.use { s -> semver.render(s) }
+                }
+            }.write()
 
     override fun fetchSemverProperties(): Properties =
         gradleProject.projectDir(subprojectName).toFile().resolve(Constants.SEMVER_PROPERTY_PATH).let {

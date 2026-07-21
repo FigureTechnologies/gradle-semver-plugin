@@ -33,23 +33,24 @@ class SettingsProject(
         get() = build()
 
     private fun build(): GradleProject =
-        newGradleProjectBuilder(dslKind).withRootProject {
-            val settings = settingsGradle {
-                buildCache = buildCache {
-                    local = local {
-                        directory = buildCacheDir
+        newGradleProjectBuilder(dslKind)
+            .withRootProject {
+                val settings = settingsGradle {
+                    buildCache = buildCache {
+                        local = local {
+                            directory = buildCacheDir
+                        }
                     }
+                    semver = this@SettingsProject.semver
                 }
-                semver = this@SettingsProject.semver
-            }
 
-            settingsScript = SettingsScript(
-                plugins = Plugins(GradlePlugins.semverPlugin),
-                additions = scribe.use { s -> settings.render(s) },
-            )
+                settingsScript = SettingsScript(
+                    plugins = Plugins(GradlePlugins.semverPlugin),
+                    additions = scribe.use { s -> settings.render(s) },
+                )
 
-            withBuildScript {
-                plugins(GradlePlugins.kotlinNoApply)
-            }
-        }.write()
+                withBuildScript {
+                    plugins(GradlePlugins.kotlinNoApply)
+                }
+            }.write()
 }

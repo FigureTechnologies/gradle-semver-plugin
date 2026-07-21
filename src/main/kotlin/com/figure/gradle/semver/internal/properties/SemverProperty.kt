@@ -15,7 +15,9 @@
  */
 package com.figure.gradle.semver.internal.properties
 
-enum class SemverProperty(val property: String) {
+enum class SemverProperty(
+    val property: String,
+) {
     Stage("semver.stage"),
     Modifier("semver.modifier"),
     TagPrefix("semver.tagPrefix"),

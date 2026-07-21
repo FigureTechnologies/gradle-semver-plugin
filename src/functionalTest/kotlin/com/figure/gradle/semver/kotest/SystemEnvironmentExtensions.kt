@@ -42,9 +42,12 @@ import java.lang.reflect.Field
  * **ATTENTION**: This code is susceptible to race conditions. If you attempt to change the environment while it was
  * already changed, the result is inconsistent, as the System Environment Map is a single map.
  */
-inline fun <T> withEnvironment(key: String, value: String?, mode: OverrideMode = SetOrError, block: () -> T): T {
-    return withEnvironment(key to value, mode, block)
-}
+inline fun <T> withEnvironment(
+    key: String,
+    value: String?,
+    mode: OverrideMode = SetOrError,
+    block: () -> T,
+): T = withEnvironment(key to value, mode, block)
 
 /**
  * Modifies System Environment with chosen key and value
@@ -61,9 +64,11 @@ inline fun <T> withEnvironment(key: String, value: String?, mode: OverrideMode =
  * **ATTENTION**: This code is susceptible to race conditions. If you attempt to change the environment while it was
  * already changed, the result is inconsistent, as the System Environment Map is a single map.
  */
-inline fun <T> withEnvironment(environment: Pair<String, String?>, mode: OverrideMode = SetOrError, block: () -> T): T {
-    return withEnvironment(mapOf(environment), mode, block)
-}
+inline fun <T> withEnvironment(
+    environment: Pair<String, String?>,
+    mode: OverrideMode = SetOrError,
+    block: () -> T,
+): T = withEnvironment(mapOf(environment), mode, block)
 
 /**
  * Modifies System Environment with chosen keys and values
@@ -130,9 +135,7 @@ private fun getCaseInsensitiveEnvironment(): MutableMap<String, String>? {
     }
 }
 
-private fun Field.asAccessible(): Field {
-    return apply { isAccessible = true }
-}
+private fun Field.asAccessible(): Field = apply { isAccessible = true }
 
 abstract class SystemEnvironmentListener(
     private val environment: Map<String, String?>,
@@ -164,8 +167,11 @@ abstract class SystemEnvironmentListener(
  * **ATTENTION**: This code is susceptible to race conditions. If you attempt to change the environment while it was
  * already changed, the result is inconsistent, as the System Environment Map is a single map.
  */
-class SystemEnvironmentTestListener(environment: Map<String, String?>, mode: OverrideMode = SetOrError) :
-    SystemEnvironmentListener(environment, mode), TestListener {
+class SystemEnvironmentTestListener(
+    environment: Map<String, String?>,
+    mode: OverrideMode = SetOrError,
+) : SystemEnvironmentListener(environment, mode),
+    TestListener {
     /**
      * Modifies System Environment with chosen keys and values
      *
@@ -224,8 +230,11 @@ class SystemEnvironmentTestListener(environment: Map<String, String?>, mode: Ove
  * **ATTENTION**: This code is susceptible to race conditions. If you attempt to change the environment while it was
  * already changed, the result is inconsistent, as the System Environment Map is a single map.
  */
-class SystemEnvironmentProjectListener(environment: Map<String, String?>, mode: OverrideMode = SetOrError) :
-    SystemEnvironmentListener(environment, mode), ProjectListener {
+class SystemEnvironmentProjectListener(
+    environment: Map<String, String?>,
+    mode: OverrideMode = SetOrError,
+) : SystemEnvironmentListener(environment, mode),
+    ProjectListener {
     /**
      * Modifies System Environment with chosen keys and values
      *

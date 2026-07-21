@@ -17,7 +17,9 @@ package com.figure.gradle.semver.internal.properties
 
 import io.github.z4kn4fein.semver.Inc
 
-enum class Modifier(val value: String) {
+enum class Modifier(
+    val value: String,
+) {
     Major("major"),
     Minor("minor"),
     Patch("patch"),

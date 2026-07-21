@@ -24,37 +24,38 @@ import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.Ref.Storage
 
-class RefExtensionsKtSpec : FunSpec({
-    test("prereleaseLabel for dependabot branch") {
-        // Create a test implementation of Ref
-        val branchName = "dependabot-github_actions-softprops-action-gh-release-2"
-        val fullRefName = Constants.R_HEADS + branchName
+class RefExtensionsKtSpec :
+    FunSpec({
+        test("prereleaseLabel for dependabot branch") {
+            // Create a test implementation of Ref
+            val branchName = "dependabot-github_actions-softprops-action-gh-release-2"
+            val fullRefName = Constants.R_HEADS + branchName
 
-        // Create a mock Ref with the specified branch name
-        val ref = object : Ref {
-            override fun getName(): String = fullRefName
+            // Create a mock Ref with the specified branch name
+            val ref = object : Ref {
+                override fun getName(): String = fullRefName
 
-            override fun getObjectId(): ObjectId? = null
+                override fun getObjectId(): ObjectId? = null
 
-            override fun getPeeledObjectId(): ObjectId? = null
+                override fun getPeeledObjectId(): ObjectId? = null
 
-            override fun isPeeled(): Boolean = false
+                override fun isPeeled(): Boolean = false
 
-            override fun getStorage(): Storage = Storage.LOOSE
+                override fun getStorage(): Storage = Storage.LOOSE
 
-            override fun isSymbolic(): Boolean = false
+                override fun isSymbolic(): Boolean = false
 
-            override fun getTarget(): Ref? = null
+                override fun getTarget(): Ref? = null
 
-            override fun getLeaf(): Ref = this
+                override fun getLeaf(): Ref = this
+            }
+
+            // Test the prereleaseLabel extension function
+            val expectedLabel = "dependabot-github-actions-softprops-action-gh-release-2"
+            ref.prereleaseLabel() shouldBe expectedLabel
+
+            // Test the prereleaseLabel extension function produces valid preRelease values
+            val expectedVersion = "1.0.1-$expectedLabel".toVersion(true)
+            "1.0.0".toVersion(true).nextPreRelease(expectedLabel) shouldBe expectedVersion
         }
-
-        // Test the prereleaseLabel extension function
-        val expectedLabel = "dependabot-github-actions-softprops-action-gh-release-2"
-        ref.prereleaseLabel() shouldBe expectedLabel
-
-        // Test the prereleaseLabel extension function produces valid preRelease values
-        val expectedVersion = "1.0.1-$expectedLabel".toVersion(true)
-        "1.0.0".toVersion(true).nextPreRelease(expectedLabel) shouldBe expectedVersion
-    }
-})
+    })

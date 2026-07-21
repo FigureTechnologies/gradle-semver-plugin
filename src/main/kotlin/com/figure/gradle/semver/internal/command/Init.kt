@@ -23,7 +23,8 @@ object Init {
         directory: File,
         bare: Boolean = false,
         initialBranch: String = "main",
-    ): Git = Git.init()
+    ): Git = Git
+        .init()
         .setDirectory(directory)
         .setBare(bare)
         .setInitialBranch(initialBranch)

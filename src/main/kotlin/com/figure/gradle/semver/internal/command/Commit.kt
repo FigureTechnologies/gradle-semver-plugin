@@ -25,7 +25,8 @@ class Commit(
         message: String,
         allowEmptyCommit: Boolean = false,
     ): RevCommit =
-        git.commit()
+        git
+            .commit()
             .setMessage(message)
             .setAllowEmpty(allowEmptyCommit)
             .call()

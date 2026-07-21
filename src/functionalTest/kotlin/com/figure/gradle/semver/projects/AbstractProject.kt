@@ -27,7 +27,9 @@ import java.io.File
 import java.util.Properties
 import kotlin.io.path.createTempDirectory
 
-abstract class AbstractProject : AbstractGradleProject(), AutoCloseable {
+abstract class AbstractProject :
+    AbstractGradleProject(),
+    AutoCloseable {
     abstract val gradleProject: GradleProject
     abstract val projectName: String
 
@@ -89,6 +91,7 @@ abstract class AbstractProject : AbstractGradleProject(), AutoCloseable {
     }
 
     protected open fun fetchSemverProperties(): Properties =
-        gradleProject.rootDir.resolve(Constants.SEMVER_PROPERTY_PATH)
+        gradleProject.rootDir
+            .resolve(Constants.SEMVER_PROPERTY_PATH)
             .let { Properties().apply { load(it.reader()) } }
 }

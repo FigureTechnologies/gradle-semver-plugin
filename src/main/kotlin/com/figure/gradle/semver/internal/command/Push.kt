@@ -27,27 +27,32 @@ class Push(
         git.push().call()
 
     fun branch(branch: String): MutableIterable<PushResult>? =
-        git.push()
+        git
+            .push()
             .setRefSpecs(RefSpec("${Constants.R_HEADS}$branch:${Constants.R_HEADS}$branch"))
             .call()
 
     fun tag(tag: String): MutableIterable<PushResult>? =
-        git.push()
+        git
+            .push()
             .setRefSpecs(RefSpec("${Constants.R_TAGS}$tag:${Constants.R_TAGS}$$tag"))
             .call()
 
     fun allBranches(): MutableIterable<PushResult>? =
-        git.push()
+        git
+            .push()
             .setPushAll() // Push all branches under refs/heads/*
             .call()
 
     fun allTags(): MutableIterable<PushResult>? =
-        git.push()
+        git
+            .push()
             .setPushTags() // Push all tags under refs/tags/*
             .call()
 
     fun all(): MutableIterable<PushResult>? =
-        git.push()
+        git
+            .push()
             .setPushAll() // Push all branches under refs/heads/*
             .setPushTags() // Push all tags under refs/tags/*
             .call()

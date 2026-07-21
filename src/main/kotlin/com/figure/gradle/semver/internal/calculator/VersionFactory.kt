@@ -67,7 +67,10 @@ abstract class VersionFactory : ValueSource<String, VersionFactory.Params> {
         if (!factoryContext.rootDir.resolve(".git").exists()) {
             log.warn { "Git is not initialized in this repository. Please run 'git init' to initialize it." }
             log.warn { "Alternatively, for composite projects, specify the `rootProjectDir` in the semver configuration block." }
-            val nextVersion = factoryContext.initialVersion.toVersion().nextPatch().toString()
+            val nextVersion = factoryContext.initialVersion
+                .toVersion()
+                .nextPatch()
+                .toString()
             return "$nextVersion-UNINITIALIZED-REPO"
         }
 

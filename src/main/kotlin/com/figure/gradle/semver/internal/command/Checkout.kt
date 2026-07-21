@@ -22,7 +22,8 @@ class Checkout(
     private val git: Git,
 ) {
     operator fun invoke(branchName: String, createBranch: Boolean = false): Ref =
-        git.checkout()
+        git
+            .checkout()
             .setName(branchName)
             .setCreateBranch(createBranch)
             .call()

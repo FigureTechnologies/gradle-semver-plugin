@@ -29,66 +29,24 @@ import io.kotest.extensions.system.OverrideMode
 import io.kotest.extensions.system.withEnvironment
 import org.gradle.util.GradleVersion
 
-class UseAppendBuildMetadataPropertySpec : FunSpec({
-    val projects = install(
-        GradleProjectsExtension(
-            RegularProject(projectName = "regular-project"),
-            SettingsProject(projectName = "settings-project"),
-            SubprojectProject(projectName = "subproject-project"),
-        ),
-    )
+class UseAppendBuildMetadataPropertySpec :
+    FunSpec({
+        val projects = install(
+            GradleProjectsExtension(
+                RegularProject(projectName = "regular-project"),
+                SettingsProject(projectName = "settings-project"),
+                SubprojectProject(projectName = "subproject-project"),
+            ),
+        )
 
-    val mainBranch = "main"
-    val developmentBranch = "develop"
-    val featureBranch = "patch-1"
+        val mainBranch = "main"
+        val developmentBranch = "develop"
+        val featureBranch = "patch-1"
 
-    context("should not use override version") {
-        test("when override version is invalid") {
-            // Given
-            val appendBuildMetadataOption = "invalid"
-
-            projects.git {
-                initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                }
-            }
-
-            // When
-            projects.build(GradleVersion.current(), semverAppendBuildMetadata(appendBuildMetadataOption))
-
-            // Then
-            projects.versions shouldOnlyHave "1.0.1"
-        }
-
-        test("when ${BuildMetadataOptions.NEVER} is specified") {
-            // Given
-            val appendBuildMetadataOption = BuildMetadataOptions.NEVER.name
-
-            projects.git {
-                initialBranch = mainBranch
-                actions = actions {
-                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                }
-            }
-
-            // When
-            projects.build(GradleVersion.current(), semverAppendBuildMetadata(appendBuildMetadataOption))
-
-            // Then
-            projects.versions shouldOnlyHave "1.0.1"
-        }
-
-        test("when ${BuildMetadataOptions.LOCALLY} is specified but building in CI") {
-            withEnvironment(
-                mapOf(
-                    "CI" to "true",
-                    "GITHUB_HEAD_REF" to mainBranch,
-                ),
-                mode = OverrideMode.SetOrOverride,
-            ) {
+        context("should not use override version") {
+            test("when override version is invalid") {
                 // Given
-                val appendBuildMetadataOption = BuildMetadataOptions.LOCALLY.name
+                val appendBuildMetadataOption = "invalid"
 
                 projects.git {
                     initialBranch = mainBranch
@@ -103,15 +61,11 @@ class UseAppendBuildMetadataPropertySpec : FunSpec({
                 // Then
                 projects.versions shouldOnlyHave "1.0.1"
             }
-        }
-    }
 
-    context("should append build metadata") {
-        context("when ${BuildMetadataOptions.ALWAYS} is specified") {
-            val appendBuildMetadataOption = BuildMetadataOptions.ALWAYS.name
-
-            test("and on $mainBranch branch") {
+            test("when ${BuildMetadataOptions.NEVER} is specified") {
                 // Given
+                val appendBuildMetadataOption = BuildMetadataOptions.NEVER.name
+
                 projects.git {
                     initialBranch = mainBranch
                     actions = actions {
@@ -123,104 +77,151 @@ class UseAppendBuildMetadataPropertySpec : FunSpec({
                 projects.build(GradleVersion.current(), semverAppendBuildMetadata(appendBuildMetadataOption))
 
                 // Then
-                projects.versions shouldOnlyMatch """1.0.1\+[0-9]{14}""".toRegex()
+                projects.versions shouldOnlyHave "1.0.1"
             }
 
-            test("and on $developmentBranch branch") {
-                // Given
-                projects.git {
-                    initialBranch = mainBranch
-                    actions = actions {
-                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+            test("when ${BuildMetadataOptions.LOCALLY} is specified but building in CI") {
+                withEnvironment(
+                    mapOf(
+                        "CI" to "true",
+                        "GITHUB_HEAD_REF" to mainBranch,
+                    ),
+                    mode = OverrideMode.SetOrOverride,
+                ) {
+                    // Given
+                    val appendBuildMetadataOption = BuildMetadataOptions.LOCALLY.name
 
-                        checkout(developmentBranch)
-                        commit(message = "1 commit on $developmentBranch")
+                    projects.git {
+                        initialBranch = mainBranch
+                        actions = actions {
+                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        }
                     }
+
+                    // When
+                    projects.build(GradleVersion.current(), semverAppendBuildMetadata(appendBuildMetadataOption))
+
+                    // Then
+                    projects.versions shouldOnlyHave "1.0.1"
                 }
-
-                // When
-                projects.build(GradleVersion.current(), semverAppendBuildMetadata(appendBuildMetadataOption))
-
-                // Then
-                projects.versions shouldOnlyMatch """1.0.1-$developmentBranch.1\+[0-9]{14}""".toRegex()
-            }
-
-            test("and on $featureBranch branch") {
-                // Given
-                projects.git {
-                    initialBranch = mainBranch
-                    actions = actions {
-                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-
-                        checkout(featureBranch)
-                        commit(message = "1 commit on $featureBranch")
-                    }
-                }
-
-                // When
-                projects.build(GradleVersion.current(), semverAppendBuildMetadata(appendBuildMetadataOption))
-
-                // Then
-                projects.versions shouldOnlyMatch """1.0.1-${featureBranch.replace("/", "-")}.1\+[0-9]{14}""".toRegex()
             }
         }
 
-        context("when ${BuildMetadataOptions.LOCALLY} is specified") {
-            val appendBuildMetadataOption = BuildMetadataOptions.LOCALLY.name
+        context("should append build metadata") {
+            context("when ${BuildMetadataOptions.ALWAYS} is specified") {
+                val appendBuildMetadataOption = BuildMetadataOptions.ALWAYS.name
 
-            test("and on $mainBranch branch") {
-                // Given
-                projects.git {
-                    initialBranch = mainBranch
-                    actions = actions {
-                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                test("and on $mainBranch branch") {
+                    // Given
+                    projects.git {
+                        initialBranch = mainBranch
+                        actions = actions {
+                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        }
                     }
+
+                    // When
+                    projects.build(GradleVersion.current(), semverAppendBuildMetadata(appendBuildMetadataOption))
+
+                    // Then
+                    projects.versions shouldOnlyMatch """1.0.1\+[0-9]{14}""".toRegex()
                 }
 
-                // When
-                projects.build(GradleVersion.current(), semverAppendBuildMetadata(appendBuildMetadataOption))
+                test("and on $developmentBranch branch") {
+                    // Given
+                    projects.git {
+                        initialBranch = mainBranch
+                        actions = actions {
+                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                // Then
-                projects.versions shouldOnlyMatch """1.0.1\+[0-9]{14}""".toRegex()
+                            checkout(developmentBranch)
+                            commit(message = "1 commit on $developmentBranch")
+                        }
+                    }
+
+                    // When
+                    projects.build(GradleVersion.current(), semverAppendBuildMetadata(appendBuildMetadataOption))
+
+                    // Then
+                    projects.versions shouldOnlyMatch """1.0.1-$developmentBranch.1\+[0-9]{14}""".toRegex()
+                }
+
+                test("and on $featureBranch branch") {
+                    // Given
+                    projects.git {
+                        initialBranch = mainBranch
+                        actions = actions {
+                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+
+                            checkout(featureBranch)
+                            commit(message = "1 commit on $featureBranch")
+                        }
+                    }
+
+                    // When
+                    projects.build(GradleVersion.current(), semverAppendBuildMetadata(appendBuildMetadataOption))
+
+                    // Then
+                    projects.versions shouldOnlyMatch """1.0.1-${featureBranch.replace("/", "-")}.1\+[0-9]{14}""".toRegex()
+                }
             }
 
-            test("and on $developmentBranch branch") {
-                // Given
-                projects.git {
-                    initialBranch = mainBranch
-                    actions = actions {
-                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+            context("when ${BuildMetadataOptions.LOCALLY} is specified") {
+                val appendBuildMetadataOption = BuildMetadataOptions.LOCALLY.name
 
-                        checkout(developmentBranch)
-                        commit(message = "1 commit on $developmentBranch")
+                test("and on $mainBranch branch") {
+                    // Given
+                    projects.git {
+                        initialBranch = mainBranch
+                        actions = actions {
+                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                        }
                     }
+
+                    // When
+                    projects.build(GradleVersion.current(), semverAppendBuildMetadata(appendBuildMetadataOption))
+
+                    // Then
+                    projects.versions shouldOnlyMatch """1.0.1\+[0-9]{14}""".toRegex()
                 }
 
-                // When
-                projects.build(GradleVersion.current(), semverAppendBuildMetadata(appendBuildMetadataOption))
+                test("and on $developmentBranch branch") {
+                    // Given
+                    projects.git {
+                        initialBranch = mainBranch
+                        actions = actions {
+                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                // Then
-                projects.versions shouldOnlyMatch """1.0.1-$developmentBranch.1\+[0-9]{14}""".toRegex()
-            }
-
-            test("and on $featureBranch branch") {
-                // Given
-                projects.git {
-                    initialBranch = mainBranch
-                    actions = actions {
-                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-
-                        checkout(featureBranch)
-                        commit(message = "1 commit on $featureBranch")
+                            checkout(developmentBranch)
+                            commit(message = "1 commit on $developmentBranch")
+                        }
                     }
+
+                    // When
+                    projects.build(GradleVersion.current(), semverAppendBuildMetadata(appendBuildMetadataOption))
+
+                    // Then
+                    projects.versions shouldOnlyMatch """1.0.1-$developmentBranch.1\+[0-9]{14}""".toRegex()
                 }
 
-                // When
-                projects.build(GradleVersion.current(), semverAppendBuildMetadata(appendBuildMetadataOption))
+                test("and on $featureBranch branch") {
+                    // Given
+                    projects.git {
+                        initialBranch = mainBranch
+                        actions = actions {
+                            commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                // Then
-                projects.versions shouldOnlyMatch """1.0.1-${featureBranch.replace("/", "-")}.1\+[0-9]{14}""".toRegex()
+                            checkout(featureBranch)
+                            commit(message = "1 commit on $featureBranch")
+                        }
+                    }
+
+                    // When
+                    projects.build(GradleVersion.current(), semverAppendBuildMetadata(appendBuildMetadataOption))
+
+                    // Then
+                    projects.versions shouldOnlyMatch """1.0.1-${featureBranch.replace("/", "-")}.1\+[0-9]{14}""".toRegex()
+                }
             }
         }
-    }
-})
+    })

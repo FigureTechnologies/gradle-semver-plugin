@@ -59,7 +59,9 @@ class SemverPlugin : Plugin<PluginAware> {
                 }
             }
 
-            else -> error("Not a project or settings")
+            else -> {
+                error("Not a project or settings")
+            }
         }
     }
 

@@ -22,12 +22,14 @@ class Tag(
     private val git: Git,
 ) {
     operator fun invoke(tagName: String): Ref? =
-        git.tag()
+        git
+            .tag()
             .setName(tagName)
             .call()
 
     fun delete(vararg tag: String): MutableList<String>? =
-        git.tagDelete()
+        git
+            .tagDelete()
             .setTags(*tag)
             .call()
 }

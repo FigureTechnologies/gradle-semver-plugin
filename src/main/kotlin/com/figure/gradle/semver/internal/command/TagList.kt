@@ -47,15 +47,13 @@ class TagList(
             .filter { version ->
                 val prereleaseLabel = version.preRelease?.substringBefore(".")?.lowercase()
                 version.isNotPreRelease || prereleaseLabel in stages
-            }
-            .let { versions ->
+            }.let { versions ->
                 if (forMajorVersion != null) {
                     versions.filter { version -> version.major == forMajorVersion }
                 } else {
                     versions
                 }
-            }
-            .maxOrNull()
+            }.maxOrNull()
     }
 
     fun latestOrInitial(initial: String, forMajorVersion: Int?): Version =

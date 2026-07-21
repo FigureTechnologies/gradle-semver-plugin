@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Figure Technologies
+ * Copyright (C) 2024-2026 Figure Technologies
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,7 +120,11 @@ tasks {
 idea {
     module {
         // Marks the functionTest as a test source set
-        testSources.from(sourceSets.functionalTest.get().allSource.srcDirs)
+        testSources.from(
+            sourceSets.functionalTest
+                .get()
+                .allSource.srcDirs,
+        )
     }
 }
 

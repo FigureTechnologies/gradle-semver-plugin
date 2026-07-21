@@ -18,21 +18,22 @@ package com.figure.gradle.semver.internal.calculator
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class MatchersKtTest : FunSpec({
-    test("should strip off prefix and return version") {
-        "v1.2.3".stripNonSemverText() shouldBe "1.2.3"
-        "libraries-v1.5.4".stripNonSemverText() shouldBe "1.5.4"
-    }
+class MatchersKtTest :
+    FunSpec({
+        test("should strip off prefix and return version") {
+            "v1.2.3".stripNonSemverText() shouldBe "1.2.3"
+            "libraries-v1.5.4".stripNonSemverText() shouldBe "1.5.4"
+        }
 
-    test("should return input if no version found") {
-        "no-version-here".stripNonSemverText() shouldBe "no-version-here"
-    }
+        test("should return input if no version found") {
+            "no-version-here".stripNonSemverText() shouldBe "no-version-here"
+        }
 
-    test("should handle empty input") {
-        "".stripNonSemverText() shouldBe ""
-    }
+        test("should handle empty input") {
+            "".stripNonSemverText() shouldBe ""
+        }
 
-    test("should handle input with only version") {
-        "2.3.4".stripNonSemverText() shouldBe "2.3.4"
-    }
-})
+        test("should handle input with only version") {
+            "2.3.4".stripNonSemverText() shouldBe "2.3.4"
+        }
+    })

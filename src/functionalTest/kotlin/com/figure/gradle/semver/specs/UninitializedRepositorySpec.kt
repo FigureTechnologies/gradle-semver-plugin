@@ -24,21 +24,22 @@ import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.FunSpec
 import org.gradle.util.GradleVersion
 
-class UninitializedRepositorySpec : FunSpec({
-    val projects = install(
-        GradleProjectsExtension(
-            RegularProject(projectName = "regular-project"),
-            SettingsProject(projectName = "settings-project"),
-            SubprojectProject(projectName = "subproject-project"),
-        ),
-    )
+class UninitializedRepositorySpec :
+    FunSpec({
+        val projects = install(
+            GradleProjectsExtension(
+                RegularProject(projectName = "regular-project"),
+                SettingsProject(projectName = "settings-project"),
+                SubprojectProject(projectName = "subproject-project"),
+            ),
+        )
 
-    test("should build on uninitialized repository") {
-        // When
-        projects.build(GradleVersion.current())
+        test("should build on uninitialized repository") {
+            // When
+            projects.build(GradleVersion.current())
 
-        // Then
-        // This assumes that the initial version is 0.0.0 and that the first build will generate a patch version
-        projects.versions shouldOnlyHave "0.0.1-UNINITIALIZED-REPO"
-    }
-})
+            // Then
+            // This assumes that the initial version is 0.0.0 and that the first build will generate a patch version
+            projects.versions shouldOnlyHave "0.0.1-UNINITIALIZED-REPO"
+        }
+    })
