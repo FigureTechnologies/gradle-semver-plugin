@@ -23,6 +23,7 @@ import com.figure.gradle.semver.internal.logging.info
 import com.figure.gradle.semver.internal.logging.warn
 import com.figure.gradle.semver.internal.properties.Modifier
 import com.figure.gradle.semver.internal.properties.Stage
+import io.github.z4kn4fein.semver.Version
 import io.github.z4kn4fein.semver.nextPatch
 import io.github.z4kn4fein.semver.toVersion
 import org.gradle.api.logging.Logger
@@ -50,7 +51,10 @@ internal fun calculateNextVersion(factoryContext: VersionFactoryContext): String
 
         val overrideVersion = factoryContext.overrideVersion
         val latestVersion = kgit.tags.latestOrInitial(factoryContext.initialVersion, factoryContext.forMajorVersion)
-        val latestNonPreReleaseVersion = kgit.tags.latestNonPreReleaseOrInitial(factoryContext.initialVersion)
+        val latestNonPreReleaseVersion = kgit.tags.latestNonPreReleaseOrInitial(
+            initial = factoryContext.initialVersion,
+            forMajorVersion = factoryContext.forMajorVersion,
+        )
 
         return when {
             context.gitState != GitState.NOMINAL -> {
@@ -69,7 +73,10 @@ internal fun calculateNextVersion(factoryContext: VersionFactoryContext): String
 
             kgit.branch.isOnMainBranch(context.mainBranch) -> {
                 log.info { "Calculating next version on main branch: ${kgit.branch.currentRef.shortName}" }
-                StageVersionCalculator.calculate(latestVersion, context)
+                StageVersionCalculator.calculate(
+                    latestVersion = factoryContext.baseVersionForStage(latestVersion, kgit),
+                    context = context,
+                )
             }
 
             else -> {
@@ -77,12 +84,22 @@ internal fun calculateNextVersion(factoryContext: VersionFactoryContext): String
                 if (context.stage == Stage.Auto) {
                     BranchVersionCalculator(kgit).calculate(latestNonPreReleaseVersion, context)
                 } else {
-                    StageVersionCalculator.calculate(latestVersion, context)
+                    StageVersionCalculator.calculate(
+                        latestVersion = factoryContext.baseVersionForStage(latestVersion, kgit),
+                        context = context,
+                    )
                 }
             }
         }
     }
 }
+
+private fun VersionFactoryContext.baseVersionForStage(latestVersion: Version, kgit: KGit): Version =
+    if (stage == Stage.Stable) {
+        kgit.tags.stableBaseOrInitial(initialVersion, forMajorVersion)
+    } else {
+        latestVersion
+    }
 
 private fun VersionFactoryContext.toVersionCalculatorContext(gitState: GitState) =
     VersionCalculatorContext(

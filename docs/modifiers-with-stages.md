@@ -16,6 +16,11 @@ semver.modifier=<modifier>
 semver.stage=<stage>
 ```
 
+???+ note "Stable stage base version"
+    When `stage=stable` and at least one stable tag exists, the next version is based on
+    the latest **stable** tag (not later `rc`/`dev`/other staged prereleases). See
+    [Stages](stages.md) for details.
+
 Latest tag: `v1.0.0-rc.1`
 
 | Command                                                     | Next Version    |
