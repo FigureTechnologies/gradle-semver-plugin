@@ -13,6 +13,7 @@ At a glance, this plugin provides support for the following features:
 - Setting an alternate initial version
 - Specifying alternate main and development branch names
 - Appending build metadata (format: `+<yyyyMMddHHmmss>`)
+- Configuration cache (version resolved lazily so commits do not discard the cache)
 - Building when
     - No git repository is present
     - No git tags are present
@@ -75,6 +76,14 @@ semver {
     appendBuildMetadata = "locally"
 }
 ```
+
+## Configuration cache
+
+The plugin supports Gradle's configuration cache. Version calculation is deferred
+so new commits do not invalidate the cache. Prefer `semver.version` /
+`semver.versionTag` for task inputs, and avoid reading `project.version` during
+configuration. See [configuration cache](https://figuretechnologies.github.io/gradle-semver-plugin/configuration-cache/)
+for details.
 
 ## Documentation
 

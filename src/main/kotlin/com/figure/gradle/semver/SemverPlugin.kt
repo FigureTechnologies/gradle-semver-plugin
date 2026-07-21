@@ -15,12 +15,13 @@
  */
 package com.figure.gradle.semver
 
+import com.figure.gradle.semver.internal.DeferredSemverVersion
 import com.figure.gradle.semver.internal.calculator.VersionFactoryContext
 import com.figure.gradle.semver.internal.calculator.versionFactory
 import com.figure.gradle.semver.internal.extensions.extensions
 import com.figure.gradle.semver.internal.extensions.providers
 import com.figure.gradle.semver.internal.extensions.rootDir
-import com.figure.gradle.semver.internal.logging.registerPostBuildVersionLogMessage
+import com.figure.gradle.semver.internal.logging.registerPostBuildVersionActions
 import com.figure.gradle.semver.internal.properties.BuildMetadataOptions
 import com.figure.gradle.semver.internal.properties.appendBuildMetadata
 import com.figure.gradle.semver.internal.properties.forMajorVersion
@@ -28,11 +29,11 @@ import com.figure.gradle.semver.internal.properties.modifier
 import com.figure.gradle.semver.internal.properties.overrideVersion
 import com.figure.gradle.semver.internal.properties.stage
 import com.figure.gradle.semver.internal.properties.tagPrefix
-import com.figure.gradle.semver.internal.writer.writeVersionToPropertiesFile
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
 import org.gradle.api.plugins.PluginAware
+import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.create
 
 class SemverPlugin : Plugin<PluginAware> {
@@ -45,17 +46,23 @@ class SemverPlugin : Plugin<PluginAware> {
         when (target) {
             is Settings -> {
                 target.gradle.settingsEvaluated {
-                    val nextVersion = target.calculateVersion(semverExtension)
+                    val versionProvider = target.registerVersion(semverExtension)
                     target.gradle.beforeProject {
-                        it.version = nextVersion
+                        it.version = DeferredSemverVersion(
+                            context = versionProvider.context,
+                            versionProvider = versionProvider.version,
+                        )
                     }
                 }
             }
 
             is Project -> {
                 target.afterEvaluate {
-                    val nextVersion = target.calculateVersion(semverExtension)
-                    target.version = nextVersion
+                    val versionProvider = target.registerVersion(semverExtension)
+                    target.version = DeferredSemverVersion(
+                        context = versionProvider.context,
+                        versionProvider = versionProvider.version,
+                    )
                 }
             }
 
@@ -65,7 +72,12 @@ class SemverPlugin : Plugin<PluginAware> {
         }
     }
 
-    private fun PluginAware.calculateVersion(semverExtension: SemverExtension): String {
+    private data class RegisteredVersion(
+        val context: VersionFactoryContext,
+        val version: Provider<String>,
+    )
+
+    private fun PluginAware.registerVersion(semverExtension: SemverExtension): RegisteredVersion {
         val versionFactoryContext = VersionFactoryContext(
             initialVersion = semverExtension.initialVersion.get(),
             stage = this.stage.get(),
@@ -80,11 +92,16 @@ class SemverPlugin : Plugin<PluginAware> {
                 .get(),
         )
 
-        val nextVersion = this.providers.versionFactory(versionFactoryContext).get()
+        val versionProvider = this.providers.versionFactory(versionFactoryContext)
+        val tagPrefixProvider = this.tagPrefix
 
-        this.registerPostBuildVersionLogMessage(nextVersion)
-        this.writeVersionToPropertiesFile(nextVersion, tagPrefix.get())
+        semverExtension.version.set(versionProvider)
+        semverExtension.versionTag.set(
+            tagPrefixProvider.zip(versionProvider) { prefix, version -> "$prefix$version" },
+        )
 
-        return nextVersion
+        this.registerPostBuildVersionActions(versionProvider, tagPrefixProvider)
+
+        return RegisteredVersion(versionFactoryContext, versionProvider)
     }
 }

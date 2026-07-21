@@ -149,9 +149,23 @@ spotless {
         endWithNewline()
     }
 
+    val ktlintEditorConfigOverride = mapOf(
+        "ktlint_standard_filename" to "disabled",
+        "ktlint_standard_annotation" to "disabled",
+        "ktlint_standard_value-argument-comment" to "disabled",
+        "ktlint_standard_value-parameter-comment" to "disabled",
+        "ktlint_standard_class-signature" to "disabled",
+        "ktlint_standard_function-expression-body" to "disabled",
+        "ktlint_standard_function-signature" to "disabled",
+        "ktlint_standard_kdoc" to "disabled",
+        // https://github.com/ktlint/ktlint/issues/3038 - as of 1.7, must be manually enabled
+        "ktlint_standard_no-unused-imports" to "enabled",
+        "ktlint_standard_no-wildcard-imports" to "enabled",
+    )
+
     kotlin {
         target("src/**/*.kt")
-        ktlint()
+        ktlint().editorConfigOverride(ktlintEditorConfigOverride)
         trimTrailingWhitespace()
         endWithNewline()
         licenseHeaderFile(rootProject.file("spotless/license.kt"))
@@ -159,7 +173,7 @@ spotless {
 
     kotlinGradle {
         target("*.kts", "src/**/*.kts")
-        ktlint()
+        ktlint().editorConfigOverride(ktlintEditorConfigOverride)
         trimTrailingWhitespace()
         endWithNewline()
         licenseHeaderFile(

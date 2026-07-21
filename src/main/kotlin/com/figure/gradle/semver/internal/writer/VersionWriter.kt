@@ -17,14 +17,20 @@ package com.figure.gradle.semver.internal.writer
 
 import com.figure.gradle.semver.Constants
 import com.figure.gradle.semver.internal.extensions.getOrCreate
-import com.figure.gradle.semver.internal.extensions.projectDir
-import org.gradle.api.plugins.PluginAware
+import java.io.File
 
-fun PluginAware.writeVersionToPropertiesFile(version: String, tagPrefix: String) {
-    projectDir.resolve(Constants.SEMVER_PROPERTY_PATH).getOrCreate().writeText(
+fun writeVersionToPropertiesFile(
+    propertiesFile: File,
+    version: String,
+    tagPrefix: String,
+) {
+    propertiesFile.getOrCreate().writeText(
         """
         |version=$version
         |versionTag=$tagPrefix$version
         """.trimMargin(),
     )
 }
+
+fun semverPropertiesFile(projectDir: File): File =
+    projectDir.resolve(Constants.SEMVER_PROPERTY_PATH)

@@ -13,6 +13,7 @@ At a glance, this plugin provides support for the following features:
 - Setting an alternate initial version
 - Specifying alternate main and development branch names
 - Appending build metadata (format: `+<yyyyMMddHHmmss>`)
+- Configuration cache (version resolved lazily so commits do not discard the cache)
 - Building when
     - No git repository is present
     - No git tags are present
@@ -75,3 +76,9 @@ semver {
     appendBuildMetadata = "locally"
 }
 ```
+
+## Configuration cache
+
+See [Configuration cache](configuration-cache.md) for how lazy versioning works
+with Gradle's configuration cache, and when reading `project.version` during
+configuration will invalidate the cache.

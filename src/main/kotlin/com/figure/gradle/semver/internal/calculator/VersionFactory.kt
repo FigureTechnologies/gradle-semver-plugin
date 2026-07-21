@@ -15,25 +15,11 @@
  */
 package com.figure.gradle.semver.internal.calculator
 
-import com.figure.gradle.semver.internal.command.GitState
-import com.figure.gradle.semver.internal.command.KGit
-import com.figure.gradle.semver.internal.command.extension.shortName
-import com.figure.gradle.semver.internal.errors.InvalidOverrideVersionError
-import com.figure.gradle.semver.internal.logging.info
-import com.figure.gradle.semver.internal.logging.warn
-import com.figure.gradle.semver.internal.properties.Modifier
-import com.figure.gradle.semver.internal.properties.Stage
-import io.github.z4kn4fein.semver.nextPatch
-import io.github.z4kn4fein.semver.toVersion
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.provider.ValueSource
 import org.gradle.api.provider.ValueSourceParameters
-
-private val log = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 
 fun ProviderFactory.versionFactory(
     context: VersionFactoryContext,
@@ -49,73 +35,6 @@ abstract class VersionFactory : ValueSource<String, VersionFactory.Params> {
         val versionFactoryContext: Property<VersionFactoryContext>
     }
 
-    private fun Params.toVersionCalculatorContext(gitState: GitState) =
-        with(versionFactoryContext.get()) {
-            VersionCalculatorContext(
-                stage = stage,
-                modifier = modifier,
-                gitState = gitState,
-                mainBranch = mainBranch,
-                developmentBranch = developmentBranch,
-                appendBuildMetadata = appendBuildMetadata,
-            )
-        }
-
-    override fun obtain(): String {
-        val factoryContext = parameters.versionFactoryContext.get()
-
-        if (!factoryContext.rootDir.resolve(".git").exists()) {
-            log.warn { "Git is not initialized in this repository. Please run 'git init' to initialize it." }
-            log.warn { "Alternatively, for composite projects, specify the `rootProjectDir` in the semver configuration block." }
-            val nextVersion = factoryContext.initialVersion
-                .toVersion()
-                .nextPatch()
-                .toString()
-            return "$nextVersion-UNINITIALIZED-REPO"
-        }
-
-        if (factoryContext.modifier == Modifier.Major && factoryContext.forMajorVersion != null) {
-            error("forMajorVersion cannot be used with the 'major' modifier")
-        }
-
-        KGit(directory = factoryContext.rootDir).use { kgit ->
-            val context = parameters.toVersionCalculatorContext(kgit.state())
-
-            val overrideVersion = factoryContext.overrideVersion
-            val latestVersion = kgit.tags.latestOrInitial(factoryContext.initialVersion, factoryContext.forMajorVersion)
-            val latestNonPreReleaseVersion = kgit.tags.latestNonPreReleaseOrInitial(factoryContext.initialVersion)
-
-            return when {
-                context.gitState != GitState.NOMINAL -> {
-                    log.info { "Calculating next version on non-nominal git state: ${context.gitState}" }
-                    GitStateVersionCalculator.calculate(latestNonPreReleaseVersion, context)
-                }
-
-                overrideVersion != null -> {
-                    runCatching {
-                        log.info { "Using overrideVersion: $overrideVersion" }
-                        overrideVersion.toVersion()
-                    }.getOrElse {
-                        throw InvalidOverrideVersionError(overrideVersion)
-                    }.toString()
-                }
-
-                kgit.branch.isOnMainBranch(context.mainBranch) -> {
-                    log.info { "Calculating next version on main branch: ${kgit.branch.currentRef.shortName}" }
-                    StageVersionCalculator.calculate(latestVersion, context)
-                }
-
-                // Works for any branch
-                else -> {
-                    log.info { "Calculating next version on non-main branch" }
-                    // Compute based on the branch name, otherwise, use the stage to compute the next version
-                    if (context.stage == Stage.Auto) {
-                        BranchVersionCalculator(kgit).calculate(latestNonPreReleaseVersion, context)
-                    } else {
-                        StageVersionCalculator.calculate(latestVersion, context)
-                    }
-                }
-            }
-        }
-    }
+    override fun obtain(): String =
+        calculateNextVersion(parameters.versionFactoryContext.get())
 }

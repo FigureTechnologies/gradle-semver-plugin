@@ -16,30 +16,56 @@
 package com.figure.gradle.semver.internal.logging
 
 import com.figure.gradle.semver.internal.extensions.flowScope
+import com.figure.gradle.semver.internal.extensions.projectDir
+import com.figure.gradle.semver.internal.writer.semverPropertiesFile
+import com.figure.gradle.semver.internal.writer.writeVersionToPropertiesFile
 import org.gradle.api.flow.FlowAction
 import org.gradle.api.flow.FlowParameters
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.PluginAware
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.kotlin.dsl.always
+import java.io.File
 
 private val log = Logging.getLogger(Logger.ROOT_LOGGER_NAME)
 
-fun PluginAware.registerPostBuildVersionLogMessage(message: String) {
-    flowScope.always(PostBuildVersionLogger::class) { action ->
-        action.parameters.message.set(message)
+fun PluginAware.registerPostBuildVersionActions(
+    version: Provider<String>,
+    tagPrefix: Provider<String>,
+) {
+    val propertiesFile = semverPropertiesFile(projectDir)
+    flowScope.always(PostBuildVersionAction::class) { action ->
+        action.parameters.version.set(version)
+        action.parameters.tagPrefix.set(tagPrefix)
+        action.parameters.propertiesFilePath.set(propertiesFile.absolutePath)
     }
 }
 
-private abstract class PostBuildVersionLogger : FlowAction<PostBuildVersionLogger.Params> {
+private abstract class PostBuildVersionAction : FlowAction<PostBuildVersionAction.Params> {
     interface Params : FlowParameters {
         @get:Input
-        val message: Property<String>
+        val version: Property<String>
+
+        @get:Input
+        val tagPrefix: Property<String>
+
+        @get:Input
+        val propertiesFilePath: Property<String>
     }
 
     override fun execute(parameters: Params) {
-        log.lifecycle { parameters.message.get() }
+        val nextVersion = parameters.version.get()
+        val prefix = parameters.tagPrefix.get()
+
+        log.lifecycle { nextVersion }
+
+        writeVersionToPropertiesFile(
+            propertiesFile = File(parameters.propertiesFilePath.get()),
+            version = nextVersion,
+            tagPrefix = prefix,
+        )
     }
 }
