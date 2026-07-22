@@ -1,39 +1,16 @@
 # Semver Gradle Plugin
 
-This Semver Gradle plugin provides a simple approach to
-adding semantic versioning to your gradle project using git
-history regardless of git strategies.
+Semantic versions from your git history — across strategies, branches, and the messy states real builds hit.
 
-At a glance, this plugin provides support for the following features:
+## Why
 
-- Stages (`rc`, `beta`, `stable`, `snapshot`, etc.)
-- Modifiers (`auto`, `patch`, `minor`, `major`)
-- Branch-based version calculations
-- Overriding the version
-- Setting an alternate initial version
-- Specifying alternate main and development branch names
-- Appending build metadata (format: `+<yyyyMMddHHmmss>`)
-- Configuration cache (version resolved lazily so commits do not discard the cache)
-- Building when
-    - No git repository is present
-    - No git tags are present
-    - No remote branch is present
-    - Merging, rebasing, cherry-picking, bisecting, reverting, or in a detached
-      head state
+- **Stages and modifiers** — ship `rc`, `beta`, `SNAPSHOT`, and friends; bump with `major` / `minor` / `patch` (or `auto`)
+- **Branch-aware** — next version follows how you actually branch, not a single rigid workflow
+- **Built for real repos** — works with missing tags or remotes, odd git states, and Gradle configuration cache
 
-## Installation
+## Install
 
-The following can be added to any of the following:
-
-- `settings.gradle.kts` (recommended)
-    - This will automatically apply the version to all projects
-- `build.gradle.kts` (root project)
-    - This will only automatically apply the version to the root project
-- `build.gradle.kts` (subproject)
-    - This will only automatically apply the version to the subproject
-
-If the semantic version is targeting the entire project, it's recommended to add
-this to the `settings.gradle.kts` file.
+Add the plugin to `settings.gradle.kts` (recommended — versions every project). You can also apply it in a root or subproject `build.gradle.kts`.
 
 ```kotlin
 plugins {
@@ -41,51 +18,46 @@ plugins {
 }
 ```
 
-## Configuration
+## Use
 
-> [!IMPORTANT]
-> The most minimal configuration is to not provide any configuration at all.
-> This will use the default settings and will generate a version based on the
-> git history.
->
-> However, configurations exist to allow for more control over the versioning
-> calculation process.
+Zero config is enough. Build and the plugin calculates the next version from your latest git tag:
+
+```shell
+./gradlew build
+```
+
+Shape the next version with properties:
+
+```shell
+./gradlew build -Psemver.stage=rc -Psemver.modifier=minor
+```
+
+Same properties work in `gradle.properties`. Full list — including override, tag prefix, and more — lives in the [docs](https://figuretechnologies.github.io/gradle-semver-plugin/quick-start/).
+
+## Configure (optional)
+
+No `semver { }` block required. Defaults already produce a version from git history. Override only what you need:
 
 ```kotlin
-// For older versions of gradle, you may need to import the configuration method
-import com.figure.gradle.semver.semver
-
-// This is purely for example purposes
 semver {
-    // Default: `settings.settingsDir`
-    rootProjectDir = settingsDir.parent
-
-    // Default: `0.0.0` (first build will generate `0.0.1`)
+    // Default: 0.0.0 (first build → 0.0.1)
     initialVersion = "1.0.0"
 
-    // No "default", but the plugin will search in order for:
-    // `main`, `master
+    // Searched in order if unset: main, master
     mainBranch = "trunk"
 
-    // No "default", but the plugin will search in order for:
-    // `develop`, `devel`, `dev`
+    // Searched in order if unset: develop, devel, dev
     developmentBranch = "development"
 
-    // Default: `never`
-    // Options: `never`, `always`, `locally`
+    // Default: never — options: never, always, locally
     appendBuildMetadata = "locally"
 }
 ```
 
 ## Configuration cache
 
-The plugin supports Gradle's configuration cache. Version calculation is deferred
-so new commits do not invalidate the cache. Prefer `semver.version` /
-`semver.versionTag` for task inputs, and avoid reading `project.version` during
-configuration. See [configuration cache](https://figuretechnologies.github.io/gradle-semver-plugin/configuration-cache/)
-for details.
+Version calculation is lazy so new commits do not discard the configuration cache. Prefer `semver.version` / `semver.versionTag` for task inputs. Details: [configuration cache](https://figuretechnologies.github.io/gradle-semver-plugin/configuration-cache/).
 
-## Documentation
+## Docs
 
-For more detailed documentation, please
-visit [figuretechnologies.github.io/gradle-semver-plugin](https://figuretechnologies.github.io/gradle-semver-plugin).
+Full reference: [figuretechnologies.github.io/gradle-semver-plugin](https://figuretechnologies.github.io/gradle-semver-plugin).
