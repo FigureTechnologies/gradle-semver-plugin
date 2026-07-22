@@ -93,6 +93,9 @@ class BranchList(
             ?: git.repository.resolve(baseBranchName)
 
         val targetBranch: ObjectId = git.repository.resolve(targetBranchName)
+            // Synthetic refs (cross-repo PRs) are not in the ref database; HEAD is the checked-out tip
+            ?: git.repository.resolve(Constants.HEAD)
+            ?: error("Could not resolve target branch: $targetBranchName")
 
         return git.revWalk { revWalk ->
             revWalk.apply {
