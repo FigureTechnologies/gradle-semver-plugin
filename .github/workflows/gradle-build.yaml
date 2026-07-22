@@ -28,6 +28,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Published plugin resolves GITHUB_HEAD_REF as a real branch. Forked PRs only have the
+      # merge/checkout commit, so materialize a local branch with that name before Gradle runs.
+      - name: Materialize PR head branch for semver
+        if: github.head_ref != ''
+        run: git branch -f "$GITHUB_HEAD_REF" HEAD
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
         with:
