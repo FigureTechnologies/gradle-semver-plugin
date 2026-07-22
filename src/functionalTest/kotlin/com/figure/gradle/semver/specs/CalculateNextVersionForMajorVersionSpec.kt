@@ -216,5 +216,28 @@ class CalculateNextVersionForMajorVersionSpec :
                 // Then
                 projects.versions shouldOnlyHave "0.2.6-rc.1"
             }
+
+            test("on main branch - next stable minor based on last stable for major not later prereleases") {
+                // Given
+                projects.git {
+                    initialBranch = mainBranch
+                    actions = actions {
+                        commit(message = "1 commit on $mainBranch", tag = "0.2.5")
+                        commit(message = "2 commit on $mainBranch", tag = "0.3.0-rc.1")
+                        commit(message = "3 commit on $mainBranch", tag = "1.0.0")
+                    }
+                }
+
+                // When
+                projects.build(
+                    GradleVersion.current(),
+                    semverStage(Stage.Stable),
+                    semverModifier(Modifier.Minor),
+                    semverForMajorVersion(0),
+                )
+
+                // Then
+                projects.versions shouldOnlyHave "0.3.0"
+            }
         }
     })

@@ -235,5 +235,30 @@ class CalculateNextVersionWithStageSpec :
                 // Then
                 projects.versions shouldOnlyContain "1.0.0"
             }
+
+            test("on feature branch - next stable minor based on last stable not later prereleases") {
+                // Given
+                projects.git {
+                    initialBranch = mainBranch
+                    actions = actions {
+                        commit(message = "1 commit on $mainBranch", tag = "6.3.1")
+                        commit(message = "2 commit on $mainBranch", tag = "6.4.0-rc.1")
+                        commit(message = "3 commit on $mainBranch", tag = "6.5.0-dev.1")
+
+                        checkout(featureBranch)
+                        commit(message = "1 commit on $featureBranch")
+                    }
+                }
+
+                // When
+                projects.build(
+                    GradleVersion.current(),
+                    semverStage(Stage.Stable),
+                    semverModifier(Modifier.Minor),
+                )
+
+                // Then
+                projects.versions shouldOnlyContain "6.4.0"
+            }
         }
     })
