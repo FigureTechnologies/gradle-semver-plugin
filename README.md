@@ -4,7 +4,7 @@ Semantic versions from your git history — across strategies, branches, and the
 
 ## Why
 
-- **Stages and modifiers** — ship `rc`, `beta`, `SNAPSHOT`, and friends; bump with `major` / `minor` / `patch` (or `auto`)
+- **Stages and modifiers** — ship `rc`, `beta`, `SNAPSHOT`, and friends; bump with `major` / `minor` / `patch`, or default `auto` (continues a matching pre-release)
 - **Branch-aware** — next version follows how you actually branch, not a single rigid workflow
 - **Built for real repos** — works with missing tags or remotes, odd git states, and Gradle configuration cache
 

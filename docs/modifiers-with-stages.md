@@ -16,6 +16,19 @@ semver.modifier=<modifier>
 semver.stage=<stage>
 ```
 
+???+ tip "`modifier=auto` vs `modifier=patch` while staging"
+    Both properties default to `auto`. That combination **continues** a matching
+    stage-based pre-release (`v1.0.0-rc.1` → `v1.0.0-rc.2`).
+
+    Explicit `modifier=patch` with the **same** stage **forces** a patch bump and
+    starts a new pre-release on the next patch (`v1.0.0-rc.1` + `stage=rc` →
+    `v1.0.1-rc.1`).
+
+    `modifier=auto` with a **different** stage also starts on the next patch
+    (`v1.0.0-rc.1` + `stage=beta` → `v1.0.1-beta.1`).
+
+    Full policy detail: [Modifiers](modifiers.md).
+
 ???+ note "Stable stage base version"
     When `stage=stable` and at least one stable tag exists, the next version is based on
     the latest **stable** tag (not later `rc`/`dev`/other staged prereleases). Use a matching

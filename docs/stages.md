@@ -13,6 +13,12 @@ semver.stage=<stage>
 ???+ note
     If no stage is provided, a default of `auto` will be used.
 
+Stages choose the pre-release **label**. How the numeric version moves is
+controlled by [modifiers](modifiers.md) (`major` / `minor` / `patch` / `auto`).
+`stage=auto` and `modifier=auto` are separate defaults: stage follows the
+previous tag's label when possible; modifier continues that pre-release
+counter when possible, otherwise bumps patch.
+
 The following are possible values:
 
 | Stage      | Pre-release Label         | Example Tag        | Description                |
