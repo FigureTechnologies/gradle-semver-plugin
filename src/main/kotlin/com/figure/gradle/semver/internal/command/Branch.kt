@@ -56,14 +56,12 @@ class Branch(
         currentRef.shortName == branchList.findMainBranch(providedMainBranch).shortName
 
     fun create(branchName: String): Ref =
-        git
-            .branchCreate()
+        git.branchCreate()
             .setName(branchName)
             .call()
 
     fun delete(vararg branchNames: String): List<String> =
-        git
-            .branchDelete()
+        git.branchDelete()
             .setBranchNames(*branchNames)
             .setForce(true)
             .call()

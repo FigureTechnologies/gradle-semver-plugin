@@ -158,6 +158,8 @@ spotless {
         "ktlint_standard_function-expression-body" to "disabled",
         "ktlint_standard_function-signature" to "disabled",
         "ktlint_standard_kdoc" to "disabled",
+        "ktlint_standard_multiline-expression-wrapping" to "disabled",
+        "ktlint_standard_string-template-indent" to "disabled",
         // https://github.com/ktlint/ktlint/issues/3038 - as of 1.7, must be manually enabled
         "ktlint_standard_no-unused-imports" to "enabled",
         "ktlint_standard_no-wildcard-imports" to "enabled",

@@ -38,42 +38,28 @@ class State(
         }
 
     private val rebasing: Boolean
-        get() = git.repository.directory
-            .resolve("rebase-merge")
-            .exists()
+        get() = git.repository.directory.resolve("rebase-merge").exists()
 
     private val merging: Boolean
-        get() = git.repository.directory
-            .resolve("MERGE_HEAD")
-            .exists()
+        get() = git.repository.directory.resolve("MERGE_HEAD").exists()
 
     private val cherryPicking: Boolean
-        get() = git.repository.directory
-            .resolve("CHERRY_PICK_HEAD")
-            .exists()
+        get() = git.repository.directory.resolve("CHERRY_PICK_HEAD").exists()
 
     private val reverting: Boolean
-        get() = git.repository.directory
-            .resolve("REVERT_HEAD")
-            .exists()
+        get() = git.repository.directory.resolve("REVERT_HEAD").exists()
 
     private val bisecting: Boolean
-        get() = git.repository.directory
-            .resolve("BISECT_LOG")
-            .exists()
+        get() = git.repository.directory.resolve("BISECT_LOG").exists()
 
     // At least for GitHub actions, an on-push event will cause a detached head state
     // However, we have information about the branch we're actually building so it is an
     // exception to this and not something we consider non-nominal
     private val detachedHead: Boolean
-        get() = git.repository
-            .exactRef(Constants.HEAD)
-            .target.objectId.name == git.repository.branch && !Env.isCI
+        get() = git.repository.exactRef(Constants.HEAD).target.objectId.name == git.repository.branch && !Env.isCI
 }
 
-enum class GitState(
-    val description: String,
-) {
+enum class GitState(val description: String) {
     NOMINAL(""),
     BISECTING("BISECTING"),
     CHERRY_PICKING("CHERRY-PICKING"),

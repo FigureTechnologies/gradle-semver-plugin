@@ -16,9 +16,7 @@
 package com.figure.gradle.semver.internal.properties
 
 // In order from lowest to highest priority
-enum class Stage(
-    val value: String,
-) {
+enum class Stage(val value: String) {
     Dev("dev"),
     Alpha("alpha"),
     Beta("beta"),

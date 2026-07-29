@@ -29,8 +29,7 @@ const val R_REMOTES_ORIGIN = "$R_REMOTES$DEFAULT_REMOTE_NAME"
 private val invalidCharacters: Regex = """[^0-9A-Za-z\-.]+""".toRegex()
 
 fun Ref.prereleaseLabel(): String =
-    name
-        .trim()
+    name.trim()
         .lowercase()
         .replace(R_HEADS, "")
         .replace("$R_REMOTES_ORIGIN/", "")

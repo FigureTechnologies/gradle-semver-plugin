@@ -32,27 +32,26 @@ class RegularProject(
         get() = build()
 
     private fun build(): GradleProject =
-        newGradleProjectBuilder(dslKind)
-            .withRootProject {
-                withBuildScript {
-                    plugins(
-                        GradlePlugins.semverPlugin,
-                        GradlePlugins.kotlinNoApply,
-                    )
+        newGradleProjectBuilder(dslKind).withRootProject {
+            withBuildScript {
+                plugins(
+                    GradlePlugins.semverPlugin,
+                    GradlePlugins.kotlinNoApply,
+                )
 
-                    additions = scribe.use { s -> semver.render(s) }
-                }
+                additions = scribe.use { s -> semver.render(s) }
+            }
 
-                val settings = settingsGradle {
-                    buildCache = buildCache {
-                        local = local {
-                            directory = buildCacheDir
-                        }
+            val settings = settingsGradle {
+                buildCache = buildCache {
+                    local = local {
+                        directory = buildCacheDir
                     }
                 }
+            }
 
-                settingsScript = SettingsScript(
-                    additions = scribe.use { s -> settings.render(s) },
-                )
-            }.write()
+            settingsScript = SettingsScript(
+                additions = scribe.use { s -> settings.render(s) },
+            )
+        }.write()
 }

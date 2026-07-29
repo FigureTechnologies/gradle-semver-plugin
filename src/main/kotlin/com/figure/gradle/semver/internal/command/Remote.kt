@@ -28,23 +28,16 @@ class Remote(
         remoteGit: Git,
         remoteName: String = Constants.DEFAULT_REMOTE_NAME,
     ): RemoteConfig =
-        git
-            .remoteAdd()
+        git.remoteAdd()
             .setName(remoteName)
-            .setUri(
-                URIish(
-                    remoteGit.repository.directory
-                        .toURI()
-                        .toURL(),
-                ),
-            ).call()
+            .setUri(URIish(remoteGit.repository.directory.toURI().toURL()))
+            .call()
 
     fun add(
         remoteUri: String,
         remoteName: String = Constants.DEFAULT_REMOTE_NAME,
     ): RemoteConfig =
-        git
-            .remoteAdd()
+        git.remoteAdd()
             .setName(remoteName)
             .setUri(URIish(remoteUri))
             .call()
@@ -53,8 +46,7 @@ class Remote(
         remoteUri: URL,
         remoteName: String = Constants.DEFAULT_REMOTE_NAME,
     ): RemoteConfig =
-        git
-            .remoteAdd()
+        git.remoteAdd()
             .setName(remoteName)
             .setUri(URIish(remoteUri))
             .call()

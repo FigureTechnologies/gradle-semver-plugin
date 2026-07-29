@@ -49,18 +49,16 @@ val PluginAware.forMajorVersion: Provider<Int>
 val PluginAware.appendBuildMetadata: Provider<String>
     get() = semverProperty(SemverProperty.AppendBuildMetadata)
 
-private fun PluginAware.gradlePropertiesProperty(
-    semverProperty: SemverProperty,
-    propertiesDirectory: File,
-): Provider<String> = if (propertiesDirectory.resolve(GRADLE_PROPERTIES).exists()) {
-    providers.provider {
-        Properties()
-            .apply {
+private fun PluginAware.gradlePropertiesProperty(semverProperty: SemverProperty, propertiesDirectory: File): Provider<String> {
+    return if (propertiesDirectory.resolve(GRADLE_PROPERTIES).exists()) {
+        providers.provider {
+            Properties().apply {
                 propertiesDirectory.resolve(GRADLE_PROPERTIES).inputStream().use { load(it) }
             }.getProperty(semverProperty.property)
+        }
+    } else {
+        providers.provider { null }
     }
-} else {
-    providers.provider { null }
 }
 
 /**

@@ -80,8 +80,7 @@ class BranchList(
      * Find all branches given the branch name. Can be full or short name.
      */
     private fun findAll(branchName: String): List<Ref> =
-        git
-            .branchList()
+        git.branchList()
             .setListMode(ListBranchCommand.ListMode.ALL)
             .call()
             .filter { branchName.shortName() == it.shortName }

@@ -26,13 +26,11 @@ import io.kotest.engine.test.TestResult
 
 class GradleProjectsExtension(
     private vararg val abstractProjects: AbstractProject,
-) : MountableExtension<Unit, GradleProjects>,
-    AfterSpecListener,
-    AfterTestListener {
+) : MountableExtension<Unit, GradleProjects>, AfterSpecListener, AfterTestListener {
     private lateinit var projects: GradleProjects
 
-    override fun mount(configure: Unit.() -> Unit): GradleProjects = GradleProjects.gradleProjects(projects = abstractProjects).also {
-        projects = it
+    override fun mount(configure: Unit.() -> Unit): GradleProjects {
+        return GradleProjects.gradleProjects(projects = abstractProjects).also { projects = it }
     }
 
     override suspend fun afterSpec(spec: Spec) {

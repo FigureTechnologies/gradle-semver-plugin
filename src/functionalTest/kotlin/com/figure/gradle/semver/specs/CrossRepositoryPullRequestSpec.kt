@@ -27,100 +27,99 @@ import io.kotest.extensions.system.OverrideMode
 import io.kotest.extensions.system.withEnvironment
 import org.gradle.util.GradleVersion
 
-class CrossRepositoryPullRequestSpec :
-    FunSpec({
-        val projects = install(
-            GradleProjectsExtension(
-                RegularProject(projectName = "regular-project"),
-                SettingsProject(projectName = "settings-project"),
-                SubprojectProject(projectName = "subproject-project"),
+class CrossRepositoryPullRequestSpec : FunSpec({
+    val projects = install(
+        GradleProjectsExtension(
+            RegularProject(projectName = "regular-project"),
+            SettingsProject(projectName = "settings-project"),
+            SubprojectProject(projectName = "subproject-project"),
+        ),
+    )
+
+    val mainBranch = "main"
+    val developmentBranch = "develop"
+    val forkedFeatureBranch = "fix/builds-fail-cross-repo"
+
+    test("should calculate next version when cross-repo pull request has no local head branch") {
+        withEnvironment(
+            environment = mapOf(
+                Env.CI to "true",
+                Env.GITHUB_HEAD_REF to forkedFeatureBranch,
             ),
-        )
+            mode = OverrideMode.SetOrOverride,
+        ) {
+            // Given
+            projects.git {
+                initialBranch = mainBranch
+                actions = actions {
+                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-        val mainBranch = "main"
-        val developmentBranch = "develop"
-        val forkedFeatureBranch = "fix/builds-fail-cross-repo"
+                    checkout(developmentBranch)
+                    commit(message = "1 commit on $developmentBranch")
 
-        test("should calculate next version when cross-repo pull request has no local head branch") {
-            withEnvironment(
-                environment = mapOf(
-                    Env.CI to "true",
-                    Env.GITHUB_HEAD_REF to forkedFeatureBranch,
-                ),
-                mode = OverrideMode.SetOrOverride,
-            ) {
-                // Given
-                projects.git {
-                    initialBranch = mainBranch
-                    actions = actions {
-                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-
-                        checkout(developmentBranch)
-                        commit(message = "1 commit on $developmentBranch")
-
-                        // Stay on main: fork branch name exists only in GITHUB_HEAD_REF
-                        checkout(mainBranch)
-                    }
+                    // Stay on main: fork branch name exists only in GITHUB_HEAD_REF
+                    checkout(mainBranch)
                 }
-
-                // When
-                projects.build(GradleVersion.current())
-
-                // Then
-                projects.versions shouldOnlyHave "1.0.1-fix-builds-fail-cross-repo.0"
             }
-        }
 
-        test("should prefer GITHUB_HEAD_REF when GITHUB_REF_NAME is merge ref") {
-            withEnvironment(
-                environment = mapOf(
-                    Env.CI to "true",
-                    Env.GITHUB_HEAD_REF to forkedFeatureBranch,
-                    Env.GITHUB_REF_NAME to "123/merge",
-                ),
-                mode = OverrideMode.SetOrOverride,
-            ) {
-                // Given
-                projects.git {
-                    initialBranch = mainBranch
-                    actions = actions {
-                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                        checkout(mainBranch)
-                    }
+            // When
+            projects.build(GradleVersion.current())
+
+            // Then
+            projects.versions shouldOnlyHave "1.0.1-fix-builds-fail-cross-repo.0"
+        }
+    }
+
+    test("should prefer GITHUB_HEAD_REF when GITHUB_REF_NAME is merge ref") {
+        withEnvironment(
+            environment = mapOf(
+                Env.CI to "true",
+                Env.GITHUB_HEAD_REF to forkedFeatureBranch,
+                Env.GITHUB_REF_NAME to "123/merge",
+            ),
+            mode = OverrideMode.SetOrOverride,
+        ) {
+            // Given
+            projects.git {
+                initialBranch = mainBranch
+                actions = actions {
+                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                    checkout(mainBranch)
                 }
-
-                // When
-                projects.build(GradleVersion.current())
-
-                // Then
-                projects.versions shouldOnlyHave "1.0.1-fix-builds-fail-cross-repo.0"
             }
-        }
 
-        test("should fall back to GITHUB_REF_NAME when GITHUB_HEAD_REF is empty") {
-            withEnvironment(
-                environment = mapOf(
-                    Env.CI to "true",
-                    Env.GITHUB_HEAD_REF to "",
-                    Env.GITHUB_REF_NAME to "feature-branch-fallback",
-                ),
-                mode = OverrideMode.SetOrOverride,
-            ) {
-                // Given
-                projects.git {
-                    initialBranch = mainBranch
-                    actions = actions {
-                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                        checkout("feature-branch-fallback")
-                        commit(message = "1 commit on feature branch")
-                    }
+            // When
+            projects.build(GradleVersion.current())
+
+            // Then
+            projects.versions shouldOnlyHave "1.0.1-fix-builds-fail-cross-repo.0"
+        }
+    }
+
+    test("should fall back to GITHUB_REF_NAME when GITHUB_HEAD_REF is empty") {
+        withEnvironment(
+            environment = mapOf(
+                Env.CI to "true",
+                Env.GITHUB_HEAD_REF to "",
+                Env.GITHUB_REF_NAME to "feature-branch-fallback",
+            ),
+            mode = OverrideMode.SetOrOverride,
+        ) {
+            // Given
+            projects.git {
+                initialBranch = mainBranch
+                actions = actions {
+                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                    checkout("feature-branch-fallback")
+                    commit(message = "1 commit on feature branch")
                 }
-
-                // When
-                projects.build(GradleVersion.current())
-
-                // Then
-                projects.versions shouldOnlyHave "1.0.1-feature-branch-fallback.1"
             }
+
+            // When
+            projects.build(GradleVersion.current())
+
+            // Then
+            projects.versions shouldOnlyHave "1.0.1-feature-branch-fallback.1"
         }
-    })
+    }
+})

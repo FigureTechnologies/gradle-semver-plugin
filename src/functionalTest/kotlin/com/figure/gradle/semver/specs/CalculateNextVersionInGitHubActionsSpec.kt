@@ -27,76 +27,75 @@ import io.kotest.extensions.system.OverrideMode
 import io.kotest.extensions.system.withEnvironment
 import org.gradle.util.GradleVersion
 
-class CalculateNextVersionInGitHubActionsSpec :
-    FunSpec({
-        val projects = install(
-            GradleProjectsExtension(
-                RegularProject(projectName = "regular-project"),
-                SettingsProject(projectName = "settings-project"),
-                SubprojectProject(projectName = "subproject-project"),
+class CalculateNextVersionInGitHubActionsSpec : FunSpec({
+    val projects = install(
+        GradleProjectsExtension(
+            RegularProject(projectName = "regular-project"),
+            SettingsProject(projectName = "settings-project"),
+            SubprojectProject(projectName = "subproject-project"),
+        ),
+    )
+
+    val mainBranch = "main"
+    val developmentBranch = "develop"
+    val featureBranch = "myname/sc-123456/my-awesome-feature"
+
+    test("should calculate next version when 'on push' event") {
+        withEnvironment(
+            environment = mapOf(
+                Env.CI to "true",
+                Env.GITHUB_HEAD_REF to "",
+                Env.GITHUB_REF_NAME to mainBranch,
             ),
-        )
-
-        val mainBranch = "main"
-        val developmentBranch = "develop"
-        val featureBranch = "myname/sc-123456/my-awesome-feature"
-
-        test("should calculate next version when 'on push' event") {
-            withEnvironment(
-                environment = mapOf(
-                    Env.CI to "true",
-                    Env.GITHUB_HEAD_REF to "",
-                    Env.GITHUB_REF_NAME to mainBranch,
-                ),
-                mode = OverrideMode.SetOrOverride,
-            ) {
-                // Given
-                projects.git {
-                    initialBranch = mainBranch
-                    actions = actions {
-                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
-                        checkout(developmentBranch)
-                        commit(message = "1 commit on $developmentBranch")
-                        checkout(mainBranch)
-                    }
+            mode = OverrideMode.SetOrOverride,
+        ) {
+            // Given
+            projects.git {
+                initialBranch = mainBranch
+                actions = actions {
+                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+                    checkout(developmentBranch)
+                    commit(message = "1 commit on $developmentBranch")
+                    checkout(mainBranch)
                 }
-
-                // When
-                projects.build(GradleVersion.current())
-
-                // Then
-                projects.versions shouldOnlyHave "1.0.1"
             }
+
+            // When
+            projects.build(GradleVersion.current())
+
+            // Then
+            projects.versions shouldOnlyHave "1.0.1"
         }
+    }
 
-        test("should calculate next version when 'on pull_request' event") {
-            withEnvironment(
-                environment = mapOf(
-                    Env.CI to "true",
-                    Env.GITHUB_HEAD_REF to featureBranch,
-                ),
-                mode = OverrideMode.SetOrOverride,
-            ) {
-                // Given
-                projects.git {
-                    initialBranch = mainBranch
-                    actions = actions {
-                        commit(message = "1 commit on $mainBranch", tag = "1.0.0")
+    test("should calculate next version when 'on pull_request' event") {
+        withEnvironment(
+            environment = mapOf(
+                Env.CI to "true",
+                Env.GITHUB_HEAD_REF to featureBranch,
+            ),
+            mode = OverrideMode.SetOrOverride,
+        ) {
+            // Given
+            projects.git {
+                initialBranch = mainBranch
+                actions = actions {
+                    commit(message = "1 commit on $mainBranch", tag = "1.0.0")
 
-                        checkout(developmentBranch)
-                        commit(message = "1 commit on $developmentBranch")
+                    checkout(developmentBranch)
+                    commit(message = "1 commit on $developmentBranch")
 
-                        checkout(featureBranch)
-                        commit(message = "1 commit on $featureBranch")
-                        commit(message = "2 commit on $featureBranch")
-                    }
+                    checkout(featureBranch)
+                    commit(message = "1 commit on $featureBranch")
+                    commit(message = "2 commit on $featureBranch")
                 }
-
-                // When
-                projects.build(GradleVersion.current())
-
-                // Then
-                projects.versions shouldOnlyHave "1.0.1-myname-sc-123456-my-awesome-feature.2"
             }
+
+            // When
+            projects.build(GradleVersion.current())
+
+            // Then
+            projects.versions shouldOnlyHave "1.0.1-myname-sc-123456-my-awesome-feature.2"
         }
-    })
+    }
+})
