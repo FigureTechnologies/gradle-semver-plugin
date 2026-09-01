@@ -13,6 +13,12 @@ semver.stage=<stage>
 ???+ note
     If no stage is provided, a default of `auto` will be used.
 
+Stages choose the pre-release **label**. How the numeric version moves is
+controlled by [modifiers](modifiers.md) (`major` / `minor` / `patch` / `auto`).
+`stage=auto` and `modifier=auto` are separate defaults: stage follows the
+previous tag's label when possible; modifier continues that pre-release
+counter when possible, otherwise bumps patch.
+
 The following are possible values:
 
 | Stage      | Pre-release Label         | Example Tag        | Description                |
@@ -27,6 +33,20 @@ The following are possible values:
 | `release`  | release                   | `v1.0.0-release.1` | Release stage              |
 | `stable`   | (none)                    | `v1.0.0`           | Stable stage               |
 | `auto`     | (depends on previous tag) | -                  | Based on previous tag      |
+
+???+ note "Stable stage base version"
+    When at least one stable (non-prerelease) tag exists, `stage=stable` is calculated
+    from the **latest stable** tag — not from later prerelease tags such as `rc` or `dev`.
+
+    For example, with tags `v6.3.1`, `v6.4.0-rc.1`, and `v6.5.0-dev.1`:
+
+    | Command | Next Version |
+    |---------|--------------|
+    | `./gradlew -Psemver.stage=stable -Psemver.modifier=minor` | 6.4.0 |
+    | `./gradlew -Psemver.stage=stable` | 6.3.2 |
+
+    When only prerelease tags exist, the latest staged prerelease is still used so it can
+    be promoted (for example `v1.0.0-rc.1` → `1.0.0`).
 
 ### Examples
 

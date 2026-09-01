@@ -15,6 +15,7 @@
  */
 package com.figure.gradle.semver.specs
 
+import com.figure.gradle.semver.internal.properties.Modifier
 import com.figure.gradle.semver.internal.properties.SemverProperty
 import com.figure.gradle.semver.internal.properties.Stage
 import com.figure.gradle.semver.kotest.GradleProjectsExtension
@@ -22,6 +23,7 @@ import com.figure.gradle.semver.kotest.shouldOnlyContain
 import com.figure.gradle.semver.projects.RegularProject
 import com.figure.gradle.semver.projects.SettingsProject
 import com.figure.gradle.semver.projects.SubprojectProject
+import com.figure.gradle.semver.util.GradleArgs.semverModifier
 import com.figure.gradle.semver.util.GradleArgs.semverStage
 import io.kotest.core.extensions.install
 import io.kotest.core.spec.style.FunSpec
@@ -175,6 +177,87 @@ class CalculateNextVersionWithStageSpec : FunSpec({
 
             // Then
             projects.versions shouldOnlyContain "1.0.3"
+        }
+
+        test("on main branch - next stable minor based on last stable not later prereleases") {
+            // Given
+            projects.git {
+                initialBranch = mainBranch
+                actions = actions {
+                    commit(message = "1 commit on $mainBranch", tag = "6.3.1")
+                    commit(message = "2 commit on $mainBranch", tag = "6.4.0-rc.1")
+                    commit(message = "3 commit on $mainBranch", tag = "6.5.0-dev.1")
+                }
+            }
+
+            // When
+            projects.build(
+                GradleVersion.current(),
+                semverStage(Stage.Stable),
+                semverModifier(Modifier.Minor),
+            )
+
+            // Then
+            projects.versions shouldOnlyContain "6.4.0"
+        }
+
+        test("on main branch - next stable patch based on last stable not later prereleases") {
+            // Given
+            projects.git {
+                initialBranch = mainBranch
+                actions = actions {
+                    commit(message = "1 commit on $mainBranch", tag = "6.3.1")
+                    commit(message = "2 commit on $mainBranch", tag = "6.4.0-rc.1")
+                    commit(message = "3 commit on $mainBranch", tag = "6.5.0-dev.1")
+                }
+            }
+
+            // When
+            projects.build(GradleVersion.current(), semverStage(Stage.Stable))
+
+            // Then
+            projects.versions shouldOnlyContain "6.3.2"
+        }
+
+        test("on main branch - next stable promotes sole prerelease tag") {
+            // Given
+            projects.git {
+                initialBranch = mainBranch
+                actions = actions {
+                    commit(message = "1 commit on $mainBranch", tag = "1.0.0-rc.1")
+                }
+            }
+
+            // When
+            projects.build(GradleVersion.current(), semverStage(Stage.Stable))
+
+            // Then
+            projects.versions shouldOnlyContain "1.0.0"
+        }
+
+        test("on feature branch - next stable minor based on last stable not later prereleases") {
+            // Given
+            projects.git {
+                initialBranch = mainBranch
+                actions = actions {
+                    commit(message = "1 commit on $mainBranch", tag = "6.3.1")
+                    commit(message = "2 commit on $mainBranch", tag = "6.4.0-rc.1")
+                    commit(message = "3 commit on $mainBranch", tag = "6.5.0-dev.1")
+
+                    checkout(featureBranch)
+                    commit(message = "1 commit on $featureBranch")
+                }
+            }
+
+            // When
+            projects.build(
+                GradleVersion.current(),
+                semverStage(Stage.Stable),
+                semverModifier(Modifier.Minor),
+            )
+
+            // Then
+            projects.versions shouldOnlyContain "6.4.0"
         }
     }
 })

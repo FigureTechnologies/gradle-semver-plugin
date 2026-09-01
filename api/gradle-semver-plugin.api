@@ -11,6 +11,8 @@ public abstract interface class com/figure/gradle/semver/SemverExtension {
 	public abstract fun getInitialVersion ()Lorg/gradle/api/provider/Property;
 	public abstract fun getMainBranch ()Lorg/gradle/api/provider/Property;
 	public abstract fun getRootProjectDir ()Lorg/gradle/api/file/RegularFileProperty;
+	public abstract fun getVersion ()Lorg/gradle/api/provider/Property;
+	public abstract fun getVersionTag ()Lorg/gradle/api/provider/Property;
 }
 
 public final class com/figure/gradle/semver/SemverExtension$Companion {

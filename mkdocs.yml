@@ -76,4 +76,5 @@ nav:
       - for-major-version.md
       - override-version.md
       - tag-prefix.md
+      - configuration-cache.md
   - "Branch-based Version Calculation": 'branch-based-version-calculation.md'

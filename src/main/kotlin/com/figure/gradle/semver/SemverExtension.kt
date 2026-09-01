@@ -19,6 +19,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.initialization.Settings
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 
 /**
  * Configuration for the Semver Settings Plugin that enables:
@@ -27,6 +28,9 @@ import org.gradle.api.provider.Property
  * - The main branch, if not `main` or `master`
  * - The development branch if not `develop`, `devel`, or `dev`
  *
+ * [version] and [versionTag] are populated by the plugin as lazy providers. Prefer these for task
+ * inputs. Reading them (or stringifying [org.gradle.api.Project.getVersion]) during configuration
+ * makes the version a configuration-cache input.
  */
 interface SemverExtension {
     val rootProjectDir: RegularFileProperty
@@ -34,6 +38,17 @@ interface SemverExtension {
     val mainBranch: Property<String>
     val developmentBranch: Property<String>
     val appendBuildMetadata: Property<String>
+
+    /**
+     * Lazily calculated semantic version. Do not call [Provider.get] during configuration if you
+     * want the configuration cache to survive commits that change the version string.
+     */
+    val version: Property<String>
+
+    /**
+     * Lazily calculated version tag (`tagPrefix` + [version]).
+     */
+    val versionTag: Property<String>
 
     companion object {
         const val NAME = "semver"

@@ -31,6 +31,7 @@ class KGit(
             )
 
             directory != null -> open(directory)
+
             else -> open()
         }
     }

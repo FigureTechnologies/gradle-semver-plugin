@@ -16,6 +16,26 @@ semver.modifier=<modifier>
 semver.stage=<stage>
 ```
 
+???+ tip "`modifier=auto` vs `modifier=patch` while staging"
+    Both properties default to `auto`. That combination **continues** a matching
+    stage-based pre-release (`v1.0.0-rc.1` → `v1.0.0-rc.2`).
+
+    Explicit `modifier=patch` with the **same** stage **forces** a patch bump and
+    starts a new pre-release on the next patch (`v1.0.0-rc.1` + `stage=rc` →
+    `v1.0.1-rc.1`).
+
+    `modifier=auto` with a **different** stage also starts on the next patch
+    (`v1.0.0-rc.1` + `stage=beta` → `v1.0.1-beta.1`).
+
+    Full policy detail: [Modifiers](modifiers.md).
+
+???+ note "Stable stage base version"
+    When `stage=stable` and at least one stable tag exists, the next version is based on
+    the latest **stable** tag (not later `rc`/`dev`/other staged prereleases). Use a matching
+    modifier (for example `minor` after `6.4.0-rc.1`) to land on that prerelease line.
+    When only prerelease tags exist, the latest staged prerelease is promoted
+    (for example `v1.0.0-rc.1` → `1.0.0`). See [Stages](stages.md) for details.
+
 Latest tag: `v1.0.0-rc.1`
 
 | Command                                                     | Next Version    |
@@ -58,7 +78,7 @@ Latest tag: `v1.0.0-rc.1`
 | `./gradlew -Psemver.stage=final    -Psemver.modifier=patch` | 1.0.1-final.1   |
 | `./gradlew -Psemver.stage=ga       -Psemver.modifier=patch` | 1.0.1-ga.1      |
 | `./gradlew -Psemver.stage=release  -Psemver.modifier=patch` | 1.0.1-release.1 |
-| `./gradlew -Psemver.stage=stable   -Psemver.modifier=patch` | 1.0.1           |
+| `./gradlew -Psemver.stage=stable   -Psemver.modifier=patch` | 1.0.0           |
 | `./gradlew -Psemver.stage=auto     -Psemver.modifier=patch` | 1.0.1-rc.1      |
 
 Latest tag: `v1.0.0-rc.1`
@@ -73,7 +93,7 @@ Latest tag: `v1.0.0-rc.1`
 | `./gradlew -Psemver.stage=final    -Psemver.modifier=auto` | 1.0.1-final.1   |
 | `./gradlew -Psemver.stage=ga       -Psemver.modifier=auto` | 1.0.1-ga.1      |
 | `./gradlew -Psemver.stage=release  -Psemver.modifier=auto` | 1.0.1-release.1 |
-| `./gradlew -Psemver.stage=stable   -Psemver.modifier=auto` | 1.0.1           |
+| `./gradlew -Psemver.stage=stable   -Psemver.modifier=auto` | 1.0.0           |
 | `./gradlew -Psemver.stage=auto     -Psemver.modifier=auto` | 1.0.0-rc.2      |
 
 Latest tag: `v1.0.0`

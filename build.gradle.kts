@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Figure Technologies
+ * Copyright (C) 2024-2026 Figure Technologies
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,9 +41,9 @@ plugins {
 
 group = "com.figure.gradle.semver"
 
-val testImplementation: Configuration by configurations.getting
+val testImplementation = configurations.getByName("testImplementation")
 
-val functionalTestImplementation: Configuration by configurations.getting {
+val functionalTestImplementation = configurations.getByName("functionalTestImplementation") {
     extendsFrom(testImplementation)
 }
 
@@ -62,7 +62,6 @@ dependencies {
 
     testImplementation(gradleTestKit())
     testImplementation(libs.kotest.runner)
-    testImplementation(libs.kotest.datatest)
 
     functionalTestImplementation(libs.testkit.support)
 }
@@ -120,7 +119,11 @@ tasks {
 idea {
     module {
         // Marks the functionTest as a test source set
-        testSources.from(sourceSets.functionalTest.get().allSource.srcDirs)
+        testSources.from(
+            sourceSets.functionalTest
+                .get()
+                .allSource.srcDirs,
+        )
     }
 }
 
@@ -146,9 +149,25 @@ spotless {
         endWithNewline()
     }
 
+    val ktlintEditorConfigOverride = mapOf(
+        "ktlint_standard_filename" to "disabled",
+        "ktlint_standard_annotation" to "disabled",
+        "ktlint_standard_value-argument-comment" to "disabled",
+        "ktlint_standard_value-parameter-comment" to "disabled",
+        "ktlint_standard_class-signature" to "disabled",
+        "ktlint_standard_function-expression-body" to "disabled",
+        "ktlint_standard_function-signature" to "disabled",
+        "ktlint_standard_kdoc" to "disabled",
+        "ktlint_standard_multiline-expression-wrapping" to "disabled",
+        "ktlint_standard_string-template-indent" to "disabled",
+        // https://github.com/ktlint/ktlint/issues/3038 - as of 1.7, must be manually enabled
+        "ktlint_standard_no-unused-imports" to "enabled",
+        "ktlint_standard_no-wildcard-imports" to "enabled",
+    )
+
     kotlin {
         target("src/**/*.kt")
-        ktlint()
+        ktlint().editorConfigOverride(ktlintEditorConfigOverride)
         trimTrailingWhitespace()
         endWithNewline()
         licenseHeaderFile(rootProject.file("spotless/license.kt"))
@@ -156,7 +175,7 @@ spotless {
 
     kotlinGradle {
         target("*.kts", "src/**/*.kts")
-        ktlint()
+        ktlint().editorConfigOverride(ktlintEditorConfigOverride)
         trimTrailingWhitespace()
         endWithNewline()
         licenseHeaderFile(
@@ -181,7 +200,7 @@ apiValidation {
     )
 }
 
-inner class PublishingConstants {
+class PublishingConstants {
     val group = "com.figure.gradle.semver"
     val name = "Gradle Semver Plugin"
     val description = "Gradle Plugin for Automatic Semantic Versioning"

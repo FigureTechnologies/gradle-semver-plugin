@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024-2025 Figure Technologies
+ * Copyright (C) 2024-2026 Figure Technologies
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,9 @@ dependencyResolutionManagement {
 }
 
 plugins {
-    id("com.gradle.develocity") version "3.18.2"
-    id("com.figure.gradle.semver") version "2.0.3"
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.9.0"
+    id("com.gradle.develocity") version "4.5.0"
+    id("com.figure.gradle.semver") version "2.0.4"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
 develocity {

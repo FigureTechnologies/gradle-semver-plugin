@@ -39,33 +39,44 @@ class TagList(
             .map { it.name.replace(Constants.R_TAGS, "").stripNonSemverText() }
             .mapNotNull { it.toVersionOrNull() }
 
+    private fun filterByMajorVersion(versions: List<Version>, forMajorVersion: Int?): List<Version> =
+        if (forMajorVersion != null) {
+            versions.filter { version -> version.major == forMajorVersion }
+        } else {
+            versions
+        }
+
     private fun latest(forMajorVersion: Int?): Version? {
         val stages = Stage.entries.map { stage -> stage.value.lowercase() }
 
-        return versionedTags
-            // Get only stable and staged pre-releases
-            .filter { version ->
+        return filterByMajorVersion(
+            versions = versionedTags.filter { version ->
                 val prereleaseLabel = version.preRelease?.substringBefore(".")?.lowercase()
                 version.isNotPreRelease || prereleaseLabel in stages
-            }
-            .let { versions ->
-                if (forMajorVersion != null) {
-                    versions.filter { version -> version.major == forMajorVersion }
-                } else {
-                    versions
-                }
-            }
-            .maxOrNull()
+            },
+            forMajorVersion = forMajorVersion,
+        ).maxOrNull()
     }
 
     fun latestOrInitial(initial: String, forMajorVersion: Int?): Version =
         latest(forMajorVersion) ?: initial.toVersion()
 
-    private val latestNonPreRelease: Version?
-        get() = versionedTags
-            .filter { version -> version.isNotPreRelease }
-            .maxOrNull()
+    private fun latestNonPreRelease(forMajorVersion: Int?): Version? =
+        filterByMajorVersion(
+            versions = versionedTags.filter { version -> version.isNotPreRelease },
+            forMajorVersion = forMajorVersion,
+        ).maxOrNull()
 
-    fun latestNonPreReleaseOrInitial(initial: String): Version =
-        latestNonPreRelease ?: initial.toVersion()
+    fun latestNonPreReleaseOrInitial(initial: String, forMajorVersion: Int? = null): Version =
+        latestNonPreRelease(forMajorVersion) ?: initial.toVersion()
+
+    /**
+     * Base version for [Stage.Stable] calculations: prefer the latest non-prerelease tag so
+     * stable bumps are not derived from ahead-of-stable prerelease lines. When no stable tag
+     * exists, fall back to the latest staged tag (so `1.0.0-rc.1` can still promote to `1.0.0`).
+     */
+    fun stableBaseOrInitial(initial: String, forMajorVersion: Int?): Version =
+        latestNonPreRelease(forMajorVersion)
+            ?: latest(forMajorVersion)
+            ?: initial.toVersion()
 }

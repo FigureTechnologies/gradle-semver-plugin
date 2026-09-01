@@ -19,6 +19,7 @@ import com.figure.gradle.semver.git.GitInstance
 import com.figure.gradle.semver.gradle.build
 import com.figure.gradle.semver.gradle.buildAndFail
 import com.figure.gradle.semver.gradle.runWithoutExpectations
+import com.figure.gradle.semver.internal.command.KGit
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.util.GradleVersion
 
@@ -42,6 +43,14 @@ class GradleProjects(
 
     fun git(block: GitInstance.Builder.() -> Unit) {
         projects.values.forEach { it.git(block) }
+    }
+
+    fun commit(message: String = "Empty commit", allowEmptyCommit: Boolean = true) {
+        projects.values.forEach { project ->
+            KGit(project.gradleProject.rootDir).use { kgit ->
+                kgit.commit(message, allowEmptyCommit = allowEmptyCommit)
+            }
+        }
     }
 
     fun cleanAfterAny() {
