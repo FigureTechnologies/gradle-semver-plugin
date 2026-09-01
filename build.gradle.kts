@@ -41,9 +41,9 @@ plugins {
 
 group = "com.figure.gradle.semver"
 
-val testImplementation: Configuration by configurations.getting
+val testImplementation = configurations.getByName("testImplementation")
 
-val functionalTestImplementation: Configuration by configurations.getting {
+val functionalTestImplementation = configurations.getByName("functionalTestImplementation") {
     extendsFrom(testImplementation)
 }
 
@@ -200,7 +200,7 @@ apiValidation {
     )
 }
 
-inner class PublishingConstants {
+class PublishingConstants {
     val group = "com.figure.gradle.semver"
     val name = "Gradle Semver Plugin"
     val description = "Gradle Plugin for Automatic Semantic Versioning"
